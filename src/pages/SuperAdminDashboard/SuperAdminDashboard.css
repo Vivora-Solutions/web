@@ -126,6 +126,11 @@ h2 {
   margin-bottom: 15px;
 }
 
+.react-icons {
+    vertical-align: top;
+    padding-top: 1px;
+}
+
 .salon-actions {
   display: flex;
   justify-content: center;
@@ -139,10 +144,11 @@ h2 {
   cursor: pointer;
   font-size: 14px;
   transition: background-color 0.3s ease;
+  width: 100px;
 }
 
 .verify-button {
-  background-color: #4CAF50; /* Green */
+  background-color: black; /* Green */
   color: white;
 }
 
@@ -158,6 +164,8 @@ h2 {
 .decline-button:hover {
   background-color: #da190b;
 }
+
+
 
 /* Basic responsiveness (optional but good practice) */
 @media (max-width: 1200px) {

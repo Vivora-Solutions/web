@@ -1,5 +1,6 @@
 import React from 'react';
 import './SuperAdminDashboard.css';
+import { IoLocationOutline } from "react-icons/io5";
 import salonImage from '../../assets/salonImage.png'
 
 const SuperAdminDashboard = () => {
@@ -26,7 +27,6 @@ const SuperAdminDashboard = () => {
 
         <div className="card">
           <div className="graph-placeholder">
-            {/* Placeholder for Bookings Graph */}
             <p>Graph for Bookings</p>
           </div>
           <h3>Bookings</h3>
@@ -54,7 +54,7 @@ const SuperAdminDashboard = () => {
           <div className="salon-card" key={index}>
             <img src={salonImage} alt="Salon" className="salon-image" />
             <p className="salon-name">Liyo Salons</p>
-            <p className="salon-location">@ Colombo</p>
+            <p className="salon-location"><IoLocationOutline className='react-icons' /> Colombo</p>
             <div className="salon-actions">
               <button className="verify-button">Verify</button>
               <button className="decline-button">Decline</button>
