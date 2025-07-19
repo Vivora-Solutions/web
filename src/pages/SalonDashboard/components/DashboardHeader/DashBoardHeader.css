@@ -39,8 +39,13 @@
 
 .salon-category {
   color: #777;
-  font-size: 18px;
+  font-size: 16px;
   margin-bottom: 15px;
+}
+
+.salon-category button{
+  color: #777;
+  font-size: 16px;
 }
 
 .salon-description p {
@@ -50,69 +55,4 @@
   margin-bottom: 15px;
 }
 
-.edit-description-button {
-  background-color: #e0e0e0;
-  color: #333;
-  border: none;
-  padding: 8px 15px;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: background-color 0.3s ease;
-}
 
-.edit-description-button:hover {
-  background-color: #d0d0d0;
-}
-
-.edit-icon {
-  font-size: 18px;
-  color: #777;
-  cursor: pointer;
-  border:none;
-  background: none;
-  padding-top: 10px;
-}
-
-.title-edit-container {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.title-edit-input {
-  font-size: 24px;
-  font-weight: bold;
-  border: 2px solid #007bff;
-  border-radius: 4px;
-  padding: 4px 8px;
-  background: white;
-  outline: none;
-}
-
-.save-icon, .cancel-icon {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 4px;
-  border-radius: 3px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.save-icon {
-  color: #28a745;
-}
-
-.save-icon:hover {
-  background-color: #e8f5e8;
-}
-
-.cancel-icon {
-  color: #dc3545;
-}
-
-.cancel-icon:hover {
-  background-color: #f8e8e8;
-}

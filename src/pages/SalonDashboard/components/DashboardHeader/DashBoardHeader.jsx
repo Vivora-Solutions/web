@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { assets } from '../../../../assets/assets';
-import EditableField from '../../../../components/EditableField/EditableField'; // <-- Import new component
+import EditableField from '../../../../components/EditableField/EditableField'; 
 import './DashBoardHeader.css';
 
 const DashBoardHeader = () => {
@@ -8,6 +8,7 @@ const DashBoardHeader = () => {
     const [description, setDescription] = useState(
         "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s..."
     );
+    const [salonCategory, setSalonCategory] = useState("Hair Salon");
 
     return (
         <div className="salon-header">
@@ -23,7 +24,7 @@ const DashBoardHeader = () => {
                     />
                 </div>
 
-                <p className="salon-category">Hair Salon</p>
+               <div className='salon-category'><EditableField value={salonCategory} onSave={setSalonCategory} isTextarea={true} className="salon-category" /></div>
 
                 <div className="salon-description">
                     <EditableField
