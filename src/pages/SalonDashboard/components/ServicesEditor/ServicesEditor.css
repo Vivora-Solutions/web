@@ -53,8 +53,15 @@
   border: none;
   padding: 0.5rem 1rem;
   border-radius: 6px;
-  cursor: not-allowed;
+  cursor: pointer;
   font-weight: 500;
+  transition: transform 0.3s ease, background-color 0.4s ease;
+}
+
+.add-service-btn:hover {
+  background-color: black;
+  color: white;
+  transform: scale(1.05);
 }
 
 .action-buttons {
@@ -84,7 +91,7 @@
 }
 
 .save-update-btn {
-  background-color: #000;
+  background-color: #404040;
   color: #fff;
   border: none;
   padding: 0.6rem 1.2rem;
@@ -92,9 +99,59 @@
   cursor: pointer;
   font-size: 1rem;
   font-weight: 500;
-  transition: background-color 0.3s ease;
+  transition: transform 0.3s ease, background-color 0.3s ease;
 }
 
 .save-update-btn:hover {
-  background-color: #222;
+  background-color: #000000;
+  transform: scale(1.05);
+}
+
+.service-input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.service-input:focus {
+  outline: none;
+  border-color: #007bff;
+}
+
+.new-service-row {
+  background-color: #f8f9fa;
+}
+
+.save-btn {
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 6px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-right: 5px;
+}
+
+.save-btn:hover {
+  background: #218838;
+}
+
+.cancel-btn {
+  background: #dc3545;
+  color: white;
+  border: none;
+  padding: 6px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.cancel-btn:hover {
+  background: #c82333;
+}
+
+.add-service-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
