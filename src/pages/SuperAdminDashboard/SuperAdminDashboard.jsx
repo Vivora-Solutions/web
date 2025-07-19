@@ -2,7 +2,7 @@ import React from 'react';
 import './SuperAdminDashboard.css';
 import { IoLocationOutline } from "react-icons/io5";
 import { useNavigate } from 'react-router-dom';
-import salonImage from '../../assets/salonImage.png'
+import { assets } from '../../assets/assets';
 import Header from '../../components/Header/Header';
 
 const SuperAdminDashboard = () => {
@@ -59,7 +59,7 @@ const SuperAdminDashboard = () => {
         <div className="verify-salons-section">
           {[...Array(4)].map((_, index) => (
             <div className="salon-card" key={index}>
-              <img src={salonImage} alt="Salon" className="salon-image" />
+              <img src={assets.salonImage} alt="Salon" className="salon-image" />
               <p className="salon-name">Liyo Salons</p>
               <p className="salon-location"><IoLocationOutline className='react-icons' /> Colombo</p>
               <div className="salon-actions">

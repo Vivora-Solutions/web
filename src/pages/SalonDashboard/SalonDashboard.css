@@ -6,77 +6,7 @@
   color: #333;
 }
 
-/* Salon Header Section */
-.salon-header {
-  display: flex;
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  padding: 20px;
-  margin-bottom: 30px;
-  gap: 20px;
-  align-items: flex-start;
-}
 
-.salon-logo-section {
-  flex-shrink: 0; /* Prevent logo from shrinking */
-}
-
-.salon-logo {
-  width: 150px; /* Adjust as per your logo size */
-  height: auto;
-  border-radius: 8px; /* If your logo has sharp corners */
-}
-
-.salon-info-section {
-  flex-grow: 1;
-}
-
-.salon-title-row {
-  display: flex;
-  align-items: center;
-  margin-bottom: 5px;
-}
-
-.salon-title-row h1 {
-  font-size: 32px;
-  margin: 0;
-  margin-right: 10px;
-}
-
-.salon-category {
-  color: #777;
-  font-size: 18px;
-  margin-bottom: 15px;
-}
-
-.salon-description p {
-  font-size: 14px;
-  line-height: 1.6;
-  color: #555;
-  margin-bottom: 15px;
-}
-
-.edit-description-button {
-  background-color: #e0e0e0;
-  color: #333;
-  border: none;
-  padding: 8px 15px;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: background-color 0.3s ease;
-}
-
-.edit-description-button:hover {
-  background-color: #d0d0d0;
-}
-
-.edit-icon {
-  font-size: 18px;
-  color: #777;
-  cursor: pointer;
-}
 
 /* General Card Styling */
 .card {
@@ -94,49 +24,142 @@
   color: #333;
 }
 
-/* Opening Days Section */
-.opening-days-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr auto; /* Date, Time Range, Edit Icon */
-  gap: 10px;
+/* Opening Days Card Styles */
+.opening-days-card {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.opening-days-header {
+  display: flex;
+  justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
 }
 
-.opening-days-grid > p { /* For the 'Date', 'Time' headers */
-  font-weight: bold;
+.opening-days-header h2, .opening-days-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+  vertical-align: middle;
 }
 
-.time-range-display {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-
-.day-entry {
+.time-controls {
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-.checkbox {
-  width: 16px;
-  height: 16px;
-  background-color: #4CAF50; /* Green color for checked */
-  border-radius: 3px;
-  flex-shrink: 0;
+.time-select, .period-select {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: white;
+  font-size: 14px;
 }
 
-.time-entry {
+.time-select {
+  width: 80px;
+}
+
+.period-select {
+  width: 70px;
+}
+
+.time-separator {
+  margin: 0 5px;
+  color: #666;
+}
+
+.opening-days-table {
+  margin-bottom: 20px;
+}
+
+.table-header {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding: 12px 0;
+  border-bottom: 1px solid #eee;
+  font-weight: 600;
+  color: #666;
+  font-size: 14px;
+}
+
+.table-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding: 12px 0;
+  border-bottom: 1px solid #f5f5f5;
+  align-items: center;
+}
+
+.day-column {
   display: flex;
   align-items: center;
-  gap: 5px;
-  white-space: nowrap; /* Prevent time from wrapping */
+  gap: 10px;
 }
 
-.time-value {
-  font-weight: normal;
-  color: #555;
+.day-checkbox {
+  width: 16px;
+  height: 16px;
+  accent-color: #4CAF50;
+  cursor: pointer;
+}
+
+.day-name {
+  font-size: 14px;
+  color: #333;
+}
+
+.day-name.disabled {
+  color: #999;
+}
+
+.time-column {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.time-display {
+  font-size: 14px;
+  color: #333;
+}
+
+.time-display.disabled {
+  color: #999;
+}
+
+.edit-icon {
+  cursor: pointer;
+  color: #666;
+  font-size: 14px;
+  padding: 4px;
+  border-radius: 3px;
+  transition: background-color 0.2s;
+}
+
+.edit-icon:hover {
+  background-color: #f5f5f5;
+}
+
+.save-update-button {
+  background-color: #333;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+.save-update-button:hover {
+  background-color: #555;
 }
 
 /* Save and Update Button */

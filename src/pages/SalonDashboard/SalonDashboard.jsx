@@ -1,59 +1,84 @@
 import React from 'react';
-import './SalonDashboard.css'; // Don't forget to import the CSS file
+import './SalonDashboard.css';
 import Header from '../../components/Header/Header';
-import salonImage from '../../assets/salonImage.png';
+import DashBoardHeader from './components/DashboardHeader/DashBoardHeader';
+import { assets } from '../../assets/assets'; 
+import { FaRegEdit } from "react-icons/fa";
+
 
 const SalonDashboard = () => {
   return (
     <div>
         <Header />
         <div className="salon-dashboard-container">
-        <div className="salon-header">
-            <div className="salon-logo-section">
-            <img src={salonImage} alt="Liyo Saloon Logo" className="salon-logo" />
-            </div>
-            <div className="salon-info-section">
-            <div className="salon-title-row">
-                <h1>Liyo Saloon</h1>
-                <span className="edit-icon">&#9998;</span> {/* Unicode for pencil icon */}
-            </div>
-            <p className="salon-category">Hair Salon</p>
-            <div className="salon-description">
-                <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised</p>
-                <button className="edit-description-button">Edit Description</button>
-            </div>
-            </div>
-        </div>
+        <DashBoardHeader />
 
         <div className="dashboard-content">
             {/* Opening Days Section */}
             <div className="card opening-days-card">
-            <h2>Opening Days</h2>
-            <div className="opening-days-grid">
-                <p>Date</p>
-                <p>Time</p>
-                <div className="time-range-display">
-                <span className="time-value">9:00 am</span>
+            <div className="opening-days-header">
+                <h2>Opening Days</h2>
+                <div className="time-controls">
+                <h3>Time</h3>
+                <select className="time-select">
+                    <option>9:00</option>
+                    <option>8:00</option>
+                    <option>10:00</option>
+                </select>
+                <select className="period-select">
+                    <option>am</option>
+                    <option>pm</option>
+                </select>
                 <span className="time-separator">-</span>
-                <span className="time-value">5:00 pm</span>
+                <select className="time-select">
+                    <option>5:00</option>
+                    <option>4:00</option>
+                    <option>6:00</option>
+                </select>
+                <select className="period-select">
+                    <option>pm</option>
+                    <option>am</option>
+                </select>
                 </div>
-                <span className="edit-icon">&#9998;</span>
-
-                {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map((day, index) => (
-                <React.Fragment key={day}>
-                    <div className="day-entry">
-                    <span className="checkbox checked"></span> {/* Green square */}
-                    <p>{day}</p>
+            </div>
+            
+            <div className="opening-days-table">
+                <div className="table-header">
+                <span>Date</span>
+                <span>Time</span>
+                </div>
+                
+                {[
+                { day: 'Monday', checked: true },
+                { day: 'Tuesday', checked: true },
+                { day: 'Wednesday', checked: true },
+                { day: 'Thursday', checked: false },
+                { day: 'Friday', checked: true },
+                { day: 'Saturday', checked: true },
+                { day: 'Sunday', checked: false }
+                ].map((dayInfo, index) => (
+                <div className="table-row" key={dayInfo.day}>
+                    <div className="day-column">
+                    <input 
+                        type="checkbox" 
+                        checked={dayInfo.checked}
+                        className="day-checkbox"
+                        onChange={() => {}}
+                    />
+                    <span className={`day-name ${!dayInfo.checked ? 'disabled' : ''}`}>
+                        {dayInfo.day}
+                    </span>
                     </div>
-                    <div className="time-entry">
-                    <span className="time-value">8:00 am</span>
-                    <span className="time-separator">-</span>
-                    <span className="time-value">5:00 pm</span>
+                    <div className="time-column">
+                    <span className={`time-display ${!dayInfo.checked ? 'disabled' : ''}`}>
+                        9:00 am - 5:00 pm
+                    </span>
+                    <span className="edit-icon"><FaRegEdit /></span>
                     </div>
-                    <span className="edit-icon">&#9998;</span>
-                </React.Fragment>
+                </div>
                 ))}
             </div>
+            
             <button className="save-update-button">Save and Update</button>
             </div>
 
@@ -68,7 +93,7 @@ const SalonDashboard = () => {
                 {[...Array(4)].map((_, index) => (
                 <img
                     key={index}
-                    src="http://googleusercontent.com/file_content/0"
+                    src={assets.salonImage}
                     alt="Salon Interior"
                     className="salon-photo-thumbnail"
                 />
@@ -94,7 +119,7 @@ const SalonDashboard = () => {
                 <div className="service-item" key={index}>
                 <p className="service-name">Hair Cutting and Shaving</p>
                 <div className="service-actions">
-                    <span className="edit-icon">&#9998;</span>
+                    <span className="edit-icon"><FaRegEdit /></span>
                     <span className="delete-icon">&#128465;</span> {/* Unicode for trash can icon */}
                 </div>
                 <p className="service-price">Rs. 1400</p>
@@ -110,9 +135,9 @@ const SalonDashboard = () => {
             <button className="add-employee-button">+ Add Employee</button>
             {[...Array(2)].map((_, index) => (
                 <div className="employee-item" key={index}>
-                <img src="https://via.placeholder.com/40" alt="Employee Avatar" className="employee-avatar" />
+                <img src={assets.noProfilepic} alt="Employee Avatar" className="employee-avatar" />
                 <p className="employee-name">Ruwan</p>
-                <span className="edit-icon">&#9998;</span>
+                <span className="edit-icon"><FaRegEdit /></span>
                 <span className="delete-icon">&#128465;</span>
                 <p className="employee-contact">722225789v</p>
                 </div>
