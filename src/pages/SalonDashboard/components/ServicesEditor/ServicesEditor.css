@@ -155,3 +155,47 @@
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+.table-editable.editing-disabled .edit-icon {
+  opacity: 0;
+  pointer-events: none;
+  display: none;
+}
+
+.table-editable.editing-enabled .edit-icon {
+  opacity: 1;
+  pointer-events: auto;
+  display: inline-block;
+}
+
+.table-editable .view-container {
+  position: relative;
+}
+
+.table-editable .view-container h1 {
+  font-size: 14px;
+  font-weight: normal;
+  margin: 0;
+}
+
+.table-editable .view-container p {
+  font-size: 14px;
+  margin: 0;
+}
+
+.editing-row {
+  background-color: #f8f9fa;
+}
+
+.cancel-edit-btn {
+  background: #6c757d;
+  color: white;
+  border: none;
+  padding: 6px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.cancel-edit-btn:hover {
+  background: #5a6268;
+}

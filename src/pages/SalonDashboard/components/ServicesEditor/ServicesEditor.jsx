@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { FaRegEdit, FaTrashAlt, FaCheck, FaTimes } from 'react-icons/fa';
+import EditableField from '../../../../components/EditableField/EditableField';
 import './ServicesEditor.css';
 
 const ServicesEditor = () => {
@@ -12,6 +13,7 @@ const ServicesEditor = () => {
   const [showPrices, setShowPrices] = useState(true);
   const [isAdding, setIsAdding] = useState(false);
   const [newService, setNewService] = useState({ name: '', price: '', time: '' });
+  const [editingIndex, setEditingIndex] = useState(-1);
 
   const handleDelete = (index) => {
     const updated = [...services];
@@ -46,6 +48,23 @@ const ServicesEditor = () => {
       ...prev,
       [field]: value
     }));
+  };
+
+  const handleEditService = (index) => {
+    setEditingIndex(index);
+  };
+
+  const handleSaveService = (index, field, value) => {
+    const updated = [...services];
+    updated[index] = {
+      ...updated[index],
+      [field]: field === 'price' ? parseFloat(value) : value
+    };
+    setServices(updated);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingIndex(-1);
   };
 
   return (
@@ -125,17 +144,43 @@ const ServicesEditor = () => {
           )}
 
           {services.map((service, index) => (
-            <tr key={index}>
-              <td>{service.name}</td>
-              <td>Rs. {service.price}</td>
-              <td>{service.time} minutes</td>
+            <tr key={index} className={editingIndex === index ? 'editing-row' : ''}>
+              <td>
+                <EditableField
+                  value={service.name}
+                  onSave={(value) => handleSaveService(index, 'name', value)}
+                  className={`table-editable ${editingIndex === index ? 'editing-enabled' : 'editing-disabled'}`}
+                />
+              </td>
+              <td>
+                <EditableField
+                  value={`Rs. ${service.price}`}
+                  onSave={(value) => handleSaveService(index, 'price', value.replace('Rs. ', ''))}
+                  className={`table-editable ${editingIndex === index ? 'editing-enabled' : 'editing-disabled'}`}
+                />
+              </td>
+              <td>
+                <EditableField
+                  value={`${service.time} minutes`}
+                  onSave={(value) => handleSaveService(index, 'time', value.replace(' minutes', ''))}
+                  className={`table-editable ${editingIndex === index ? 'editing-enabled' : 'editing-disabled'}`}
+                />
+              </td>
               <td className="action-buttons">
-                <button className="edit-btn">
-                  <FaRegEdit />
-                </button>
-                <button className="delete-btn" onClick={() => handleDelete(index)}>
-                  <FaTrashAlt />
-                </button>
+                {editingIndex === index ? (
+                  <button className="cancel-edit-btn" onClick={handleCancelEdit}>
+                    <FaTimes />
+                  </button>
+                ) : (
+                  <>
+                    <button className="edit-btn" onClick={() => handleEditService(index)}>
+                      <FaRegEdit />
+                    </button>
+                    <button className="delete-btn" onClick={() => handleDelete(index)}>
+                      <FaTrashAlt />
+                    </button>
+                  </>
+                )}
               </td>
             </tr>
           ))}
