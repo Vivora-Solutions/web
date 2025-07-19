@@ -1,13 +1,14 @@
 import { useState } from 'react';
-import Header from './components/Header/Header';
+import {Route, Routes} from 'react-router-dom';
 import SuperAdminDashboard from './pages/SuperAdminDashboard/SuperAdminDashboard';
 
 function App() {
 
   return (
     <div>
-      <Header />
-      <SuperAdminDashboard />
+      <Routes>
+        <Route path="/super-admin" element={<SuperAdminDashboard />} />
+      </Routes>
     </div>
   )
 }
