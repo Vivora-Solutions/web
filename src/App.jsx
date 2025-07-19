@@ -1,6 +1,6 @@
-import { useState } from 'react';
 import {Route, Routes} from 'react-router-dom';
 import SuperAdminDashboard from './pages/SuperAdminDashboard/SuperAdminDashboard';
+import SalonDashboard from './pages/SalonDashboard/SalonDashboard';
 
 function App() {
 
@@ -8,6 +8,7 @@ function App() {
     <div>
       <Routes>
         <Route path="/super-admin" element={<SuperAdminDashboard />} />
+        <Route path="/admin" element={<SalonDashboard />} />
       </Routes>
     </div>
   )
