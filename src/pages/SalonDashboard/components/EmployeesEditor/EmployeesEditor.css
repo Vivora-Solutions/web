@@ -1,0 +1,223 @@
+.employees-container {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 1.5rem;
+  max-width: 700px;
+  font-family: sans-serif;
+  background-color: #fff;
+}
+
+h3 {
+  padding-left: 10px;
+}
+
+.employees-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+}
+
+.employees-table th,
+.employees-table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.employees-table th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+}
+
+.profile-cell {
+  width: 80px;
+  text-align: center;
+}
+
+.employee-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.name-cell {
+  font-weight: 500;
+}
+
+.contact-cell {
+  color: #666;
+}
+
+.action-buttons-employee {
+  text-align: center;
+}
+
+.edit-btn, .delete-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  margin: 0 2px;
+  border-radius: 4px;
+}
+
+.edit-btn:hover {
+  background: #e9ecef;
+}
+
+.delete-btn:hover {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.add-employee-row td {
+  text-align: left;
+  padding: 10px;
+}
+
+.add-employee-btn {
+  padding: 10px 20px;
+  background: none;
+  color: rgb(84, 83, 83);
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: transform 0.3s ease, background-color 0.4s ease;
+}
+
+.add-employee-btn:hover {
+  background-color: black;
+  color: white;
+  transform: scale(1.05);
+}
+
+.save-update-btn {
+  background-color: #404040;
+  color: #fff;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: transform 0.3s ease, background-color 0.3s ease;
+}
+
+.save-update-btn:hover {
+  background-color: #000000;
+  transform: scale(1.05);
+}
+
+.employee-input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.employee-input:focus {
+  outline: none;
+  border-color: #007bff;
+}
+
+.new-employee-row {
+  background-color: #f8f9fa;
+}
+
+.profile-upload {
+  position: relative;
+  display: inline-block;
+}
+
+.profile-input {
+  display: none;
+}
+
+.profile-edit-btn {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background: #007bff;
+  color: white;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  font-size: 10px;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.save-btn {
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 6px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-right: 5px;
+}
+
+.save-btn:hover {
+  background: #218838;
+}
+
+.cancel-btn {
+  background: #dc3545;
+  color: white;
+  border: none;
+  padding: 6px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.cancel-btn:hover {
+  background: #c82333;
+}
+
+.cancel-edit-btn {
+  background: #6c757d;
+  color: white;
+  border: none;
+  padding: 6px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.cancel-edit-btn:hover {
+  background: #5a6268;
+}
+
+.add-employee-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.editing-row {
+  background-color: #f8f9fa;
+}
+
+.table-editable.editing-disabled .edit-icon {
+  opacity: 0;
+  pointer-events: none;
+  display: none;
+}
+
+.table-editable.editing-enabled .edit-icon {
+  opacity: 1;
+  pointer-events: auto;
+  display: inline-block;
+}
+
+.table-editable .view-container h1 {
+  font-size: 14px;
+  font-weight: normal;
+  margin: 0;
+}
+
+.table-editable .view-container p {
+  font-size: 14px;
+  margin: 0;
+}

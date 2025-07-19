@@ -4,8 +4,8 @@ import Header from '../../components/Header/Header';
 import DashBoardHeader from './components/DashboardHeader/DashBoardHeader';
 import OpeningDays from './components/OpeningDays/OpeningDays';
 import { assets } from '../../assets/assets'; 
-import { FaRegEdit } from "react-icons/fa";
 import ServicesEditor from './components/ServicesEditor/ServicesEditor';
+import EmployeesEditor from './components/EmployeesEditor/EmployeesEditor';
 
 const SalonDashboard = () => {
   return (
@@ -38,24 +38,12 @@ const SalonDashboard = () => {
             </div>
             </div>
 
-            {/* Services Section */}
-            <ServicesEditor />
 
-            {/* Employees Section */}
-            <div className="card employees-card">
-            <h2>Employees</h2>
-            <button className="add-employee-button">+ Add Employee</button>
-            {[...Array(2)].map((_, index) => (
-                <div className="employee-item" key={index}>
-                <img src={assets.noProfilepic} alt="Employee Avatar" className="employee-avatar" />
-                <p className="employee-name">Ruwan</p>
-                <span className="edit-icon"><FaRegEdit /></span>
-                <span className="delete-icon">&#128465;</span>
-                <p className="employee-contact">722225789v</p>
-                </div>
-            ))}
-            <button className="save-update-button">Save and Update</button>
+            <div className='services-employees-container'>
+                <ServicesEditor className='services-container' />
+                <EmployeesEditor className='services-container' />
             </div>
+
         </div>
         </div>
     </div>
