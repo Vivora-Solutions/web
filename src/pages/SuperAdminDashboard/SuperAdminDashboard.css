@@ -1,0 +1,186 @@
+.dashboard-container {
+  padding: 20px;
+  background-color: #f4f4f4; /* Light grey background for the page */
+  min-height: 100vh;
+  font-family: Arial, sans-serif;
+}
+
+h1 {
+  color: #333;
+  margin-bottom: 30px;
+  font-size: 28px;
+}
+
+h2 {
+    color: #333;
+    margin-top: 40px;
+    margin-bottom: 20px;
+    font-size: 24px;
+}
+
+/* Analytics Section */
+.analytics-section {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.analytics-section .card {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  width: calc(33.33% - 20px); /* Adjust width considering gap */
+  box-sizing: border-box; /* Include padding in the width */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.card .graph-placeholder {
+  width: 100%;
+  height: 150px; /* Adjust height as needed for graph */
+  background-color: #e0e0e0; /* Placeholder color for graph area */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #666;
+  font-style: italic;
+  margin-bottom: 15px;
+  border-radius: 4px;
+}
+
+.card h3 {
+  color: #555;
+  font-size: 18px;
+  margin-top: 10px;
+}
+
+/* Total Counts Section */
+.total-counts-section {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 40px;
+}
+
+.total-counts-section .count-card {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  width: calc(33.33% - 20px); /* Adjust width considering gap */
+  box-sizing: border-box;
+  text-align: center;
+}
+
+.count-card .label {
+  color: #777;
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+
+.count-card .value {
+  color: #333;
+  font-size: 32px;
+  font-weight: bold;
+}
+
+/* Verify Salons Section */
+.verify-salons-section {
+  display: flex;
+  flex-wrap: wrap; /* Allows cards to wrap to the next line */
+  gap: 20px;
+  justify-content: flex-start; /* Align items to the start */
+}
+
+.salon-card {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  width: 250px; /* Fixed width for salon cards */
+  padding: 15px;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+.salon-image {
+  width: 100%;
+  height: 150px; /* Fixed height for consistency */
+  object-fit: cover; /* Ensures image covers the area, cropping if necessary */
+  border-radius: 4px;
+  margin-bottom: 10px;
+}
+
+.salon-name {
+  font-weight: bold;
+  font-size: 18px;
+  color: #333;
+  margin-bottom: 5px;
+}
+
+.salon-location {
+  color: #777;
+  font-size: 14px;
+  margin-bottom: 15px;
+}
+
+.salon-actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.verify-button, .decline-button {
+  padding: 8px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+}
+
+.verify-button {
+  background-color: #4CAF50; /* Green */
+  color: white;
+}
+
+.verify-button:hover {
+  background-color: #45a049;
+}
+
+.decline-button {
+  background-color: #f44336; /* Red */
+  color: white;
+}
+
+.decline-button:hover {
+  background-color: #da190b;
+}
+
+/* Basic responsiveness (optional but good practice) */
+@media (max-width: 1200px) {
+    .analytics-section .card,
+    .total-counts-section .count-card {
+        width: calc(50% - 15px); /* Two columns on smaller screens */
+    }
+    .verify-salons-section {
+        justify-content: center; /* Center cards when they wrap */
+    }
+}
+
+@media (max-width: 768px) {
+    .analytics-section,
+    .total-counts-section {
+        flex-direction: column;
+        align-items: center;
+    }
+    .analytics-section .card,
+    .total-counts-section .count-card {
+        width: 90%; /* Single column on small screens */
+    }
+    .salon-card {
+        width: 90%; /* Make salon cards take more width on small screens */
+    }
+}
