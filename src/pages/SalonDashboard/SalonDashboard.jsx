@@ -14,10 +14,10 @@ const SalonDashboard = () => {
         <Header />
         <div className="salon-dashboard-container">
             <DashBoardHeader />
-            <div className="dashboard-content">
+            <div className="opening-days-container">
                 <OpeningDays />
-                <PhotoSection />
             </div>
+            <PhotoSection className='photo-section' />
             <div className='services-employees-container'>
                 <ServicesEditor className='services-container' />
                 <EmployeesEditor className='services-container' />

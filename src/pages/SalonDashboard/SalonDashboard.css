@@ -4,21 +4,11 @@
   min-height: 100vh;
   font-family: Arial, sans-serif;
   color: #333;
+  
 }
 
-.card {
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  padding: 20px;
-  margin-bottom: 20px;
-}
-
-.card h2 {
-  font-size: 22px;
-  margin-top: 0;
-  margin-bottom: 20px;
-  color: #333;
+.opening-days-container {
+  width: 60%;
 }
 
 
@@ -73,10 +63,6 @@
 @media (max-width: 600px) {
   .dashboard-content {
     padding: 10px;
-  }
-
-  .card {
-    padding: 15px;
   }
 
   .add-photos-placeholder,
