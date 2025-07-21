@@ -1,6 +1,20 @@
 @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Italiana&family=Outfit:wght@100..900&display=swap');
 
-.header {
+.header h1 {
     text-align: center;
     font-family: "Italiana";
+    font-size: 2.5rem;
+    font-weight:bolder;
+    background: linear-gradient(to right, #0e12e2, #19cef7, #487bff, #654dad, #08c37e);
+    background-size: 200%;
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: animate-gradient 2.5s linear infinite;
+}
+
+@keyframes animate-gradient {
+    to {
+        background-position: 200%;
+    }
 }
