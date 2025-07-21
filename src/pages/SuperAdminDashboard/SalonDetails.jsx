@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Header from '../../components/Header/Header'; 
 import './SalonDetails.css';
 
 const RegisterSalons = () => {
   const [searchTerm, setSearchTerm] = useState('');
+  const navigate = useNavigate();
 
   const salonsData = [
     { name: 'Salon ABC', address: '123 Main St, Colombo', date: '2025-07-01' },
@@ -17,9 +19,13 @@ const RegisterSalons = () => {
     salon.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const handleSalonClick = (salonName, address) => {
+    navigate(`/salon/${encodeURIComponent(salonName)}`, { state: { address } });
+  };
+
   return (
     <div className="register-salons-page">
-     <Header />
+      <Header />
       <div className="salons-table-container">
         <h2>Register Salons</h2>
         <div className="search-bar">
@@ -43,7 +49,7 @@ const RegisterSalons = () => {
             {filteredSalons.map((salon, index) => (
               <tr key={index}>
                 <td>
-                  <div className="salon-entry">
+                  <div className="salon-entry" onClick={() => handleSalonClick(salon.name, salon.address)} style={{ cursor: 'pointer' }}>
                     <img src="https://via.placeholder.com/40" alt={`${salon.name} Logo`} className="salon-logo" />
                     <span>{salon.name}</span>
                   </div>

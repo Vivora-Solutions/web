@@ -1,20 +1,39 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useParams, useLocation } from 'react-router-dom';
 import Heading from '../../components/Header/Header'; // Adjust the path as needed
 import './SalonPage.css';
 import salonLogo from '../../assets/images/salonLogo.png';
 
 const SalonBooking = () => {
-  const [salonName] = useState("Liyo Salon"); 
-  const [location] = useState("Colombo");
+  const { salonName: paramSalonName } = useParams(); // Get salon name from URL parameter
+  const location = useLocation();
+  const [salonName, setSalonName] = useState(paramSalonName ? decodeURIComponent(paramSalonName) : "Liyo Salon");
+  const [locationState, setLocationState] = useState(location.state?.address || "Colombo");
   const [filter, setFilter] = useState('1 Month');
   const [serviceFilter, setServiceFilter] = useState('All'); 
-  const [bookings] = useState([
-    { date: '2025-07-20', bill: '$50', duration: '1h', time: '10:00 AM', mode: 'Online', service: 'Male' },
-    { date: '2025-07-19', bill: '$30', duration: '45m', time: '2:00 PM', mode: 'In-Person', service: 'Female' },
-    { date: '2025-07-18', bill: '$70', duration: '1h 30m', time: '11:00 AM', mode: 'Online', service: 'Children' },
-    { date: '2025-07-17', bill: '$40', duration: '1h', time: '3:00 PM', mode: 'In-Person', service: 'Male' },
-    { date: '2025-07-16', bill: '$60', duration: '1h 15m', time: '9:00 AM', mode: 'Online', service: 'Female' },
-  ]);
+  const [bookings] = useState(() => {
+    // Simulate bookings based on salon name
+    const baseBookings = [
+      { date: '2025-07-20', bill: '$50', duration: '1h', time: '10:00 AM', mode: 'Online', service: 'Male' },
+      { date: '2025-07-19', bill: '$30', duration: '45m', time: '2:00 PM', mode: 'In-Person', service: 'Female' },
+      { date: '2025-07-18', bill: '$70', duration: '1h 30m', time: '11:00 AM', mode: 'Online', service: 'Children' },
+      { date: '2025-07-17', bill: '$40', duration: '1h', time: '3:00 PM', mode: 'In-Person', service: 'Male' },
+      { date: '2025-07-16', bill: '$60', duration: '1h 15m', time: '9:00 AM', mode: 'Online', service: 'Female' },
+    ];
+    // Filter bookings based on salon name (simplified logic)
+    return baseBookings.filter(booking => 
+      Math.random() > 0.3 || salonName === "Liyo Salon" // Randomly assign bookings, bias towards Liyo Salon
+    );
+  });
+
+  useEffect(() => {
+    if (paramSalonName) {
+      setSalonName(decodeURIComponent(paramSalonName));
+    }
+    if (location.state?.address) {
+      setLocationState(location.state.address);
+    }
+  }, [paramSalonName, location.state?.address]);
 
   const currentDate = new Date();
   const filterBookings = (bookingDate, service) => {
@@ -43,7 +62,7 @@ const SalonBooking = () => {
         <img src={salonLogo} alt={`${salonName} Logo`} className="salon-logo" />
         <div className="salon-details">
           <h2>{salonName}</h2>
-          <p>{location}</p>
+          <p>{locationState}</p>
         </div>
       </div>
       <div className="services">
