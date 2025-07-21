@@ -120,16 +120,7 @@
   background-color: #f5f5f5;
 }
 
-.save-update-button {
-  background-color: #333;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: background-color 0.2s;
-}
+
 
 .save-update-button:hover {
   background-color: #555;
@@ -137,7 +128,7 @@
 
 /* Save and Update Button */
 .save-update-button {
-  background-color: #007bff; /* Blue */
+  background-color: #232323; /* Blue */
   color: white;
   border: none;
   padding: 10px 20px;
@@ -146,4 +137,14 @@
   font-size: 16px;
   transition: background-color 0.3s ease;
   margin-top: 15px;
+}
+
+.row-disabled {
+  background-color: #f5f5f5;
+  opacity: 0.6;
+}
+
+.row-disabled .edit-icon {
+  opacity: 0.4;
+  pointer-events: none;
 }
