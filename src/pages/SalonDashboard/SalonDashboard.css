@@ -16,7 +16,7 @@
 .services-employees-container {
   display: flex;
   flex-wrap: wrap;
-  gap: 2rem; /* spacing between the two cards */
+  gap: 1.5rem; /* spacing between the two cards */
   justify-content: center;
   align-items: flex-start;
   padding: 1rem;
@@ -24,9 +24,9 @@
 
 .services-container,
 .employees-container {
-  flex: 1 1 400px; 
+  flex: 1 1 600px; 
   max-width: 600px;
-  min-width: 350px;
+  /* min-width: 350px; */
   box-sizing: border-box;
 }
 
