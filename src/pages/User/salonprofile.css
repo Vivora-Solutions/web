@@ -1,0 +1,130 @@
+.page {
+  font-family: Arial, sans-serif;
+  padding: 20px;
+}
+
+.salon-details {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.salon-logo img {
+  width: 120px;
+  height: auto;
+}
+
+.salon-info h2 {
+  font-size: 24px;
+  margin: 0;
+}
+
+.salon-info p {
+  margin: 5px 0;
+  font-size: 16px;
+  color: #666;
+}
+
+.salon-images {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  margin: 20px 0;
+}
+
+.salon-images img {
+  width: 200px;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+/* Main layout for services and payment summary */
+.services-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-top: 30px;
+}
+
+/* Left column: filters + services list */
+.filters {
+  flex: 1;
+  max-width: 450px;
+}
+
+.filters span {
+  font-weight: bold;
+  font-size: 18px;
+  display: block;
+  margin-bottom: 10px;
+}
+
+.filters button {
+  padding: 5px 12px;
+  margin-right: 8px;
+  border: 1px solid #ccc;
+  background: none;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.filters button.active {
+  background: black;
+  color: white;
+}
+
+.filters input {
+  margin-top: 15px;
+  padding: 8px;
+  width: 100%;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.services-list {
+  margin-top: 20px;
+}
+
+/* Align each service in a row */
+.service-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #eee;
+}
+
+/* Right column: payment summary */
+.payment-summary {
+  min-width: 220px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: flex-end;
+  padding-left: 20px;
+}
+
+.payment-summary button {
+  padding: 10px 16px;
+  border: 1px solid #ccc;
+  background: none;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.payment-summary div {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.proceed-button {
+  background-color:#000;
+  color: #0a0707;
+  padding: 12px;
+  border: none;
+  width: 100%;
+  cursor: pointer;
+  border-radius: 5px;
+}

@@ -1,0 +1,52 @@
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  border-bottom: 2px solid #007BFF;
+  background-color: #fff;
+}
+
+.logo h1 {
+  margin: 0;
+  font-size: 24px;
+  color: #007BFF;
+  text-decoration: underline;
+}
+
+.menu {
+  display: flex;
+  gap: 20px;
+}
+
+.menu-item {
+  text-decoration: none;
+  color: #000;
+  font-size: 16px;
+  transition: color 0.3s;
+}
+
+.menu-item:hover {
+  color: #007BFF;
+}
+
+.profile-section {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.search-bar {
+  padding: 5px 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.profile-name {
+  font-size: 16px;
+  color: #000;
+}
+
+.profile-icon {
+  font-size: 20px;
+}
