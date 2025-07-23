@@ -1,0 +1,69 @@
+.appointment-card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 10px;
+    width: 300px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+  }
+  
+  .appointment-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  
+  .salon-name {
+    font-size: 14px;
+    color: #666;
+  }
+  
+  .salon-logo img {
+    width: 40px;
+    height: 40px;
+  }
+  
+  .services {
+    font-size: 16px;
+    margin-bottom: 10px;
+  }
+  
+  .appointment-details {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  
+  .date-time {
+    font-size: 14px;
+    color: #333;
+  }
+  
+  .price {
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+  }
+  
+  .actions {
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .reschedule-btn {
+    padding: 5px 10px;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .cancel-btn {
+    padding: 5px 10px;
+    background-color: #f1eaea;
+    color: rgb(201, 13, 13);
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }

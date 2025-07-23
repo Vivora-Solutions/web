@@ -1,22 +1,48 @@
 .header {
+  position: relative; /* enables absolute positioning inside */
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 20px;
-  border-bottom: 2px solid #007BFF;
+  padding: 12px 24px;
+  border-bottom: 2px solid #000;
   background-color: #fff;
+  flex-wrap: wrap;
 }
 
+/* Logo on the left */
 .logo h1 {
   margin: 0;
   font-size: 24px;
-  color: #007BFF;
-  text-decoration: underline;
+  color: #000;
 }
 
+/* Search centered */
+.search-wrapper {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.search-bar {
+  width: 300px;
+  max-width: 90%;
+  padding: 6px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+/* Right section with menu + profile */
+.right-section {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+/* Menu aligned to right */
 .menu {
   display: flex;
-  gap: 20px;
+  gap: 18px;
 }
 
 .menu-item {
@@ -27,19 +53,17 @@
 }
 
 .menu-item:hover {
-  color: #007BFF;
+  color: #555;
 }
 
+/* Profile section */
 .profile-section {
+  position: absolute;
+  bottom: 45px;
+  right: 24px;
   display: flex;
   align-items: center;
-  gap: 10px;
-}
-
-.search-bar {
-  padding: 5px 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  gap: 8px;
 }
 
 .profile-name {
