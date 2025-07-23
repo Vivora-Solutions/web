@@ -8,6 +8,8 @@ import ServicesEditor from './components/ServicesEditor/ServicesEditor';
 import EmployeesEditor from './components/EmployeesEditor/EmployeesEditor';
 import PhotoSection from './components/PhotoSection/PhotoSection'; 
 
+
+
 const SalonDashboard = () => {
   return (
     <div>
