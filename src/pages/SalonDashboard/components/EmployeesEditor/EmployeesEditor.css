@@ -2,7 +2,7 @@
   border: 1px solid #ddd;
   border-radius: 8px;
   padding: 1.5rem;
-  max-width: 700px;
+  max-width: 30%;
   font-family: sans-serif;
   background-color: #fff;
 }
@@ -28,11 +28,11 @@ h3 {
   background-color: #f8f9fa;
   font-weight: 600;
 }
-
+/* 
 .profile-cell {
   width: 80px;
   text-align: center;
-}
+} */
 
 .employee-avatar {
   width: 40px;

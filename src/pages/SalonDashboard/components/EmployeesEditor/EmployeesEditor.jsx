@@ -84,14 +84,14 @@ const EmployeesEditor = () => {
       <h3>Employees</h3>
 
       <table className="employees-table">
-        <thead>
+        {/* <thead>
           <tr>
             <th>Profile</th>
             <th>Name</th>
             <th>Phone Number</th>
             <th>Actions</th>
           </tr>
-        </thead>
+        </thead> */}
         <tbody>
           <tr className="add-employee-row">
             <td colSpan={4}>
@@ -131,7 +131,7 @@ const EmployeesEditor = () => {
                   className="employee-input"
                 />
               </td>
-              <td>
+              {/* <td>
                 <input
                   type="text"
                   placeholder="Phone number"
@@ -139,7 +139,7 @@ const EmployeesEditor = () => {
                   onChange={(e) => handleNewEmployeeChange('contact_no', e.target.value)}
                   className="employee-input"
                 />
-              </td>
+              </td> */}
               <td className="action-buttons-employee">
                 <button className="save-btn" onClick={handleSaveNewEmployee}>
                   <FaCheck />
@@ -163,13 +163,13 @@ const EmployeesEditor = () => {
                   className={`table-editable ${editingIndex === index ? 'editing-enabled' : 'editing-disabled'}`}
                 />
               </td>
-              <td className="contact-cell">
+              {/* <td className="contact-cell">
                 <EditableField
                   value={employee.contact_no}
                   onSave={(value) => handleSaveEmployee(index, 'contact_no', value)}
                   className={`table-editable ${editingIndex === index ? 'editing-enabled' : 'editing-disabled'}`}
                 />
-              </td>
+              </td> */}
               <td className="action-buttons-employee">
                 {editingIndex === index ? (
                   <button className="cancel-edit-btn" onClick={handleCancelEdit}>

@@ -5,15 +5,21 @@ import './ServicesEditor.css';
 
 const ServicesEditor = () => {
   const [services, setServices] = useState([
-    { name: 'Hair Cutting and Shaving', price: 1400, time: 15 },
-    { name: 'Hair Cutting and Shaving', price: 1400, time: 15 },
-    { name: 'Hair Cutting and Shaving', price: 1400, time: 15 },
+    { name: 'Hair Cutting and Shaving', price: 1400, time: 15, category: 'men' },
+    { name: 'Hair Cutting and Shaving', price: 1400, time: 15, category: 'women' },
+    { name: 'Hair Cutting and Shaving', price: 1400, time: 15, category: 'unisex' },
   ]);
 
   const [showPrices, setShowPrices] = useState(true);
   const [isAdding, setIsAdding] = useState(false);
-  const [newService, setNewService] = useState({ name: '', price: '', time: '' });
+  const [newService, setNewService] = useState({ name: '', price: '', time: '', category: 'unisex' });
   const [editingIndex, setEditingIndex] = useState(-1);
+
+  const categoryOptions = [
+    { value: 'men', label: 'Men' },
+    { value: 'women', label: 'Women' },
+    { value: 'unisex', label: 'Unisex' }
+  ];
 
   const handleDelete = (index) => {
     const updated = [...services];
@@ -23,7 +29,7 @@ const ServicesEditor = () => {
 
   const addNewService = () => {
     setIsAdding(true);
-    setNewService({ name: '', price: '', time: '' });
+    setNewService({ name: '', price: '', time: '', category: 'unisex' });
   };
 
   const handleSaveNewService = () => {
@@ -31,16 +37,17 @@ const ServicesEditor = () => {
       setServices([...services, {
         name: newService.name,
         price: parseFloat(newService.price),
-        time: newService.time
+        time: newService.time,
+        category: newService.category
       }]);
       setIsAdding(false);
-      setNewService({ name: '', price: '', time: '' });
+      setNewService({ name: '', price: '', time: '', category: 'unisex' });
     }
   };
 
   const handleCancelNewService = () => {
     setIsAdding(false);
-    setNewService({ name: '', price: '', time: '' });
+    setNewService({ name: '', price: '', time: '', category: 'unisex' });
   };
 
   const handleNewServiceChange = (field, value) => {
@@ -67,6 +74,10 @@ const ServicesEditor = () => {
     setEditingIndex(-1);
   };
 
+  const handleCategoryChange = (index, category) => {
+    handleSaveService(index, 'category', category);
+  };
+
   return (
     <div className="services-container">
       <div className="services-header">
@@ -87,12 +98,13 @@ const ServicesEditor = () => {
             <th>Service</th>
             <th>Price</th>
             <th>Time</th>
+            <th>Category</th>
             <th></th>
           </tr>
         </thead>
         <tbody>
           <tr className="add-service-row">
-            <td colSpan={4}>
+            <td colSpan={5}>
               <button 
                 className="add-service-btn" 
                 onClick={addNewService}
@@ -132,6 +144,19 @@ const ServicesEditor = () => {
                   className="service-input"
                 />
               </td>
+              <td>
+                <select
+                  value={newService.category}
+                  onChange={(e) => handleNewServiceChange('category', e.target.value)}
+                  className="service-select"
+                >
+                  {categoryOptions.map(option => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </td>
               <td className="action-buttons">
                 <button className="save-btn" onClick={handleSaveNewService}>
                   <FaCheck />
@@ -165,6 +190,20 @@ const ServicesEditor = () => {
                   onSave={(value) => handleSaveService(index, 'time', value.replace(' minutes', ''))}
                   className={`table-editable ${editingIndex === index ? 'editing-enabled' : 'editing-disabled'}`}
                 />
+              </td>
+              <td>
+                <select
+                  value={service.category}
+                  onChange={(e) => handleCategoryChange(index, e.target.value)}
+                  className="category-select"
+                  disabled={editingIndex !== -1 && editingIndex !== index}
+                >
+                  {categoryOptions.map(option => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
               </td>
               <td className="action-buttons">
                 {editingIndex === index ? (
