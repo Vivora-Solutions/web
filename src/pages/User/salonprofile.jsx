@@ -1,28 +1,41 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Header from './components/header';
 import StarRating from './components/rating';
 import LocationIndicator from './components/location';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
-import { FiMapPin, FiClock, FiStar, FiPhone, FiNavigation, FiEye } from 'react-icons/fi';
+import 'leaflet/dist/leaflet.css';
+import { FiMapPin, FiClock, FiStar, FiPhone, FiNavigation, FiEye, FiChevronLeft, FiChevronRight, FiChevronUp, FiChevronDown, FiRefreshCw } from 'react-icons/fi';
 import './salonprofile.css';
 import salonLogo from '../../assets/images/salonLogo.png';
 import salonImage from '../../assets/images/salonimage.png';
 
-// Custom Leaflet marker icon
-const createCustomIcon = (color = '#000000') => new L.Icon({
-  iconUrl: `data:image/svg+xml;base64,${btoa(`
-    <svg width="24" height="32" viewBox="0 0 24 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M12 0C5.383 0 0 5.383 0 12c0 9 12 20 12 20s12-11 12-20c0-6.617-5.383-12-12-12z" fill="${color}"/>
-      <circle cx="12" cy="12" r="4" fill="white"/>
-    </svg>
-  `)}`,
-  iconSize: [24, 32],
-  iconAnchor: [12, 32],
-  popupAnchor: [0, -32],
+// Fix Leaflet default markers
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
+  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
 });
 
-const markerIcon = createCustomIcon('#000000');
+// Create custom red marker icon
+const createRedMarker = (isOpen = true) => {
+  const color = isOpen ? '#ef4444' : '#6b7280';
+  
+  return new L.Icon({
+    iconUrl: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(`
+      <svg width="32" height="42" viewBox="0 0 32 42" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M16 0C7.163 0 0 7.163 0 16c0 16 16 26 16 26s16-10 16-26C32 7.163 24.837 0 16 0z" fill="${color}"/>
+        <circle cx="16" cy="16" r="8" fill="white"/>
+        <circle cx="16" cy="16" r="4" fill="${color}"/>
+      </svg>
+    `)}`,
+    iconSize: [32, 42],
+    iconAnchor: [16, 42],
+    popupAnchor: [0, -42],
+    className: 'custom-red-marker'
+  });
+};
 
 const HomePage = () => {
   const salonData = {
@@ -122,101 +135,196 @@ const HomePage = () => {
       <Header />
 
       <div className="max-w-7xl mx-auto px-4 py-6">
-        {/* === Modern Interactive Map Section === */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-8">
-          <div className="p-6 border-b border-gray-200">
+        {/* === Ultra-Modern Responsive Map Section === */}
+        <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden mb-8">
+          {/* Map Header */}
+          <div className="bg-gradient-to-r from-gray-50 to-white p-6 border-b border-gray-100">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <h2 className="text-2xl font-bold text-black mb-2">Find Nearby Salons</h2>
-                <p className="text-gray-600">Discover the best salons in your area</p>
+                <h2 className="text-3xl font-bold text-gray-900 mb-2">Find Nearby Salons</h2>
+                <p className="text-gray-600 text-lg">Discover the best salons in your area with our interactive map</p>
               </div>
-              <div className="mt-4 sm:mt-0 flex items-center space-x-2">
-                <span className="flex items-center text-sm text-gray-500">
-                  <div className="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
-                  Open Now
-                </span>
-                <span className="flex items-center text-sm text-gray-500">
+              <div className="mt-4 sm:mt-0 flex items-center space-x-4">
+                <div className="flex items-center bg-green-50 px-3 py-2 rounded-full">
+                  <div className="w-3 h-3 bg-green-500 rounded-full mr-2 animate-pulse"></div>
+                  <span className="text-sm font-semibold text-green-700">Open Now ({salonList.filter(s => s.isOpen).length})</span>
+                </div>
+                <div className="flex items-center bg-red-50 px-3 py-2 rounded-full">
                   <div className="w-3 h-3 bg-red-500 rounded-full mr-2"></div>
-                  Closed
-                </span>
+                  <span className="text-sm font-semibold text-red-700">Closed ({salonList.filter(s => !s.isOpen).length})</span>
+                </div>
               </div>
             </div>
           </div>
           
-          <div className="relative">
-            <MapContainer
-              center={mapCenter}
-              zoom={8}
-              scrollWheelZoom={true}
-              style={{ height: "500px", width: "100%" }}
-              className="z-10"
-            >
-              <TileLayer
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-              />
-              {salonList.map((salon) => (
-                <Marker 
-                  key={salon.id} 
-                  position={salon.position} 
-                  icon={createCustomIcon(salon.isOpen ? '#10B981' : '#EF4444')}
-                >
-                  <Popup className="custom-popup">
-                    <div className="p-2 min-w-[250px]">
-                      <div className="flex items-start space-x-3 mb-3">
-                        <img 
-                          src={salon.image} 
-                          alt={salon.name}
-                          className="w-16 h-16 object-cover rounded-lg"
-                        />
-                        <div className="flex-1">
-                          <h3 className="font-bold text-gray-900 text-lg">{salon.name}</h3>
-                          <p className="text-gray-600 text-sm">{salon.city}</p>
-                          <div className="flex items-center mt-1">
-                            <FiStar className="w-4 h-4 text-yellow-500 mr-1" />
-                            <span className="text-sm font-medium text-gray-700">
-                              {salon.rating} ({salon.reviews} reviews)
-                            </span>
+          {/* Ash-White Theme Map Container */}
+          <div className="bg-gray-50 rounded-3xl shadow-lg border-2 border-gray-200 overflow-hidden">
+            {/* Map Header */}
+            <div className="bg-gradient-to-r from-gray-100 to-white text-gray-900 p-6 relative overflow-hidden border-b border-gray-200">
+              <div className="relative z-10">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-4">
+                    <div className="bg-gray-200 p-3 rounded-2xl">
+                      <FiMapPin className="w-6 h-6 text-gray-700" />
+                    </div>
+                    <div>
+                      <h2 className="text-2xl font-bold mb-1 text-gray-900">Interactive Salon Map</h2>
+                      <p className="text-gray-600 text-sm">Clear ash-white theme with detailed directions</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <div className="bg-green-100 px-3 py-1 rounded-full border border-green-200">
+                      <span className="text-green-700 text-sm font-bold">{salonList.filter(s => s.isOpen).length} Open</span>
+                    </div>
+                    <div className="bg-gray-100 px-3 py-1 rounded-full border border-gray-200">
+                      <span className="text-gray-700 text-sm font-bold">{salonList.filter(s => !s.isOpen).length} Closed</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Interactive Map - Ash White Theme */}
+            <div className="h-[500px] w-full relative overflow-hidden bg-gray-50">
+              <MapContainer 
+                center={mapCenter} 
+                zoom={12} 
+                className="w-full h-full ash-white-map"
+                zoomControl={true}
+                attributionControl={false}
+                style={{ height: '100%', width: '100%' }}
+                maxBounds={[
+                  [5.5, 79.0], // Southwest coordinates
+                  [8.0, 82.0]  // Northeast coordinates
+                ]}
+                minZoom={8}
+                maxZoom={18}
+              >
+                <TileLayer
+                  url="https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png"
+                  attribution=""
+                  className="ash-white-tiles"
+                />
+                
+                {/* Custom Labels Layer */}
+                <TileLayer
+                  url="https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png"
+                  attribution=""
+                  className="ash-labels"
+                />
+                
+                {salonList.map((salon, index) => (
+                  <Marker 
+                    key={salon.id} 
+                    position={salon.position}
+                    icon={createRedMarker(salon.isOpen)}
+                  >
+                    <Popup 
+                      className="ash-white-popup"
+                      maxWidth={320}
+                      closeButton={true}
+                      autoClose={false}
+                      closeOnEscapeKey={true}
+                    >
+                      <div className="bg-white rounded-xl shadow-2xl border border-gray-200 p-5 min-w-80">
+                        {/* Salon Header */}
+                        <div className="flex items-start space-x-4 mb-4 pb-4 border-b border-gray-100">
+                          <img 
+                            src={salon.image} 
+                            alt={salon.name}
+                            className="w-20 h-20 object-cover rounded-xl shadow-md border-2 border-gray-100"
+                          />
+                          <div className="flex-1">
+                            <h3 className="font-bold text-gray-900 text-xl mb-1">{salon.name}</h3>
+                            <p className="text-gray-600 text-sm mb-2 flex items-center">
+                              <FiMapPin className="w-4 h-4 mr-1 text-gray-400" />
+                              {salon.city}
+                            </p>
+                            <div className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold ${
+                              salon.isOpen 
+                                ? 'bg-green-50 text-green-700 border border-green-200' 
+                                : 'bg-gray-50 text-gray-700 border border-gray-200'
+                            }`}>
+                              <div className={`w-2 h-2 rounded-full mr-2 ${
+                                salon.isOpen ? 'bg-green-500 animate-pulse' : 'bg-gray-400'
+                              }`}></div>
+                              {salon.isOpen ? 'Open Now' : 'Closed'}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                      
-                      <div className="space-y-2 mb-3">
-                        <div className="flex items-center text-sm text-gray-600">
-                          <FiMapPin className="w-4 h-4 mr-2" />
-                          {salon.address}
+                        
+                        {/* Salon Details */}
+                        <div className="space-y-3 mb-5">
+                          <div className="flex items-start">
+                            <FiMapPin className="w-4 h-4 mr-3 text-gray-400 mt-0.5 flex-shrink-0" />
+                            <span className="text-gray-700 text-sm leading-relaxed">{salon.address}</span>
+                          </div>
+                          <div className="flex items-center">
+                            <FiClock className="w-4 h-4 mr-3 text-gray-400 flex-shrink-0" />
+                            <span className="text-gray-700 text-sm">{salon.openTime}</span>
+                          </div>
+                          <div className="flex items-center">
+                            <FiStar className="w-4 h-4 mr-3 text-yellow-500 flex-shrink-0" />
+                            <span className="text-gray-700 text-sm">
+                              <span className="font-semibold text-gray-900">{salon.rating}</span> 
+                              <span className="text-gray-500"> ({salon.reviews} reviews)</span>
+                            </span>
+                          </div>
+                          <div className="flex items-center">
+                            <FiPhone className="w-4 h-4 mr-3 text-gray-400 flex-shrink-0" />
+                            <span className="text-gray-700 text-sm">{salon.phone}</span>
+                          </div>
                         </div>
-                        <div className="flex items-center text-sm text-gray-600">
-                          <FiClock className="w-4 h-4 mr-2" />
-                          {salon.openTime}
+
+                        {/* Specialties */}
+                        <div className="mb-5">
+                          <h4 className="text-gray-900 font-semibold text-sm mb-2">Specialties:</h4>
+                          <div className="flex flex-wrap gap-1">
+                            {salon.specialties.map((specialty, idx) => (
+                              <span 
+                                key={idx}
+                                className="px-2 py-1 bg-gray-50 text-gray-700 text-xs rounded-md border border-gray-200"
+                              >
+                                {specialty}
+                              </span>
+                            ))}
+                          </div>
                         </div>
-                        <div className="flex items-center text-sm text-gray-600">
-                          <FiPhone className="w-4 h-4 mr-2" />
-                          {salon.phone}
+                        
+                        {/* Action Buttons */}
+                        <div className="flex space-x-2">
+                          <button 
+                            onClick={() => handleGetDirections(salon)}
+                            className="flex-1 flex items-center justify-center px-4 py-3 bg-white text-gray-700 text-sm font-semibold rounded-lg border-2 border-gray-200 hover:border-gray-400 hover:bg-gray-50 transition-all duration-300"
+                          >
+                            <FiNavigation className="w-4 h-4 mr-2" />
+                            Get Directions
+                          </button>
+                          <button 
+                            onClick={() => handleSalonSelect(salon)}
+                            className="flex items-center justify-center px-4 py-3 bg-black text-white text-sm font-semibold rounded-lg hover:bg-gray-800 transition-all duration-300"
+                          >
+                            <FiEye className="w-4 h-4 mr-2" />
+                            View Details
+                          </button>
                         </div>
                       </div>
-                      
-                      <div className="flex space-x-2">
-                        <button 
-                          onClick={() => handleGetDirections(salon)}
-                          className="flex items-center px-3 py-2 bg-black text-white text-sm rounded-lg hover:bg-gray-800 transition-colors"
-                        >
-                          <FiNavigation className="w-4 h-4 mr-1" />
-                          Directions
-                        </button>
-                        <button 
-                          onClick={() => handleSalonSelect(salon)}
-                          className="flex items-center px-3 py-2 bg-gray-100 text-gray-700 text-sm rounded-lg hover:bg-gray-200 transition-colors"
-                        >
-                          <FiEye className="w-4 h-4 mr-1" />
-                          View Details
-                        </button>
-                      </div>
-                    </div>
-                  </Popup>
-                </Marker>
-              ))}
-            </MapContainer>
+                    </Popup>
+                  </Marker>
+                ))}
+              </MapContainer>
+
+              {/* Map Controls Overlay */}
+              <div className="absolute top-4 right-4 z-[1000] flex flex-col space-y-2">
+                <button 
+                  onClick={() => setMapCenter([6.9271, 79.8612])}
+                  className="bg-white/90 backdrop-blur-sm text-gray-700 p-2 rounded-lg shadow-lg border border-gray-200 hover:bg-white hover:shadow-xl transition-all duration-300"
+                  title="Reset to Default Location"
+                >
+                  <FiRefreshCw className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 
