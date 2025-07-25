@@ -10,7 +10,7 @@ import BookingConfirm from './pages/User/bookingconfirm';
 import RateUs from './pages/User/Rateus';
 import SalonDetails from './pages/SuperAdminDashboard/SalonDetails';
 import SalonPage from './pages/SuperAdminDashboard/SalonPage';
-
+import SalonAdminLogin from './pages/SalonAdminLogin/SalonAdminLogin';  
 
 function App() {
 
@@ -32,6 +32,7 @@ function App() {
         <Route path="/admin" element={<SalonDashboard />} />
         <Route path="/details" element={<SalonDetails/>} />
         <Route path="/salonpage" element={<SalonPage/>} />
+        <Route path="/salonlogin" element={<SalonAdminLogin/>} />
       </Routes>
     </div>
   )
