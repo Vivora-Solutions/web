@@ -71,7 +71,7 @@
 // src/pages/SalonDashboard/components/DashboardHeader.jsx
 import React, { useState, useEffect } from 'react';
 import EditableField from '../../../../components/EditableField/EditableField';
-import './DashboardHeader.css';
+import './DashBoardHeader.css';
 
 const DashboardHeader = ({ salon, onUpdate }) => {
   const [salonLogo, setSalonLogo] = useState(salon.salon_logo_link);
