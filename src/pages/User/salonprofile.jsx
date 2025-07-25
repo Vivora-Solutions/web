@@ -4,7 +4,7 @@ import StarRating from './componants/rating';
 import LocationIndicator from './componants/location';
 import './salonprofile.css';
 import salonLogo from '../../assets/images/salonLogo.png';
-import salonImage from '../../assets/images/salonimage.png';
+import salonImage from '../../assets/images/salonImage.png';
 
 
 const HomePage = () => {
