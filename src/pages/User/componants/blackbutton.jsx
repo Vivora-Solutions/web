@@ -1,7 +1,7 @@
 // src/components/BlackButton.js
 
 import React from 'react';
-import './BlackButton.css';
+import './blackbutton.css'
 
 const BlackButton = ({ onClick, children, type = 'button', style = {}, disabled = false }) => {
   return (
