@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import './SalonAdminLogin.css';
+import './Login.css';
 import axios from 'axios';
 
 const SalonLogin = () => {
@@ -22,16 +22,21 @@ const SalonLogin = () => {
 
       const { access_token, customRole } = response.data;
 
-      // ✅ Store access_token in localStorage (refresh token is stored in cookie)
+      // ✅ Store access_token and role in localStorage
       localStorage.setItem('access_token', access_token);
       localStorage.setItem('user_role', customRole);
 
       // ✅ Redirect user based on role
       if (customRole === 'salon_admin') {
         window.location.href = '/admin';
+      } else if (customRole === 'super_admin') {
+        window.location.href = '/super-admin';
+      } else if (customRole === 'customer') {
+        window.location.href = '/customer-dashboard';
       } else {
-        window.location.href = '/';
+        setError('Invalid user role. Please contact support.');
       }
+
     } catch (err) {
       console.error(err);
       setError(err?.response?.data?.error || 'Login failed. Please try again.');
@@ -65,7 +70,11 @@ const SalonLogin = () => {
             {loading ? 'Logging in...' : 'Login'}
           </button>
         </form>
-        {error && <p style={{ color: 'red', marginTop: '12px' }}>{error}</p>}
+
+        {error && (
+          <p style={{ color: 'red', marginTop: '12px' }}>{error}</p>
+        )}
+
         <p className="register-link">
           New Salon? <a href="/register">Register Now</a>
         </p>
