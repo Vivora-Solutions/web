@@ -1,194 +1,114 @@
 .dashboard-container {
   padding: 20px;
-  background-color: #f4f4f4; /* Light grey background for the page */
-  min-height: 100vh;
-  font-family: Arial, sans-serif;
 }
 
-h1 {
-  color: #333;
-  margin-bottom: 30px;
-  font-size: 28px;
+.dashboard-title {
+  margin-bottom: 20px;
+  font-size: 24px;
 }
 
-h2 {
-    color: #333;
-    margin-top: 40px;
-    margin-bottom: 20px;
-    font-size: 24px;
-}
-
-/* Analytics Section */
-.analytics-section {
+.charts-section {
   display: flex;
-  justify-content: space-between;
-  gap: 20px;
-  margin-bottom: 30px;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 20px;
 }
 
-.analytics-section .card {
+.chart-box {
   background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  padding: 20px;
-  width: calc(33.33% - 20px); /* Adjust width considering gap */
-  box-sizing: border-box; /* Include padding in the width */
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  padding: 16px;
+  flex: 1;
+  min-width: 300px;
+}
+
+.summary-box {
   display: flex;
   flex-direction: column;
   align-items: center;
-}
-
-.card .graph-placeholder {
-  width: 100%;
-  height: 150px; /* Adjust height as needed for graph */
-  background-color: #e0e0e0; /* Placeholder color for graph area */
-  display: flex;
   justify-content: center;
-  align-items: center;
+  height: 120px;
+}
+
+.summary-box span {
+  font-size: 16px;
   color: #666;
-  font-style: italic;
-  margin-bottom: 15px;
-  border-radius: 4px;
 }
 
-.card h3 {
-  color: #555;
-  font-size: 18px;
-  margin-top: 10px;
+.summary-box strong {
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
 }
 
-/* Total Counts Section */
-.total-counts-section {
+.verify-salons-header {
   display: flex;
   justify-content: space-between;
-  gap: 20px;
-  margin-bottom: 40px;
+  align-items: center;
+  margin-top: 30px;
 }
 
-.total-counts-section .count-card {
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  padding: 20px;
-  width: calc(33.33% - 20px); /* Adjust width considering gap */
-  box-sizing: border-box;
-  text-align: center;
+.view-all-button {
+  padding: 8px 12px;
+  border: none;
+  background-color: #444;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
 }
 
-.count-card .label {
-  color: #777;
+.search-bar {
+  margin: 20px 0;
+  padding: 10px;
+  width: 100%;
+  max-width: 400px;
   font-size: 16px;
-  margin-bottom: 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
 }
 
-.count-card .value {
-  color: #333;
-  font-size: 32px;
-  font-weight: bold;
-}
-
-/* Verify Salons Section */
-.verify-salons-section {
+.salon-list-wrapper {
   display: flex;
-  flex-wrap: wrap; /* Allows cards to wrap to the next line */
-  gap: 20px;
-  justify-content: flex-start; /* Align items to the start */
+  align-items: center;
+  position: relative;
+}
+
+.scroll-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.salon-list {
+  display: flex;
+  overflow-x: auto;
+  padding: 10px 0;
 }
 
 .salon-card {
-  background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  width: 250px; /* Fixed width for salon cards */
-  padding: 15px;
-  box-sizing: border-box;
+  background: #f9f9f9;
+  border-radius: 10px;
+  margin: 0 8px;
+  padding: 10px;
+  min-width: 150px;
+  cursor: pointer;
   text-align: center;
 }
 
 .salon-image {
   width: 100%;
-  height: 150px; /* Fixed height for consistency */
-  object-fit: cover; /* Ensures image covers the area, cropping if necessary */
-  border-radius: 4px;
-  margin-bottom: 10px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 8px;
 }
 
-.salon-name {
-  font-weight: bold;
-  font-size: 18px;
-  color: #333;
-  margin-bottom: 5px;
+.salon-info h4 {
+  margin: 8px 0 4px;
 }
 
-.salon-location {
-  color: #777;
+.salon-info p {
   font-size: 14px;
-  margin-bottom: 15px;
-}
-
-.react-icons {
-    vertical-align: top;
-    padding-top: 1px;
-}
-
-.salon-actions {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-}
-
-.verify-button, .decline-button {
-  padding: 8px 15px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: background-color 0.3s ease;
-  width: 100px;
-}
-
-.verify-button {
-  background-color: black; /* Green */
-  color: white;
-}
-
-.verify-button:hover {
-  background-color: #45a049;
-}
-
-.decline-button {
-  background-color: #f44336; /* Red */
-  color: white;
-}
-
-.decline-button:hover {
-  background-color: #da190b;
-}
-
-
-
-/* Basic responsiveness (optional but good practice) */
-@media (max-width: 1200px) {
-    .analytics-section .card,
-    .total-counts-section .count-card {
-        width: calc(50% - 15px); /* Two columns on smaller screens */
-    }
-    .verify-salons-section {
-        justify-content: center; /* Center cards when they wrap */
-    }
-}
-
-@media (max-width: 768px) {
-    .analytics-section,
-    .total-counts-section {
-        flex-direction: column;
-        align-items: center;
-    }
-    .analytics-section .card,
-    .total-counts-section .count-card {
-        width: 90%; /* Single column on small screens */
-    }
-    .salon-card {
-        width: 90%; /* Make salon cards take more width on small screens */
-    }
+  color: #555;
 }

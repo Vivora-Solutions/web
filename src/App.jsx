@@ -10,8 +10,9 @@ import BookingConfirm from './pages/User/bookingconfirm';
 import RateUs from './pages/User/Rateus';
 import SalonDetails from './pages/SuperAdminDashboard/SalonDetails';
 import SalonPage from './pages/SuperAdminDashboard/SalonPage';
-import SalonAdminLogin from './pages/SalonAdminLogin/SalonAdminLogin';  
-
+import SalonAdminLogin from './pages/Login/Login';  
+import AllSalonsPage from './pages/SuperAdminDashboard/AllSalonsPage';
+import SalonDetailsPage from './pages/SuperAdminDashboard/SalonDetailsPage';  
 function App() {
 
   return (
@@ -33,6 +34,9 @@ function App() {
         <Route path="/details" element={<SalonDetails/>} />
         <Route path="/salonpage" element={<SalonPage/>} />
         <Route path="/salonlogin" element={<SalonAdminLogin/>} />
+        <Route path="/all-salons" element={<AllSalonsPage />} />
+        <Route path="/super-admin/booking/:salonid" element={<SalonDetailsPage />} />
+
       </Routes>
     </div>
   )

@@ -1,4 +1,3 @@
-// src/utils/api.js
 import axios from 'axios';
 
 const API = axios.create({

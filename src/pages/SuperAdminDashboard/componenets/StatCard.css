@@ -1,0 +1,11 @@
+.summary-box {
+  text-align: center;
+  font-size: 16px;
+  padding: 40px 0;
+}
+
+.summary-box strong {
+  display: block;
+  font-size: 20px;
+  margin-top: 4px;
+}
