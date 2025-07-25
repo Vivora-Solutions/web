@@ -1,6 +1,6 @@
 import React from 'react';
-import BookingHistoryCard from './componants/bookinghistorycard';
-import Header from './componants/header';
+import BookingHistoryCard from './components/bookinghistorycard';
+import Header from './components/header';
 import './bookinghistorypage.css'; // optional page-specific styles
 
 const dummyBookings = [

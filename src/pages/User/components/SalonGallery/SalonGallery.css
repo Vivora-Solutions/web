@@ -1,0 +1,231 @@
+/* SalonGallery Component Styles */
+
+/* Gallery grid layout */
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+/* Gallery item hover effects */
+.gallery-item {
+  transition: all 0.3s ease;
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.gallery-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Image hover scale effect */
+.gallery-item img {
+  transition: transform 0.3s ease;
+}
+
+.gallery-item:hover img {
+  transform: scale(1.1);
+}
+
+/* Overlay animations */
+.gallery-overlay {
+  transition: all 0.3s ease;
+}
+
+/* Lightbox styles */
+.lightbox-overlay {
+  backdrop-filter: blur(8px);
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Lightbox image container */
+.lightbox-image-container {
+  animation: scaleIn 0.3s ease;
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Navigation button styles */
+.lightbox-nav-button {
+  transition: all 0.2s ease;
+  backdrop-filter: blur(10px);
+}
+
+.lightbox-nav-button:hover {
+  background-color: rgba(0, 0, 0, 0.7);
+  transform: scale(1.1);
+}
+
+/* Image info panel */
+.lightbox-info {
+  backdrop-filter: blur(10px);
+  background: rgba(0, 0, 0, 0.6);
+}
+
+/* Action buttons in lightbox */
+.lightbox-action-button {
+  transition: all 0.2s ease;
+  backdrop-filter: blur(5px);
+}
+
+.lightbox-action-button:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+  transform: scale(1.1);
+}
+
+/* Category section styling */
+.gallery-category {
+  margin-bottom: 2rem;
+}
+
+.gallery-category h3 {
+  color: #1f2937;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  position: relative;
+}
+
+.gallery-category h3::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 30px;
+  height: 2px;
+  background-color: #000000;
+}
+
+/* Empty state animation */
+.empty-gallery-icon {
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .gallery-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+  }
+  
+  .lightbox-overlay {
+    padding: 1rem;
+  }
+  
+  .lightbox-info {
+    padding: 1rem;
+  }
+  
+  .lightbox-nav-button {
+    padding: 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .gallery-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* High resolution displays */
+@media (min-resolution: 2dppx) {
+  .gallery-item img {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+  }
+}
+
+/* Accessibility improvements */
+.gallery-item:focus {
+  outline: 2px solid #000000;
+  outline-offset: 2px;
+}
+
+.lightbox-nav-button:focus,
+.lightbox-action-button:focus {
+  outline: 2px solid #ffffff;
+  outline-offset: 2px;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .gallery-item,
+  .gallery-item img,
+  .gallery-overlay,
+  .lightbox-overlay,
+  .lightbox-image-container,
+  .lightbox-nav-button,
+  .lightbox-action-button {
+    transition: none;
+    animation: none;
+  }
+  
+  .gallery-item:hover {
+    transform: none;
+  }
+  
+  .gallery-item:hover img {
+    transform: none;
+  }
+  
+  .empty-gallery-icon {
+    animation: none;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .gallery-item {
+    border: 1px solid #000000;
+  }
+  
+  .lightbox-info {
+    background: rgba(0, 0, 0, 0.9);
+    border: 1px solid #ffffff;
+  }
+  
+  .gallery-category h3::after {
+    background-color: #000000;
+    height: 3px;
+  }
+}
+
+/* Loading states */
+.gallery-item img {
+  background-color: #f3f4f6;
+  min-height: 150px;
+}
+
+.gallery-item img[src=""] {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24'%3E%3Cpath stroke='%23d1d5db' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 50px;
+}

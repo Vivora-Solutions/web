@@ -1,7 +1,7 @@
 // src/pages/BookingConfirm.js
 
 import React from 'react';
-import BlackButton from './componants/blackbutton';
+import BlackButton from './components/blackbutton';
 import './bookingconfirm.css';
 import salonLogo from '../../assets/images/salonLogo.png'; // Replace with your actual path
 

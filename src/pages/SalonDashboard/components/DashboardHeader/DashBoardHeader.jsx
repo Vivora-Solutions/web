@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { assets } from '../../../../assets/assets';
-import EditableField from '../../../../components/EditableField/EditableField'; 
-import './DashBoardHeader.css';
+import EditableField from '../../../../components/EditableField/EditableField';
 
 const DashBoardHeader = () => {
     const [salonTitle, setSalonTitle] = useState("Liyo Saloon");
@@ -12,52 +11,65 @@ const DashBoardHeader = () => {
     const [salonLogo, setSalonLogo] = useState(assets.salonLogo);
 
     const handleLogoChange = (event) => {
-        const file = event.target.files[0];
+        const file = event.target.files?.[0];
         if (file) {
             const reader = new FileReader();
             reader.onload = (e) => {
-                setSalonLogo(e.target.result);
+                if (e.target?.result) {
+                    setSalonLogo(e.target.result);
+                }
             };
             reader.readAsDataURL(file);
         }
     };
 
     return (
-        <div className="salon-header">
-            <div className="salon-logo-section">
-                <div className="logo-container">
-                    <img src={salonLogo} alt="Liyo Saloon Logo" className="salon-logo" />
-                    <div className="logo-overlay">
-                        <input
-                            type="file"
-                            accept="image/*"
-                            onChange={handleLogoChange}
-                            className="logo-input"
-                            id="logo-upload"
-                        />
-                        <label htmlFor="logo-upload" className="logo-edit-btn">
-                            ✏️ Edit Logo
-                        </label>
-                    </div>
+        <div className="flex flex-col md:flex-row items-center justify-between gap-6 p-6 bg-white rounded-2xl shadow-md">
+            {/* Logo Section */}
+            <div className="relative w-36 h-36 shrink-0">
+                <img
+                    src={salonLogo}
+                    alt="Salon Logo"
+                    className="w-full h-full object-cover rounded-full border border-gray-300"
+                />
+                <div className="absolute bottom-0 right-0">
+                    <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleLogoChange}
+                        className="hidden"
+                        id="logo-upload"
+                    />
+                    <label
+                        htmlFor="logo-upload"
+                        className="cursor-pointer bg-blue-600 text-white text-xs px-3 py-1 rounded-full shadow hover:bg-blue-700 transition"
+                    >
+                        ✏️ Edit Logo
+                    </label>
                 </div>
             </div>
 
-            <div className="salon-info-section">
-                <div className="salon-title-row">
+            {/* Info Section */}
+            <div className="flex-1 w-full space-y-4">
+                <div className="text-xl font-bold text-gray-800">
+                    <EditableField value={salonTitle} onSave={setSalonTitle} />
+                </div>
+
+                <div className="text-sm text-gray-600">
                     <EditableField
-                        value={salonTitle}
-                        onSave={setSalonTitle}
+                        value={salonCategory}
+                        onSave={setSalonCategory}
+                        isTextarea={true}
+                        className="w-full"
                     />
                 </div>
 
-               <div className='salon-category'><EditableField value={salonCategory} onSave={setSalonCategory} isTextarea={true} className="salon-category" /></div>
-
-                <div className="salon-description">
+                <div className="text-sm text-gray-500">
                     <EditableField
                         value={description}
                         onSave={setDescription}
                         isTextarea={true}
-                        className="editable-description"
+                        className="w-full"
                     />
                 </div>
             </div>

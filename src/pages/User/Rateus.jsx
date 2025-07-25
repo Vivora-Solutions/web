@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import './RateUs.css';
-import BlackButton from '../User/componants/blackbutton';
+import BlackButton from './components/blackbutton';
 
 const RateUs = () => {
   const [rating, setRating] = useState(0);

@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import "./Login.css";
-import BlackButton from './componants/blackbutton'; // adjust the path as needed
+import BlackButton from './components/blackbutton'; // adjust the path as needed
 
 
 const AuthPage = () => {

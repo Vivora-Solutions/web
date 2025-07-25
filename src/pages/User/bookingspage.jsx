@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import Header from './componants/header';
-import AppointmentCard from './componants/appointmentcard';
-import ConfirmationModal from './componants/confirmation';
+import Header from './components/header';
+import AppointmentCard from './components/appointmentcard';
+import ConfirmationModal from './components/confirmation';
 import './bookingspage.css';
 
 
