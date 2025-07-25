@@ -13,7 +13,7 @@ import Bookings from './pages/User/bookings';
 import RateUs from './pages/User/Rateus';
 import SalonDetails from './pages/SuperAdminDashboard/SalonDetails';
 import SalonPage from './pages/SuperAdminDashboard/SalonPage';
-
+import SelectProviderPage from './pages/User/selectProvider';
 
 function App() {
 
@@ -25,6 +25,8 @@ function App() {
         <Route path="/" element={<SalonProfile />} />
          <Route path="/appointment/:salonId" element={<AppointmentPage />} />
          <Route path="/bookings" element={<Bookings />} />
+
+        <Route path="/select-provider" element={<SelectProviderPage />} />
         
         <Route path="/super-admin" element={<SuperAdminDashboard />} />
         <Route path="/admin" element={<SalonDashboard />} />

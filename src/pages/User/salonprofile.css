@@ -46,7 +46,387 @@
   min-height: 100vh;
 }
 
-/* === MODERN MAP STYLES === */
+/* === MODERN BLUE-THEMED MAP STYLES === */
+
+/* City Tab Navigation Styles - Enhanced */
+[data-hs-tab].active,
+.city-tab-active {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
+  color: white !important;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.4);
+  border-color: #2563eb !important;
+}
+
+[data-hs-tab]:not(.active),
+.city-tab-inactive {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: #2563eb;
+  border-color: #dbeafe;
+}
+
+[data-hs-tab]:not(.active):hover,
+.city-tab-inactive:hover {
+  background: rgba(239, 246, 255, 0.8);
+  transform: translateY(-1px);
+  box-shadow: 0 5px 15px -3px rgba(59, 130, 246, 0.2);
+  border-color: #93c5fd;
+}
+
+/* Enhanced City Tab Icons */
+.city-tab-icon {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+[data-hs-tab].active .city-tab-icon,
+.city-tab-active .city-tab-icon {
+  transform: scale(1.1) rotate(5deg);
+  filter: drop-shadow(0 2px 4px rgba(255, 255, 255, 0.3));
+}
+
+/* Smooth transitions for city tabs */
+[data-hs-tab] {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Blue Map Filter Enhancement */
+.blue-map-filter {
+  filter: hue-rotate(15deg) saturate(1.2) brightness(1.05) contrast(1.1);
+  transition: filter 0.3s ease;
+}
+
+/* Modern Blue Marker Styles */
+.custom-blue-marker {
+  filter: drop-shadow(0 4px 8px rgba(59, 130, 246, 0.25));
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.custom-blue-marker:hover {
+  filter: drop-shadow(0 6px 12px rgba(59, 130, 246, 0.35));
+  transform: translateY(-2px) scale(1.05);
+}
+
+/* Enhanced Blue Popup Styles */
+.modern-blue-popup .leaflet-popup-content-wrapper {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.98) 100%);
+  border-radius: 16px;
+  box-shadow: 
+    0 25px 50px -12px rgba(59, 130, 246, 0.15),
+    0 10px 25px -5px rgba(0, 0, 0, 0.1),
+    0 0 0 1px rgba(59, 130, 246, 0.1);
+  border: none;
+  padding: 0;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.modern-blue-popup .leaflet-popup-content {
+  margin: 0;
+  width: 100% !important;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.modern-blue-popup .leaflet-popup-tip {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 250, 252, 0.98) 100%);
+  border: none;
+  box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.1);
+}
+
+/* Blue Map Container Enhancements */
+.leaflet-container {
+  background: linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 50%, #f8fafc 100%);
+  border-radius: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Blue Map Controls */
+.leaflet-control-zoom {
+  border: none !important;
+  border-radius: 12px !important;
+  overflow: hidden;
+  box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.15) !important;
+}
+
+.leaflet-control-zoom a {
+  background: rgba(255, 255, 255, 0.95) !important;
+  border: 1px solid rgba(59, 130, 246, 0.2) !important;
+  color: #3b82f6 !important;
+  font-weight: 600;
+  transition: all 0.3s ease !important;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.leaflet-control-zoom a:hover {
+  background: rgba(59, 130, 246, 0.1) !important;
+  border-color: #3b82f6 !important;
+  transform: scale(1.05);
+}
+
+/* Blue Marker Animation */
+@keyframes blueMarkerPulse {
+  0% {
+    transform: scale(1);
+    filter: drop-shadow(0 4px 8px rgba(59, 130, 246, 0.25));
+  }
+  50% {
+    transform: scale(1.05);
+    filter: drop-shadow(0 6px 12px rgba(59, 130, 246, 0.35));
+  }
+  100% {
+    transform: scale(1);
+    filter: drop-shadow(0 4px 8px rgba(59, 130, 246, 0.25));
+  }
+}
+
+.custom-blue-marker.pulse {
+  animation: blueMarkerPulse 2s infinite;
+}
+
+/* Blue Map Tile Enhancement */
+.leaflet-tile {
+  filter: hue-rotate(5deg) saturate(1.1) brightness(1.02) contrast(1.05);
+  transition: filter 0.5s ease;
+}
+
+/* Blue Theme Map Overlay Gradients */
+.leaflet-container:before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    135deg, 
+    rgba(59, 130, 246, 0.02) 0%, 
+    transparent 30%, 
+    transparent 70%, 
+    rgba(14, 165, 233, 0.02) 100%
+  );
+  pointer-events: none;
+  z-index: 500;
+}
+
+/* Enhanced Blue Map Responsiveness */
+@media (max-width: 768px) {
+  .modern-blue-popup .leaflet-popup-content-wrapper {
+    max-width: 280px;
+    box-shadow: 
+      0 20px 40px -12px rgba(59, 130, 246, 0.2),
+      0 8px 20px -5px rgba(0, 0, 0, 0.1);
+  }
+  
+  .custom-blue-marker {
+    filter: drop-shadow(0 3px 6px rgba(59, 130, 246, 0.3));
+  }
+}
+
+/* Blue Map Loading States */
+.leaflet-loading {
+  background: linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 100%);
+}
+
+.leaflet-tile-loaded {
+  animation: fadeInBlue 0.5s ease-in;
+}
+
+@keyframes fadeInBlue {
+  from {
+    opacity: 0;
+    filter: blur(2px) hue-rotate(15deg);
+  }
+  to {
+    opacity: 1;
+    filter: blur(0) hue-rotate(5deg);
+  }
+}
+
+/* Map Container Enhancements */
+.leaflet-container {
+  background: #f8fafc !important;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+}
+
+/* Modern Map Popup Styles */
+.leaflet-popup-content-wrapper {
+  background: white !important;
+  border-radius: 16px !important;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+  border: 1px solid #e5e7eb !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  min-width: 320px !important;
+}
+
+.leaflet-popup-content {
+  margin: 0 !important;
+  padding: 0 !important;
+  width: auto !important;
+  font-family: inherit !important;
+}
+
+.leaflet-popup-tip {
+  background: white !important;
+  border: 1px solid #e5e7eb !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+}
+
+.leaflet-popup-close-button {
+  display: none !important;
+}
+
+/* Map Zoom Controls */
+.leaflet-control-zoom {
+  border: none !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(10px) !important;
+}
+
+.leaflet-control-zoom a {
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(10px) !important;
+  color: #374151 !important;
+  border: none !important;
+  font-size: 18px !important;
+  font-weight: 600 !important;
+  transition: all 0.2s ease !important;
+  width: 40px !important;
+  height: 40px !important;
+  line-height: 40px !important;
+}
+
+.leaflet-control-zoom a:hover {
+  background: white !important;
+  color: #111827 !important;
+  transform: scale(1.05) !important;
+}
+
+.leaflet-control-zoom a:first-child {
+  border-top-left-radius: 12px !important;
+  border-top-right-radius: 12px !important;
+}
+
+.leaflet-control-zoom a:last-child {
+  border-bottom-left-radius: 12px !important;
+  border-bottom-right-radius: 12px !important;
+}
+
+/* Map Attribution */
+.leaflet-control-attribution {
+  display: none !important;
+}
+
+/* Enhanced Modern Marker Animations */
+.custom-modern-marker {
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.15)) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  transform-origin: center bottom !important;
+}
+
+.custom-modern-marker:hover {
+  filter: drop-shadow(0 8px 20px rgba(0, 0, 0, 0.25)) !important;
+  transform: scale(1.1) translateY(-2px) !important;
+}
+
+/* Pulse Animation for Active Markers */
+.custom-modern-marker::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 50%;
+  animation: markerPulse 2s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes markerPulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.3;
+  }
+  100% {
+    transform: scale(1.4);
+    opacity: 0;
+  }
+}
+
+/* Custom Red Marker Animations */
+.custom-red-marker {
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1)) !important;
+  transition: all 0.3s ease !important;
+}
+
+.custom-red-marker:hover {
+  filter: drop-shadow(0 8px 15px rgba(0, 0, 0, 0.2)) !important;
+  transform: scale(1.1) !important;
+}
+
+/* Map Loading Animation */
+@keyframes mapPulse {
+  0%, 100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.map-loading {
+  animation: mapPulse 2s ease-in-out infinite;
+}
+
+/* Responsive Map Enhancements */
+@media (max-width: 768px) {
+  .leaflet-popup-content-wrapper {
+    min-width: 280px !important;
+  }
+  
+  .leaflet-control-zoom {
+    transform: scale(0.9) !important;
+  }
+}
+
+/* Map Container Focus States */
+.leaflet-container:focus {
+  outline: 2px solid #3b82f6 !important;
+  outline-offset: 2px !important;
+}
+
+/* Enhanced Map Tile Loading */
+.leaflet-tile-container {
+  filter: contrast(1.1) brightness(1.05) !important;
+  transition: all 0.3s ease !important;
+}
+
+.leaflet-tile {
+  border-radius: 0 !important;
+  opacity: 0 !important;
+  animation: tileLoad 0.5s ease forwards !important;
+}
+
+@keyframes tileLoad {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
 
 /* === CRYSTAL CLEAR RESPONSIVE MAP STYLES === */
 
@@ -1656,5 +2036,156 @@
   }
   100% {
     background-position: 200% 0;
+  }
+}
+
+/* Modern Wide Bar Salon Cards Styles */
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Wide Bar Salon Cards */
+.salon-card-wide {
+  animation: slideInUp 0.6s ease-out forwards;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.salon-card-wide:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Status Badge Pulse Animation */
+.status-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: .5;
+  }
+}
+
+/* Button Hover Effects */
+.btn-modern {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-modern::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.btn-modern:hover::before {
+  width: 300px;
+  height: 300px;
+}
+
+/* Specialty Tags Hover */
+.specialty-tag {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.specialty-tag:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* Image Hover Effects */
+.image-hover-scale {
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.image-hover-scale:hover {
+  transform: scale(1.05);
+}
+
+/* Gradient Line Animation */
+.gradient-line {
+  background: linear-gradient(90deg, #000000, #4b5563, #9ca3af);
+  background-size: 200% 100%;
+  animation: gradientShift 3s ease-in-out infinite;
+}
+
+@keyframes gradientShift {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+/* Selected Salon Details Modal */
+.salon-details-modal {
+  animation: scaleIn 0.3s ease-out;
+}
+
+/* Responsive Design Enhancements */
+@media (max-width: 768px) {
+  .salon-card-wide:hover {
+    transform: none;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  }
+  
+  .btn-modern:hover::before {
+    width: 0;
+    height: 0;
+  }
+}
+
+/* Focus States for Accessibility */
+.btn-modern:focus,
+.specialty-tag:focus {
+  outline: 2px solid #000;
+  outline-offset: 2px;
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  .salon-card-wide,
+  .btn-modern,
+  .image-hover-scale,
+  .specialty-tag {
+    animation: none;
+    transition: none;
+  }
+  
+  .salon-card-wide:hover,
+  .btn-modern:hover,
+  .image-hover-scale:hover,
+  .specialty-tag:hover {
+    transform: none;
   }
 }
