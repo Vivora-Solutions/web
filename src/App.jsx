@@ -1,7 +1,9 @@
-import {Route, Routes} from 'react-router-dom';
+import {Route, Routes, BrowserRouter as Router} from 'react-router-dom';
+
 import SuperAdminDashboard from './pages/SuperAdminDashboard/SuperAdminDashboard';
 import SalonDashboard from './pages/SalonDashboard/SalonDashboard';
 import SalonProfile from './pages/User/salonprofile';
+import AppointmentPage from './pages/User/appointmentpage';
 // import BookingsPage from './pages/User/bookingspage';
 // import BookingHistoryPage from './pages/User/bookinghistorypage';
 import AuthPage from './pages/User/Login';
@@ -17,9 +19,11 @@ function App() {
 
   return (
     <div>
+      
       <Routes>
 
         <Route path="/" element={<SalonProfile />} />
+         <Route path="/appointment/:salonId" element={<AppointmentPage />} />
          <Route path="/bookings" element={<Bookings />} />
         
         <Route path="/super-admin" element={<SuperAdminDashboard />} />
