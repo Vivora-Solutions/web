@@ -1,178 +1,173 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react';
 import './OpeningDays.css';
-import { FaRegEdit } from "react-icons/fa";
-import EditableField from '../../../../components/EditableField/EditableField';
+import API from '../../../../utils/api';
 
-const OpeningDays = () => {
-  const [openingDays, setOpeningDays] = useState([
-    { day: 'Monday', checked: true, startTime: '9:00', startPeriod: 'am', endTime: '5:00', endPeriod: 'pm' },
-    { day: 'Tuesday', checked: true, startTime: '9:00', startPeriod: 'am', endTime: '5:00', endPeriod: 'pm' },
-    { day: 'Wednesday', checked: true, startTime: '9:00', startPeriod: 'am', endTime: '5:00', endPeriod: 'pm' },
-    { day: 'Thursday', checked: false, startTime: '9:00', startPeriod: 'am', endTime: '5:00', endPeriod: 'pm' },
-    { day: 'Friday', checked: true, startTime: '9:00', startPeriod: 'am', endTime: '5:00', endPeriod: 'pm' },
-    { day: 'Saturday', checked: true, startTime: '9:00', startPeriod: 'am', endTime: '5:00', endPeriod: 'pm' },
-    { day: 'Sunday', checked: false, startTime: '9:00', startPeriod: 'am', endTime: '5:00', endPeriod: 'pm' }
-  ]);
+const OpeningHours = () => {
+  const [openingHours, setOpeningHours] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isEditing, setIsEditing] = useState(false);
 
-  const [globalTime, setGlobalTime] = useState({
-    startTime: '9:00',
-    startPeriod: 'am',
-    endTime: '5:00',
-    endPeriod: 'pm'
-  });
+  const daysOfWeek = [
+    'Sunday', 'Monday', 'Tuesday', 'Wednesday', 
+    'Thursday', 'Friday', 'Saturday'
+  ];
 
-  const [editingRowIndex, setEditingRowIndex] = useState(null);
+  useEffect(() => {
+    const fetchOpeningHours = async () => {
+      try {
+        const response = await API.get('/salon-admin/opening-hours');
+        // Ensure we have exactly 7 days
+        const days = response.data.days || [];
+        const completeDays = Array(7).fill().map((_, index) => {
+          const existingDay = days.find(d => d.day_of_week === index);
+          return existingDay || {
+            day_of_week: index,
+            is_open: false,
+            opening_time: null,
+            closing_time: null
+          };
+        });
+        setOpeningHours(completeDays);
+        setIsLoading(false);
+      } catch (error) {
+        console.error('Error fetching opening hours:', error);
+        setIsLoading(false);
+      }
+    };
+    fetchOpeningHours();
+  }, []);
 
-  const handleCheckboxChange = (index) => {
-    setOpeningDays(prevDays => 
-      prevDays.map((day, i) => 
-        i === index ? { ...day, checked: !day.checked } : day
-      )
-    );
-  };
-
-  const handleTimeChange = (field, value) => {
-    setGlobalTime(prev => ({
-      ...prev,
-      [field]: value
-    }));
-
-    // Update all rows with the new global time
-    setOpeningDays(prevDays => 
-      prevDays.map(day => ({
-        ...day,
-        [field]: value
-      }))
-    );
-  };
-
-  const handleRowTimeEdit = (index) => {
-    setEditingRowIndex(index);
-  };
-
-  const handleRowTimeSave = (index, newTimeString) => {
-    // Parse the time string (e.g., "9:00 am - 5:00 pm")
-    const timeRegex = /(\d{1,2}:\d{2})\s*(am|pm)\s*-\s*(\d{1,2}:\d{2})\s*(am|pm)/i;
-    const match = newTimeString.match(timeRegex);
+  const handleToggleOpen = (index) => {
+    const updatedHours = [...openingHours];
+    updatedHours[index].is_open = !updatedHours[index].is_open;
     
-    if (match) {
-      const [, startTime, startPeriod, endTime, endPeriod] = match;
-      setOpeningDays(prevDays => 
-        prevDays.map((day, i) => 
-          i === index ? { 
-            ...day, 
-            startTime, 
-            startPeriod: startPeriod.toLowerCase(), 
-            endTime, 
-            endPeriod: endPeriod.toLowerCase() 
-          } : day
-        )
-      );
+    if (!updatedHours[index].is_open) {
+      updatedHours[index].opening_time = null;
+      updatedHours[index].closing_time = null;
+    } else {
+      updatedHours[index].opening_time = updatedHours[index].opening_time || '10:00:00';
+      updatedHours[index].closing_time = updatedHours[index].closing_time || '17:00:00';
     }
-    setEditingRowIndex(null);
+    
+    setOpeningHours(updatedHours);
   };
 
-  const formatTimeString = (day) => {
-    return `${day.startTime} ${day.startPeriod} - ${day.endTime} ${day.endPeriod}`;
+  const handleTimeChange = (index, field, value) => {
+    const updatedHours = [...openingHours];
+    const formattedValue = value ? `${value}:00` : null;
+    updatedHours[index][field] = formattedValue;
+    setOpeningHours(updatedHours);
   };
+
+  const formatTimeForDisplay = (time) => {
+    if (!time) return '--:-- --';
+    const [hours, minutes] = time.split(':');
+    const hourNum = parseInt(hours, 10);
+    const period = hourNum >= 12 ? 'pm' : 'am';
+    const displayHour = hourNum % 12 || 12;
+    return `${displayHour}:${minutes} ${period}`;
+  };
+
+  const formatTimeForInput = (time) => {
+    if (!time) return '';
+    return time.substring(0, 5);
+  };
+
+  const handleSave = async () => {
+    try {
+      const payload = {
+        daysData: openingHours.map(day => ({
+          day_of_week: day.day_of_week,
+          is_open: day.is_open,
+          opening_time: day.is_open ? day.opening_time : null,
+          closing_time: day.is_open ? day.closing_time : null
+        }))
+      };
+
+      await API.post('/salon-admin/opening-hours', payload);
+      setIsEditing(false);
+      alert('Opening hours updated successfully!');
+    } catch (error) {
+      console.error('Error updating opening hours:', error);
+      alert(`Failed to update opening hours: ${error.response?.data?.error || error.message}`);
+    }
+  };
+
+  if (isLoading) return <div>Loading opening hours...</div>;
 
   return (
-    <div>
-      <div className="card opening-days-card">
-        <div className="opening-days-header">
-            <h2>Opening Days</h2>
-            <div className="time-controls">
-            <h3>Time</h3>
-            <select 
-              className="time-select" 
-              value={globalTime.startTime}
-              onChange={(e) => handleTimeChange('startTime', e.target.value)}
-            >
-                <option value="8:00">8:00</option>
-                <option value="9:00">9:00</option>
-                <option value="10:00">10:00</option>
-            </select>
-            <select 
-              className="period-select"
-              value={globalTime.startPeriod}
-              onChange={(e) => handleTimeChange('startPeriod', e.target.value)}
-            >
-                <option value="am">am</option>
-                <option value="pm">pm</option>
-            </select>
-            <span className="time-separator">-</span>
-            <select 
-              className="time-select"
-              value={globalTime.endTime}
-              onChange={(e) => handleTimeChange('endTime', e.target.value)}
-            >
-                <option value="4:00">4:00</option>
-                <option value="5:00">5:00</option>
-                <option value="6:00">6:00</option>
-            </select>
-            <select 
-              className="period-select"
-              value={globalTime.endPeriod}
-              onChange={(e) => handleTimeChange('endPeriod', e.target.value)}
-            >
-                <option value="am">am</option>
-                <option value="pm">pm</option>
-            </select>
-            </div>
+    <div className="opening-hours-container">
+      <div className="opening-hours-header">
+        <h2>Opening Hours</h2>
+        <div className="opening-hours-actions">
+          {isEditing ? (
+            <>
+              <button onClick={() => setIsEditing(false)} className="cancel-button">
+                Cancel
+              </button>
+              <button onClick={handleSave} className="save-button">
+                Save Changes
+              </button>
+            </>
+          ) : (
+            <button onClick={() => setIsEditing(true)} className="edit-button">
+              Edit Hours
+            </button>
+          )}
         </div>
-        
-        <div className="opening-days-table">
-            <div className="table-header">
-            <span>Date</span>
-            <span>Time</span>
-            </div>
-            
-            {openingDays.map((dayInfo, index) => (
-            <div className={`table-row ${!dayInfo.checked ? 'row-disabled' : ''}`} key={dayInfo.day}>
-                <div className="day-column">
-                <input 
-                    type="checkbox" 
-                    checked={dayInfo.checked}
-                    className="day-checkbox"
-                    onChange={() => handleCheckboxChange(index)}
-                />
-                <span className={`day-name ${!dayInfo.checked ? 'disabled' : ''}`}>
-                    {dayInfo.day}
-                </span>
-                </div>
-                <div className="time-column">
-                {editingRowIndex === index ? (
-                    <EditableField
-                        value={formatTimeString(dayInfo)}
-                        onSave={(newValue) => handleRowTimeSave(index, newValue)}
-                        className="time-editable-field"
-                        placeholder="e.g., 9:00 am - 5:00 pm"
-                    />
-                ) : (
-                    <>
-                        <span className={`time-display ${!dayInfo.checked ? 'disabled' : ''}`}>
-                            <span className="start-time">{dayInfo.startTime} {dayInfo.startPeriod}</span>
-                            <span className="time-separator"> - </span>
-                            <span className="end-time">{dayInfo.endTime} {dayInfo.endPeriod}</span>
-                        </span>
-                        <span 
-                            className="edit-icon" 
-                            onClick={() => handleRowTimeEdit(index)}
-                            style={{ cursor: 'pointer' }}
-                        >
-                            <FaRegEdit />
-                        </span>
-                    </>
-                )}
-                </div>
-            </div>
-            ))}
-        </div>
-        
-        <button className="save-update-button">Save and Update</button>
-        </div>
-    </div>
-  )
-}
+      </div>
 
-export default OpeningDays
+      <table className="opening-hours-table">
+        <thead>
+          <tr>
+            <th>Day</th>
+            <th>Open</th>
+            <th>Opening Time</th>
+            <th>Closing Time</th>
+          </tr>
+        </thead>
+        <tbody>
+          {openingHours.map((day, index) => (
+            <tr key={day.day_of_week}>
+              <td>{daysOfWeek[day.day_of_week]}</td>
+              <td>
+                <input
+                  type="checkbox"
+                  checked={day.is_open}
+                  onChange={() => handleToggleOpen(index)}
+                  disabled={!isEditing}
+                />
+              </td>
+              <td>
+                {isEditing && day.is_open ? (
+                  <input
+                    type="time"
+                    value={formatTimeForInput(day.opening_time)}
+                    onChange={(e) => handleTimeChange(index, 'opening_time', e.target.value)}
+                    disabled={!day.is_open}
+                  />
+                ) : (
+                  formatTimeForDisplay(day.opening_time)
+                )}
+              </td>
+              <td>
+                {isEditing && day.is_open ? (
+                  <input
+                    type="time"
+                    value={formatTimeForInput(day.closing_time)}
+                    onChange={(e) => handleTimeChange(index, 'closing_time', e.target.value)}
+                    disabled={!day.is_open}
+                  />
+                ) : (
+                  formatTimeForDisplay(day.closing_time)
+                )}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+};
+
+export default OpeningHours;

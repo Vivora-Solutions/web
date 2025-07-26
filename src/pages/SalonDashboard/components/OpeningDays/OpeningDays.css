@@ -1,150 +1,74 @@
-.opening-days-card {
-  background: white;
-  border-radius: 8px;
+.opening-hours-container {
+  max-width: 800px;
+  margin: 20px auto;
   padding: 20px;
-  margin-bottom: 20px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
-.opening-days-header {
+.opening-hours-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
 }
 
-.opening-days-header h2, .opening-days-header h3 {
-  margin: 0;
-  font-size: 18px;
-  font-weight: 600;
-  color: #333;
-  vertical-align: middle;
-}
-
-.time-controls {
+.opening-hours-actions {
   display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.time-select, .period-select {
-  padding: 8px 12px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  background: white;
-  font-size: 14px;
-}
-
-.time-select {
-  width: 80px;
-}
-
-.period-select {
-  width: 70px;
-}
-
-.time-separator {
-  margin: 0 5px;
-  color: #666;
-}
-
-.opening-days-table {
-  margin-bottom: 20px;
-}
-
-.table-header {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  padding: 12px 0;
-  border-bottom: 1px solid #eee;
-  font-weight: 600;
-  color: #666;
-  font-size: 14px;
-}
-
-.table-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  padding: 12px 0;
-  border-bottom: 1px solid #f5f5f5;
-  align-items: center;
-}
-
-.day-column {
-  display: flex;
-  align-items: center;
   gap: 10px;
 }
 
-.day-checkbox {
-  width: 16px;
-  height: 16px;
-  accent-color: #4CAF50;
-  cursor: pointer;
-}
-
-.day-name {
-  font-size: 14px;
-  color: #333;
-}
-
-.day-name.disabled {
-  color: #999;
-}
-
-.time-column {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.time-display {
-  font-size: 14px;
-  color: #333;
-}
-
-.time-display.disabled {
-  color: #999;
-}
-
-.edit-icon {
-  cursor: pointer;
-  color: #666;
-  font-size: 14px;
-  padding: 4px;
-  border-radius: 3px;
-  transition: background-color 0.2s;
-}
-
-.edit-icon:hover {
-  background-color: #f5f5f5;
-}
-
-
-
-.save-update-button:hover {
-  background-color: #555;
-}
-
-/* Save and Update Button */
-.save-update-button {
-  background-color: #232323; /* Blue */
-  color: white;
+button {
+  padding: 8px 16px;
   border: none;
-  padding: 10px 20px;
-  border-radius: 5px;
+  border-radius: 4px;
   cursor: pointer;
-  font-size: 16px;
-  transition: background-color 0.3s ease;
-  margin-top: 15px;
+  font-weight: 500;
 }
 
-.row-disabled {
+.edit-button {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.save-button {
+  background-color: #2196F3;
+  color: white;
+}
+
+.cancel-button {
+  background-color: #f44336;
+  color: white;
+}
+
+.opening-hours-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.opening-hours-table th,
+.opening-hours-table td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.opening-hours-table th {
+  background-color: #f8f9fa;
+  font-weight: 600;
+}
+
+.opening-hours-table tr:hover {
   background-color: #f5f5f5;
-  opacity: 0.6;
 }
 
-.row-disabled .edit-icon {
-  opacity: 0.4;
-  pointer-events: none;
+input[type="time"] {
+  padding: 6px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+input[type="checkbox"] {
+  transform: scale(1.2);
 }
