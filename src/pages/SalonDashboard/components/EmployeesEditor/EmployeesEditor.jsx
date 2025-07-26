@@ -1,18 +1,19 @@
 import React, { useState } from 'react';
-import { FaRegEdit, FaTrashAlt, FaCheck, FaTimes } from 'react-icons/fa';
+import { FaRegEdit, FaTrashAlt } from 'react-icons/fa';
 import { assets } from '../../../../assets/assets'; 
 import EditableField from '../../../../components/EditableField/EditableField';
+import EditEmployeePopup from '../EditEmployeePopup/EditEmployeePopup'; 
+import AddEmployeePopup from '../AddEmployeePopup/AddEmployeePopup';  
 import './EmployeesEditor.css';
 
 const EmployeesEditor = () => {
   const [employees, setEmployees] = useState([
     { name: 'Ruwan', contact_no: '0777777777', profilePic: assets.noProfilepic },
-    { name: 'Ruwan', contact_no: '0777777777', profilePic: assets.noProfilepic },
+    { name: 'Sunil', contact_no: '0777123123', profilePic: assets.noProfilepic },
   ]);
 
-  const [isAdding, setIsAdding] = useState(false);
-  const [newEmployee, setNewEmployee] = useState({ name: '', contact_no: '', profilePic: assets.noProfilepic });
-  const [editingIndex, setEditingIndex] = useState(-1);
+  const [popupIndex, setPopupIndex] = useState(-1);  // for Edit popup
+  const [showAddPopup, setShowAddPopup] = useState(false);  // for Add popup
 
   const handleDelete = (index) => {
     const updated = [...employees];
@@ -21,62 +22,30 @@ const EmployeesEditor = () => {
   };
 
   const addNewEmployee = () => {
-    setIsAdding(true);
-    setNewEmployee({ name: '', contact_no: '', profilePic: assets.noProfilepic });
+    setShowAddPopup(true);
   };
 
-  const handleSaveNewEmployee = () => {
-    if (newEmployee.name && newEmployee.contact_no) {
-      setEmployees([...employees, {
-        name: newEmployee.name,
-        contact_no: newEmployee.contact_no,
-        profilePic: newEmployee.profilePic
-      }]);
-      setIsAdding(false);
-      setNewEmployee({ name: '', contact_no: '', profilePic: assets.noProfilepic });
-    }
-  };
-
-  const handleCancelNewEmployee = () => {
-    setIsAdding(false);
-    setNewEmployee({ name: '', contact_no: '', profilePic: assets.noProfilepic });
-  };
-
-  const handleNewEmployeeChange = (field, value) => {
-    setNewEmployee(prev => ({
-      ...prev,
-      [field]: value
-    }));
-  };
-
-  const handleProfilePicChange = (event, isNew = false) => {
-    const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        if (isNew) {
-          setNewEmployee(prev => ({ ...prev, profilePic: e.target.result }));
-        }
-      };
-      reader.readAsDataURL(file);
-    }
+  const handleAddNewEmployee = (data) => {
+    setEmployees([...employees, data]);
+    setShowAddPopup(false);
   };
 
   const handleEditEmployee = (index) => {
-    setEditingIndex(index);
+    setPopupIndex(index);
   };
 
-  const handleSaveEmployee = (index, field, value) => {
+  const handleSaveEmployee = (index, updatedData) => {
     const updated = [...employees];
     updated[index] = {
       ...updated[index],
-      [field]: value
+      ...updatedData,
     };
     setEmployees(updated);
+    setPopupIndex(-1);
   };
 
   const handleCancelEdit = () => {
-    setEditingIndex(-1);
+    setPopupIndex(-1);
   };
 
   return (
@@ -84,114 +53,60 @@ const EmployeesEditor = () => {
       <h3>Employees</h3>
 
       <table className="employees-table">
-        {/* <thead>
-          <tr>
-            <th>Profile</th>
-            <th>Name</th>
-            <th>Phone Number</th>
-            <th>Actions</th>
-          </tr>
-        </thead> */}
         <tbody>
           <tr className="add-employee-row">
             <td colSpan={4}>
               <button 
                 className="add-employee-btn" 
                 onClick={addNewEmployee}
-                disabled={isAdding}
               >
                 + Add Employee
               </button>
             </td>
           </tr>
-          
-          {isAdding && (
-            <tr className="new-employee-row">
-              <td className="profile-cell">
-                <div className="profile-upload">
-                  <img src={newEmployee.profilePic} alt="Profile" className="employee-avatar" />
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => handleProfilePicChange(e, true)}
-                    className="profile-input"
-                    id="profile-upload"
-                  />
-                  <label htmlFor="profile-upload" className="profile-edit-btn">
-                    📷
-                  </label>
-                </div>
-              </td>
-              <td>
-                <input
-                  type="text"
-                  placeholder="Employee name"
-                  value={newEmployee.name}
-                  onChange={(e) => handleNewEmployeeChange('name', e.target.value)}
-                  className="employee-input"
-                />
-              </td>
-              {/* <td>
-                <input
-                  type="text"
-                  placeholder="Phone number"
-                  value={newEmployee.contact_no}
-                  onChange={(e) => handleNewEmployeeChange('contact_no', e.target.value)}
-                  className="employee-input"
-                />
-              </td> */}
-              <td className="action-buttons-employee">
-                <button className="save-btn" onClick={handleSaveNewEmployee}>
-                  <FaCheck />
-                </button>
-                <button className="cancel-btn" onClick={handleCancelNewEmployee}>
-                  <FaTimes />
-                </button>
-              </td>
-            </tr>
-          )}
-          
+
           {employees.map((employee, index) => (
-            <tr key={index} className={editingIndex === index ? 'editing-row' : 'employee-row'}>
+            <tr key={index} className="employee-row">
               <td className="profile-cell">
                 <img src={employee.profilePic} alt="Profile" className="employee-avatar" />
               </td>
               <td className="name-cell">
-                <EditableField
-                  value={employee.name}
-                  onSave={(value) => handleSaveEmployee(index, 'name', value)}
-                  className={`table-editable ${editingIndex === index ? 'editing-enabled' : 'editing-disabled'}`}
-                />
+               <span className="employee-name-display">{employee.name}</span>
               </td>
-              {/* <td className="contact-cell">
-                <EditableField
-                  value={employee.contact_no}
-                  onSave={(value) => handleSaveEmployee(index, 'contact_no', value)}
-                  className={`table-editable ${editingIndex === index ? 'editing-enabled' : 'editing-disabled'}`}
-                />
-              </td> */}
               <td className="action-buttons-employee">
-                {editingIndex === index ? (
-                  <button className="cancel-edit-btn" onClick={handleCancelEdit}>
-                    <FaTimes />
-                  </button>
-                ) : (
-                  <>
-                    <button className="edit-btn" onClick={() => handleEditEmployee(index)}>
-                      <FaRegEdit />
-                    </button>
-                    <button className="delete-btn" onClick={() => handleDelete(index)}>
-                      <FaTrashAlt />
-                    </button>
-                  </>
-                )}
+                <button className="edit-btn" onClick={() => handleEditEmployee(index)}>
+                  <FaRegEdit />
+                </button>
+                <button className="delete-btn" onClick={() => handleDelete(index)}>
+                  <FaTrashAlt />
+                </button>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
 
-      <button className="save-update-btn" onClick={() => {console.log("Employees saved")}}>Save and Update</button>
+      <button className="save-update-btn" onClick={() => console.log("Employees saved")}>
+        Save and Update
+      </button>
+
+      {/* Edit Popup */}
+      {popupIndex !== -1 && (
+        <EditEmployeePopup
+          employee={employees[popupIndex]}
+          onClose={handleCancelEdit}
+          onSave={(data) => handleSaveEmployee(popupIndex, data)}
+        />
+      )}
+
+      {/* Add Popup */}
+      {showAddPopup && (
+        <AddEmployeePopup
+          onSave={handleAddNewEmployee}
+          onClose={() => setShowAddPopup(false)}
+          defaultPic={assets.noProfilepic}
+        />
+      )}
     </div>
   );
 };
