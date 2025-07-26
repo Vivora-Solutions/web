@@ -110,3 +110,4 @@ const SalonBooking = () => {
 };
 
 export default SalonBooking;
+
