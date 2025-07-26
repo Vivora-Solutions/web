@@ -14,7 +14,7 @@ import {
   FiRefreshCw,
 } from 'react-icons/fi';
 import './salonprofile.css';
-import salonImage from '../../assets/images/salonimage.png';
+import salonImage from '../../assets/images/salonImage.png';
 
 // Fix Leaflet default markers
 delete L.Icon.Default.prototype._getIconUrl;

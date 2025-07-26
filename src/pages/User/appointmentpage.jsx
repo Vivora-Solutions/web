@@ -6,7 +6,7 @@ import StarRating from './components/rating';
 import LocationIndicator from './components/location';
 import './appointmentpage.css';
 import salonLogo from '../../assets/images/salonLogo.png';
-import salonImage from '../../assets/images/salonimage.png';
+import salonImage from '../../assets/images/salonImage.png';
 
 const AppointmentPage = () => {
   const { salonId } = useParams();

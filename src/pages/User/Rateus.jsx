@@ -1,7 +1,7 @@
 // src/pages/RateUs.js
 
 import React, { useState } from 'react';
-import './RateUs.css';
+import './Rateus.css';
 import BlackButton from './components/blackbutton';
 
 const RateUs = () => {
