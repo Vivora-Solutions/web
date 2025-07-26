@@ -1,0 +1,154 @@
+/* ServicesSection Component Styles */
+
+/* Category filter buttons */
+.category-filter-active {
+  background-color: #000000;
+  color: #ffffff;
+}
+
+.category-filter-inactive {
+  background-color: #f3f4f6;
+  color: #374151;
+}
+
+.category-filter-inactive:hover {
+  background-color: #e5e7eb;
+}
+
+/* Service card styles */
+.service-card {
+  transition: all 0.2s ease;
+}
+
+.service-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.service-card-selected {
+  border-color: #000000;
+  background-color: #f9fafb;
+}
+
+.service-card-unavailable {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Service selection checkbox animation */
+.service-checkbox {
+  transition: all 0.2s ease;
+}
+
+.service-checkbox-checked {
+  background-color: #000000;
+  transform: scale(1.1);
+}
+
+/* Price and duration styling */
+.service-price {
+  font-weight: 600;
+  color: #111827;
+}
+
+.service-duration {
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+/* Rating stars */
+.rating-star {
+  fill: #fbbf24;
+  color: #fbbf24;
+}
+
+/* Total summary section */
+.services-summary {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin-top: 1rem;
+}
+
+/* Book button hover effect */
+.book-button {
+  transition: all 0.2s ease;
+}
+
+.book-button:hover {
+  background-color: #374151;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Empty state icon animation */
+.empty-state-icon {
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+/* Responsive grid adjustments */
+@media (max-width: 768px) {
+  .services-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .services-summary {
+    padding: 0.75rem;
+  }
+}
+
+/* Service card grid layout */
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1rem;
+}
+
+/* Focus states for accessibility */
+.service-card:focus {
+  outline: 2px solid #000000;
+  outline-offset: 2px;
+}
+
+.category-filter-button:focus {
+  outline: 2px solid #000000;
+  outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .service-card-selected {
+    border-color: #000000;
+    border-width: 3px;
+  }
+  
+  .category-filter-active {
+    border: 2px solid #ffffff;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .service-card,
+  .service-checkbox,
+  .book-button {
+    transition: none;
+  }
+  
+  .empty-state-icon {
+    animation: none;
+  }
+  
+  .service-card:hover {
+    transform: none;
+  }
+}

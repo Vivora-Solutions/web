@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import BlackButton from './componants/blackbutton';
+import BlackButton from './components/blackbutton';
 import './Signup.css';
 
 const Signup = () => {
