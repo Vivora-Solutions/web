@@ -3,8 +3,8 @@ import { useNavigate } from "react-router-dom"; // ✅ Added
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import { parseWKBHexToLatLng } from "../../utils/wkbToLatLng";
 import Header from "../../components/Header/Header";
-import Navbar from "./components/Header/Navbar";
-import HeaderWithSearchBar from "./components/Header/HeaderWithSearchBar";
+import Navbar from "./components/Navbar";
+import HeaderWithSearchBar from "./components/HeaderWithSearchBar";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
@@ -59,15 +59,32 @@ const HomePage = () => {
   };
 
   return (
-    <div className="w-full h-screen flex flex-col">
-      <Header />
-      <Navbar />
-      <HeaderWithSearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+  <div className="w-full h-screen flex flex-col bg-gray-50">
+    <Header />
+    <Navbar />
 
-      <div className="h-1/2">
-        <MapContainer center={center} zoom={13} style={{ height: "100%", width: "100%" }}>
-          <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-          {filteredSalons.map(salon => (
+    {/* Search Bar Section */}
+    <div className="px-4 py-3 bg-white shadow-md z-10">
+      <HeaderWithSearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+    </div>
+
+    {/* Main Content */}
+    <div className="flex flex-col lg:flex-row flex-1 overflow-hidden">
+      
+      {/* Map Section */}
+      <div className="h-1/2 lg:h-full lg:w-1/2">
+        <MapContainer
+          center={center}
+          zoom={13}
+          style={{ height: "100%", width: "100%" }}
+        >
+         <TileLayer
+            url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+            attribution='&copy; <a href="https://carto.com/">CARTO</a>'
+          />
+
+
+          {filteredSalons.map((salon) => (
             <Marker
               key={salon.salon_id}
               position={[salon.coordinates.lat, salon.coordinates.lng]}
@@ -76,38 +93,41 @@ const HomePage = () => {
               <Popup>
                 <div
                   onClick={() => handleSalonClick(salon.salon_id)}
-                  className="cursor-pointer"
+                  className="cursor-pointer text-white bg-black p-2 rounded"
                 >
                   <b>{salon.salon_name}</b><br />
                   {salon.salon_address}<br />
-                  <span className="text-blue-600 underline">View Salon</span>
+                  <span className="text-blue-400 underline">View Salon</span>
                 </div>
               </Popup>
+
             </Marker>
           ))}
         </MapContainer>
       </div>
 
-      {/* Scrollable list */}
-      <div className="h-1/2 overflow-y-auto p-4 bg-white">
-        {filteredSalons.map(salon => (
+      {/* Salon List */}
+      <div className="h-1/2 lg:h-full lg:w-1/2 overflow-y-auto p-6 bg-white space-y-6">
+        {filteredSalons.map((salon) => (
           <div
             key={salon.salon_id}
-            onClick={() => handleSalonClick(salon.salon_id)} // ✅ Navigate on click
-            className="mb-4 p-3 border rounded-lg flex items-center cursor-pointer hover:bg-gray-100 transition"
+            onClick={() => handleSalonClick(salon.salon_id)}
+            className="flex items-center gap-4 bg-white shadow-md rounded-xl p-4 hover:shadow-lg transition-all cursor-pointer hover:-translate-y-0.5"
           >
             <img
               src={salon.salon_logo_link}
-              alt="logo"
-              className="w-16 h-16 object-cover rounded-full mr-4"
+              alt="Salon Logo"
+              className="w-16 h-16 rounded-full object-cover border border-gray-200 shadow-sm"
             />
-            <div>
-              <h3 className="text-lg font-semibold">{salon.salon_name}</h3>
-              <p className="text-sm text-gray-500">Open • 8.00 am to 10.00 pm</p>
+            <div className="flex-1">
+              <h3 className="text-lg font-semibold text-gray-800">{salon.salon_name}</h3>
+              <p className="text-sm text-gray-500">Open • 8:00 am to 10:00 pm</p>
               <p className="text-sm text-gray-600">{salon.salon_address}</p>
-              <div>
+              <div className="mt-1 flex text-yellow-400 text-lg">
                 {Array.from({ length: 5 }).map((_, i) => (
-                  <span key={i}>{i < salon.average_rating ? "⭐" : "☆"}</span>
+                  <span key={i}>
+                    {i < salon.average_rating ? "★" : "☆"}
+                  </span>
                 ))}
               </div>
             </div>
@@ -115,7 +135,9 @@ const HomePage = () => {
         ))}
       </div>
     </div>
-  );
+  </div>
+);
+
 };
 
 export default HomePage;

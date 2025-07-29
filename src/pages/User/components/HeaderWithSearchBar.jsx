@@ -1,4 +1,3 @@
-// components/Header.jsx
 import React from "react";
 
 const HeaderWithSearchBar = ({ searchTerm, setSearchTerm }) => {
