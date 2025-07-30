@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom"; // ✅ Added useNavigate
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import Slider from "react-slick";
@@ -8,6 +8,8 @@ import Navbar from "./components/Navbar";
 
 const AppointmentPage = () => {
   const { salonId } = useParams();
+  const navigate = useNavigate(); // ✅ Initialize navigate
+
   const [salon, setSalon] = useState(null);
   const [services, setServices] = useState([]);
   const [filteredServices, setFilteredServices] = useState([]);
@@ -65,21 +67,32 @@ const AppointmentPage = () => {
     }
   };
 
+  const handleProceed = () => {
+    if (selectedServices.length === 0) return;
+
+    navigate("/schedule", {
+      state: {
+        salonId,
+        serviceIds: selectedServices.map(s => s.service_id)
+      }
+    });
+  };
+
   const totalPrice = selectedServices.reduce((sum, s) => sum + (s.price || 0), 0);
   const totalDuration = selectedServices.reduce((sum, s) => sum + (s.duration_minutes || 0), 0);
 
   const sliderSettings = {
-  dots: true,
-  infinite: true,
-  speed: 500,
-  slidesToShow: 1,
-  slidesToScroll: 1,
-  autoplay: true,
-  autoplaySpeed: 500,
-  arrows: false,
-  pauseOnHover: false,
-  className: "rounded-lg overflow-hidden"
-};
+    dots: true,
+    infinite: true,
+    speed: 500,
+    slidesToShow: 1,
+    slidesToScroll: 1,
+    autoplay: true,
+    autoplaySpeed: 500,
+    arrows: false,
+    pauseOnHover: false,
+    className: "rounded-lg overflow-hidden"
+  };
 
 
   return (
@@ -182,27 +195,31 @@ const AppointmentPage = () => {
 
         {/* Summary & Actions */}
         <div className="pt-6 space-y-4 border-t">
-          <div className="flex justify-between text-sm text-gray-700">
-            <span>⏱ Duration</span>
-            <span>{totalDuration} minutes</span>
-          </div>
-          <div className="flex justify-between font-semibold text-lg">
-            <span>💰 Total</span>
-            <span>Rs {totalPrice.toLocaleString()}</span>
-          </div>
-          <div className="flex flex-col md:flex-row gap-4">
-            <button
-              className="w-full py-2 text-sm bg-gray-100 text-gray-500 border rounded-md cursor-not-allowed"
-              disabled
-            >
-              🧾 Pay at Venue
-            </button>
-            <button className="w-full py-2 text-sm bg-black text-white rounded-md hover:bg-gray-900 transition">
-              Proceed
-            </button>
+            <div className="flex justify-between text-sm text-gray-700">
+              <span>⏱ Duration</span>
+              <span>{totalDuration} minutes</span>
+            </div>
+            <div className="flex justify-between font-semibold text-lg">
+              <span>💰 Total</span>
+              <span>Rs {totalPrice.toLocaleString()}</span>
+            </div>
+            <div className="flex flex-col md:flex-row gap-4">
+              <button
+                className="w-full py-2 text-sm bg-gray-100 text-gray-500 border rounded-md cursor-not-allowed"
+                disabled
+              >
+                🧾 Pay at Venue
+              </button>
+              <button
+                onClick={handleProceed} // ✅ Added navigation handler
+                disabled={selectedServices.length === 0} // prevent empty proceed
+                className="w-full py-2 text-sm bg-black text-white rounded-md hover:bg-gray-900 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Proceed
+              </button>
+            </div>
           </div>
         </div>
-      </div>
     )}
   </div>
 

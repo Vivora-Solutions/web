@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // 👉 Import navigator
+import { useNavigate } from 'react-router-dom'; 
 import API from '../../utils/api';
-import './AllSalonsPage.css';
 
 const AllSalonsPage = () => {
   const [salons, setSalons] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const navigate = useNavigate(); // 👈 Initialize navigate
+  const navigate = useNavigate(); 
 
   useEffect(() => {
     const fetchSalons = async () => {
@@ -26,42 +25,47 @@ const AllSalonsPage = () => {
   );
 
   const handleRowClick = (salonId) => {
-    navigate(`/super-admin/booking/${salonId}`); // 👈 Redirect with salon ID
+    navigate(`/super-admin/booking/${salonId}`);
   };
 
   return (
-    <div className="all-salons-container">
-      <h2 className="page-title">Registered Salons</h2>
+    <div className="min-h-screen bg-gray-50 px-6 py-8">
+      <h2 className="text-2xl font-semibold text-gray-800 mb-6">Registered Salons</h2>
+
       <input
         type="text"
         placeholder="Search a Salon..."
-        className="search-bar"
+        className="w-full md:w-1/3 mb-6 px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
       />
 
-      <table className="salons-table">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Address</th>
-            <th>Registered Date</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredSalons.map((salon) => (
-            <tr
-              key={salon.salon_id}
-              onClick={() => handleRowClick(salon.salon_id)} // 👈 Clickable row
-              style={{ cursor: 'pointer' }} // 👈 Optional: visual feedback
-            >
-              <td>{salon.salon_name}</td>
-              <td>{salon.salon_address}</td>
-              <td>{new Date(salon.created_at).toLocaleDateString()}</td>
+      <div className="overflow-x-auto bg-white rounded-xl shadow-md">
+        <table className="w-full text-left text-sm text-gray-700">
+          <thead className="bg-gray-100 text-gray-600 text-sm uppercase tracking-wider">
+            <tr>
+              <th className="px-6 py-4">Name</th>
+              <th className="px-6 py-4">Address</th>
+              <th className="px-6 py-4">Registered Date</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {filteredSalons.map((salon) => (
+              <tr
+                key={salon.salon_id}
+                onClick={() => handleRowClick(salon.salon_id)}
+                className="cursor-pointer hover:bg-indigo-50 transition"
+              >
+                <td className="px-6 py-4 font-medium">{salon.salon_name}</td>
+                <td className="px-6 py-4">{salon.salon_address}</td>
+                <td className="px-6 py-4">
+                  {new Date(salon.created_at).toLocaleDateString()}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };

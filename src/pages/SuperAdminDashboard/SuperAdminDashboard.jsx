@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import API from '../../utils/api';
-import ChartCard from './componenets/ChartCard';
-import StatCard from './componenets/StatCard';
-import SalonVerifyModal from './componenets/SalonVerifyModal';
-
-import './SuperAdminDashboard.css';
+import ChartCard from './components/ChartCard';
+import StatCard from './components/StatCard';
+import SalonVerifyModal from './components/SalonVerifyModal';
 
 const SuperAdminDashboard = () => {
   const navigate = useNavigate();
@@ -59,8 +57,8 @@ const SuperAdminDashboard = () => {
     const fetchSalons = async () => {
       try {
         const res = await API.get('/super-admin/salons-unapproved');
-        setAllSalons(res.data);       // store original
-        setSalons(res.data);          // initialize filtered
+        setAllSalons(res.data);       
+        setSalons(res.data);         
       } catch (err) {
         console.error('Error fetching salons:', err);
       }
@@ -93,7 +91,7 @@ const SuperAdminDashboard = () => {
 const handleModalAction = async (actionType, salonId) => {
   try {
     await API.put(`/super-admin/salonsStatus/${salonId}`, {
-      is_approved: actionType === 'accept', // true for accept, false for decline
+      is_approved: actionType === 'accept', 
     });
 
     if (actionType === 'accept') {
@@ -109,66 +107,84 @@ const handleModalAction = async (actionType, salonId) => {
 
 
   return (
-    <div className="dashboard-container">
-      <h2 className="dashboard-title">Super Admin Dashboard</h2>
+  <div className="p-6 bg-gray-50 min-h-screen">
+    <h2 className="text-2xl font-semibold mb-6 text-gray-800">Super Admin Dashboard</h2>
 
-      <div className="charts-section">
-        <ChartCard title="User Analysis" data={chartData.users} />
-        <ChartCard title="Company Analysis" data={chartData.salons} />
-        <ChartCard title="Bookings" data={chartData.bookings} />
-      </div>
+    {/* Charts */}
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <ChartCard title="User Analysis" data={chartData.users} />
+      <ChartCard title="Company Analysis" data={chartData.salons} />
+      <ChartCard title="Bookings" data={chartData.bookings} />
+    </div>
 
-      <div className="charts-section">
-        <StatCard label="Total Users" value={counts.totalCustomers} />
-        <StatCard label="Total Salons" value={counts.totalSalons} />
-        <StatCard label="Total Bookings" value={counts.totalBookings} />
-      </div>
+    {/* Stats */}
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+      <StatCard label="Total Users" value={counts.totalCustomers} />
+      <StatCard label="Total Salons" value={counts.totalSalons} />
+      <StatCard label="Total Bookings" value={counts.totalBookings} />
+    </div>
 
-      <div className="verify-salons-header">
-        <h3>Verify Salons</h3>
-        <button className="view-all-button" onClick={() => navigate('/all-salons')}>
-          View All Registered Salons
-        </button>
-      </div>
+    {/* Verify Salons */}
+    <div className="flex flex-col md:flex-row md:items-center justify-between mb-4">
+      <h3 className="text-lg font-semibold text-gray-700">Verify Salons</h3>
+      <button
+        className="text-sm bg-black text-white px-4 py-2 rounded hover:bg-gray-800 transition"
+        onClick={() => navigate('/all-salons')}
+      >
+        View All Registered Salons
+      </button>
+    </div>
 
-      <input
-        type="text"
-        className="search-bar"
-        placeholder="Search salons..."
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-      />
+    <input
+      type="text"
+      placeholder="Search salons..."
+      className="w-full md:w-1/3 p-2 border border-gray-300 rounded mb-6 focus:outline-none focus:ring-2 focus:ring-gray-500"
+      value={searchTerm}
+      onChange={(e) => setSearchTerm(e.target.value)}
+    />
 
-      <div className="salon-list-wrapper">
-        <button className="scroll-btn left">◀</button>
-        <div className="salon-list">
+    {/* Scrollable Salon Cards */}
+    <div className="relative">
+      <button className="absolute left-0 top-1/2 transform -translate-y-1/2 z-10 bg-white shadow-md p-2 rounded-full">
+        ◀
+      </button>
+
+      <div className="overflow-x-auto whitespace-nowrap px-8">
+        <div className="inline-flex gap-4">
           {salons.map((salon) => (
             <div
-              className="salon-card"
               key={salon.salon_id}
+              className="bg-white shadow-md rounded-lg w-60 shrink-0 cursor-pointer hover:shadow-xl transition duration-300"
               onClick={() => handleSalonClick(salon.salon_id)}
             >
               <img
                 src={salon.salon_logo_link}
                 alt={salon.salon_name}
-                className="salon-image"
+                className="h-36 w-full object-cover rounded-t-lg"
               />
-              <div className="salon-info">
-                <h4>{salon.salon_name}</h4>
-                <p>{salon.salon_address}</p>
+              <div className="p-3">
+                <h4 className="text-md font-semibold text-gray-700">{salon.salon_name}</h4>
+                <p className="text-sm text-gray-500">{salon.salon_address}</p>
               </div>
             </div>
-                ))}
-              </div>
-              <button className="scroll-btn right">▶</button>
-            </div>
-            <SalonVerifyModal
-        salon={selectedSalon}
-        onClose={() => setSelectedSalon(null)}
-        onAction={handleModalAction}
-      />
+          ))}
+        </div>
+      </div>
+
+      <button className="absolute right-0 top-1/2 transform -translate-y-1/2 z-10 bg-white shadow-md p-2 rounded-full">
+        ▶
+      </button>
     </div>
-  );
+
+    {/* Modal */}
+    <SalonVerifyModal
+      salon={selectedSalon}
+      onClose={() => setSelectedSalon(null)}
+      onAction={handleModalAction}
+    />
+  </div>
+);
+
 };
 
 export default SuperAdminDashboard;

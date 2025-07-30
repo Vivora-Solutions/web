@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import API from '../../utils/api';
-import './SalonDetailsPage.css';
 
 const SalonDetailsPage = () => {
   const { salonid } = useParams();
@@ -13,7 +12,7 @@ const SalonDetailsPage = () => {
     const fetchSalonInfo = async () => {
       try {
         const res = await API.get(`/super-admin/salons/${salonid}`);
-        setSalonInfo(res.data); // 🎯 Salon details
+        setSalonInfo(res.data);
       } catch (err) {
         console.error('Error fetching salon info:', err);
       }
@@ -38,37 +37,56 @@ const SalonDetailsPage = () => {
 
   const filteredBookings = bookings.filter(b => b.gender === selectedGender);
 
+
   return (
-    <div className="salon-details-container">
-      <header className="salon-header">
-        <div className="salon-info">
+    <div className="p-6 bg-gray-50 min-h-screen">
+      <header className="bg-white p-6 rounded-xl shadow-md mb-8">
+        <div className="flex gap-6 items-center">
           <img
             src={salonInfo?.salon_logo_link || '/default-logo.png'}
             alt="salon logo"
-            className="salon-logo"
+            className="w-24 h-24 object-cover rounded-lg border"
           />
           <div>
-            <h2>{salonInfo?.salon_name || 'Salon Name'}</h2>
-            <p>{salonInfo?.salon_description || 'Description not provided'}</p>
-            <p>📍 {salonInfo?.salon_address || 'Address not provided'}</p>
-            <p>📞 {salonInfo?.salon_contact_number || 'Contact number not provided'}</p>
+            <h2 className="text-2xl font-semibold text-gray-800">
+              {salonInfo?.salon_name || 'Salon Name'}
+            </h2>
+            <p className="text-gray-600">{salonInfo?.salon_description || 'Description not provided'}</p>
+            <p className="text-sm text-gray-500">📍 {salonInfo?.salon_address}</p>
+            <p className="text-sm text-gray-500">📞 {salonInfo?.salon_contact_number}</p>
           </div>
         </div>
       </header>
 
-      <section className="filter-section">
-        <div className="gender-filter">
-          <button onClick={() => filterByGender('Male')} className={selectedGender === 'Male' ? 'active' : ''}>Male</button>
-          <button onClick={() => filterByGender('Female')} className={selectedGender === 'Female' ? 'active' : ''}>Female</button>
-          <button onClick={() => filterByGender('Children')} className={selectedGender === 'Children' ? 'active' : ''}>Children</button>
-          <button onClick={() => filterByGender('Unisex')} className={selectedGender === 'Unisex' ? 'active' : ''}>Unisex</button>
+      {/* Filter Section */}
+      <section className="mb-6 flex flex-wrap gap-4 items-center justify-between">
+        {/* Gender Filter */}
+        <div className="flex gap-2">
+          {['Male', 'Female', 'Children', 'Unisex'].map((gender) => (
+            <button
+              key={gender}
+              onClick={() => filterByGender(gender)}
+              className={`px-4 py-2 rounded-full text-sm font-medium transition ${
+                selectedGender === gender
+                  ? 'bg-indigo-600 text-white'
+                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              }`}
+            >
+              {gender}
+            </button>
+          ))}
         </div>
 
-        <div className="range-filter">
-          <button>1 Day</button>
-          <button>3 Days</button>
-          <button>1 Week</button>
-          <button>1 Month</button>
+        {/* Time Range Filter (inactive logic but styled) */}
+        <div className="flex gap-2">
+          {['1 Day', '3 Days', '1 Week', '1 Month'].map((range) => (
+            <button
+              key={range}
+              className="px-4 py-2 rounded-full text-sm bg-gray-100 text-gray-600 hover:bg-gray-200"
+            >
+              {range}
+            </button>
+          ))}
         </div>
       </section>
 
