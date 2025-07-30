@@ -8,11 +8,12 @@ import Header from '../../components/Header/Header';
 import OpeningDays from './components/OpeningDays/OpeningDays';
 import { assets } from '../../assets/assets';
 import ServicesEditor from './components/ServicesEditor/ServicesEditor';
-import EmployeesEditor from './components/EmployeesEditor/EmployeesEditor';
+// import EmployeesEditor from './components/EmployeesEditor/EmployeesEditor';
 import PhotoSection from './components/PhotoSection/PhotoSection';
 import API from '../../utils/api';
 import SalonInfo from './components/DashboardHeader/SalonInfo';
 import ServiceManagement from './components/ServiceManagement/ServiceManagement'; 
+import StylistManagement from './components/StylistManagement/StylistManagement';
 
 
 const SalonDashboard = () => {
@@ -64,7 +65,8 @@ const handleUpdate = async (updatedData) => {
         </div> */}
         <div className="services-employees-container">
           {/* <ServicesEditor /> */}
-          <EmployeesEditor />
+          {/* <EmployeesEditor /> */}
+          <StylistManagement/>
         </div>
       </div>
     </div>
