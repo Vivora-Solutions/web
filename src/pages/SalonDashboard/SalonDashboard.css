@@ -1,73 +1,61 @@
-.salon-dashboard-container {
-  padding: 20px;
-  background-color: #f4f4f4;
+.dashboard-layout {
   min-height: 100vh;
-  font-family: Arial, sans-serif;
-  color: #333;
-  
-}
-
-.opening-days-container {
-  width: 70%;
-}
-
-
-/* Services and Employees Container */
-.services-employees-container {
   display: flex;
-  flex-wrap: wrap;
-  gap: 1.5rem; /* spacing between the two cards */
+  flex-direction: column;
+  background: #f9fafb;
+}
+
+.dashboard-body {
+  display: flex;
+  flex: 1;
+  height: calc(100vh - 60px); /* adjust based on header */
+}
+
+.main-panel {
+  flex: 1;
+  padding: 2rem;
+  overflow-y: auto;
+}
+
+.loading-container {
+  min-height: 100vh;
+  display: flex;
   justify-content: center;
-  align-items: flex-start;
-  padding: 1rem;
+  align-items: center;
+  flex-direction: column;
 }
 
-.services-container,
-.employees-container {
-  flex: 1 1 600px; 
-  max-width: 600px;
-  /* min-width: 350px; */
-  box-sizing: border-box;
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #ccc;
+  border-top: 4px solid #6366f1;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
 }
 
-@media (max-width: 768px) {
-  .services-employees-container {
-    flex-direction: column;
-    gap: 1.5rem;
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
   }
 }
-
-/* Responsive adjustments */
-@media (max-width: 992px) {
-  .salon-header {
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-  }
-
-  .salon-info-section {
-    width: 100%;
-  }
-
-  .salon-title-row {
-    justify-content: center;
-  }
+.dashboard-layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #f9fafb;
 }
 
-@media (max-width: 768px) {
-  .photos-grid {
-    justify-content: center;
-  }
+.dashboard-body {
+  display: flex;
+  flex: 1;
+  height: calc(100vh - 60px); /* Adjust for header */
+  position: relative;
 }
 
-@media (max-width: 600px) {
-  .dashboard-content {
-    padding: 10px;
-  }
-
-  .add-photos-placeholder,
-  .salon-photo-thumbnail {
-    width: 100px;
-    height: 100px;
-  }
+.main-panel {
+  flex: 1;
+  padding: 2rem;
+  overflow-y: auto;
 }

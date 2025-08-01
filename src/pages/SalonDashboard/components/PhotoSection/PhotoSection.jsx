@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './PhotoSection.css';
 import API from '../../../../utils/api';
+import LoadingSpinner from '../../../../components/LoadingSpinner/LoadingSpinner';
 
 const PhotoSection = () => {
   const [photos, setPhotos] = useState([]); // Now stores objects with image_link and image_id
@@ -11,12 +12,13 @@ const PhotoSection = () => {
   // Fetch images on component mount
   useEffect(() => {
     const fetchImages = async () => {
+      setIsLoading(true);
       try {
         const response = await API.get('/salon-admin/images');
         setPhotos(response.data.images);
-        setIsLoading(false);
       } catch (error) {
         console.error('Error fetching images:', error);
+      } finally {
         setIsLoading(false);
       }
     };
@@ -94,7 +96,7 @@ const PhotoSection = () => {
     setCurrentIndex((currentIndex - 1 + photos.length) % photos.length);
   };
 
-  if (isLoading) return <div className="card photos-card">Loading photos...</div>;
+  if (isLoading) return <LoadingSpinner message="Loading photos..." />;
 
   return (
     <div className="card photos-card">
