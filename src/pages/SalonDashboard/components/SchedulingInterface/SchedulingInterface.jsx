@@ -1,27 +1,51 @@
-"use client";
+"use client"
 
-import { useEffect, useState } from "react";
-import "./SchedulingInterface.css";
-import API from "../../../../utils/api";
+import { useEffect, useState } from "react"
+import "./SchedulingInterface.css"
+import API from "../../../../utils/api"
+import { PersonStandingIcon, Phone } from "lucide-react"
 
 const SchedulingInterface = () => {
-  const [selectedFilter, setSelectedFilter] = useState("All");
-  const [selectedDays, setSelectedDays] = useState("3 Days");
-  const [showAddSlotPanel, setShowAddSlotPanel] = useState(false);
-  const [schedules, setSchedules] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [stylists, setStylists] = useState([]);
-  const [services, setServices] = useState([]);
+  const [selectedStylists, setSelectedStylists] = useState([]) // Changed to array
+  const [selectedDays, setSelectedDays] = useState("3 Days")
+  const [showAddSlotPanel, setShowAddSlotPanel] = useState(false)
+  const [schedules, setSchedules] = useState([])
+  const [loading, setLoading] = useState(false)
+  const [stylists, setStylists] = useState([])
+  const [services, setServices] = useState([])
   const [newSlot, setNewSlot] = useState({
     name: "",
     services: [],
     stylist: "Any",
     date: "",
     time: "",
-  });
+  })
+  const [showAppointmentPanel, setShowAppointmentPanel] = useState(false)
+  const [selectedAppointment, setSelectedAppointment] = useState(null)
 
-  const [showAppointmentPanel, setShowAppointmentPanel] = useState(false);
-  const [selectedAppointment, setSelectedAppointment] = useState(null);
+  // Updated stylists with unique colors
+  const defaultColors = ["#ff6b6b", "#4ecdc4", "#45b7d1", "#96ceb4", "#feca57", "#ff9ff3"]
+
+  // Time slots from 5 AM to 7 PM with 1-hour intervals
+  const timeSlots = [
+    "5:00 am",
+    "6:00 am",
+    "7:00 am",
+    "8:00 am",
+    "9:00 am",
+    "10:00 am",
+    "11:00 am",
+    "12:00 pm",
+    "1:00 pm",
+    "2:00 pm",
+    "3:00 pm",
+    "4:00 pm",
+    "5:00 pm",
+    "6:00 pm",
+    "7:00 pm",
+  ]
+
+  const dayFilters = ["1 Day", "2 Days", "3 Days", "5 Days"]
 
   useEffect(() => {
     const fetchData = async () => {
@@ -127,168 +151,156 @@ const SchedulingInterface = () => {
     fetchData();
   }, []);
 
-  const generateDates = (days) => {
-    const dates = [];
-    const today = new Date();
-
-    for (let i = 1; i <= Number.parseInt(days.split(" ")[0]); i++) {
-      const date = new Date(today);
-      date.setDate(today.getDate() + i);
-      const dayName = date.getDate();
-      const monthName = date.toLocaleString("default", { month: "long" });
-      dates.push(`${dayName}${getDaySuffix(dayName)} ${monthName}`);
-    }
-
-    return dates;
-  };
-
   const getDaySuffix = (day) => {
-    if (day > 3 && day < 21) return "th";
+    if (day > 3 && day < 21) return "th"
     switch (day % 10) {
       case 1:
-        return "st";
+        return "st"
       case 2:
-        return "nd";
+        return "nd"
       case 3:
-        return "rd";
+        return "rd"
       default:
-        return "th";
+        return "th"
     }
-  };
+  }
 
-  // Updated stylists with unique colors - now populated from API
-  const defaultColors = [
-    "#ffb3ba",
-    "#baffc9",
-    "#bae1ff",
-    "#ffffba",
-    "#ffdfba",
-    "#e0bbff",
-  ];
+  const generateDates = (days) => {
+    const dates = []
+    const today = new Date()
+    today.setDate(today.getDate() - 5) // Start from tomorrow
+    for (let i = 0; i < Number.parseInt(days.split(" ")[0]); i++) {
+      const date = new Date(today)
+      date.setDate(today.getDate() + i)
+      const dayName = date.getDate()
+      const monthName = date.toLocaleString("default", { month: "long" })
+      dates.push(`${dayName}${getDaySuffix(dayName)} ${monthName}`)
+    }
+    return dates
+  }
 
-  // Time slots from 5 AM to 7 PM with 1-hour intervals
-  const timeSlots = [
-    "5:00 am",
-    "6:00 am",
-    "7:00 am",
-    "8:00 am",
-    "9:00 am",
-    "10:00 am",
-    "11:00 am",
-    "12:00 pm",
-    "1:00 pm",
-    "2:00 pm",
-    "3:00 pm",
-    "4:00 pm",
-    "5:00 pm",
-    "6:00 pm",
-    "7:00 pm",
-  ];
+  const parseTimeToMinutes = (timeStr) => {
+    const [time, modifier] = timeStr.toLowerCase().split(" ")
+    let [hours, minutes] = time.split(":").map(Number)
+    if (modifier === "pm" && hours !== 12) {
+      hours += 12
+    } else if (modifier === "am" && hours === 12) {
+      hours = 0
+    }
+    return hours * 60 + minutes
+  }
+
+  const calculateSlotPosition = (startTime, endTime) => {
+    const startMinutes = parseTimeToMinutes(startTime)
+    const endMinutes = parseTimeToMinutes(endTime)
+    const duration = endMinutes - startMinutes
+
+    const slotStartMinutes = parseTimeToMinutes("5:00 am")
+    const relativeStart = startMinutes - slotStartMinutes
+
+    const hourHeight = 64 // pixels per hour (matching CSS)
+    const top = (relativeStart / 60) * hourHeight
+    const height = (duration / 60) * hourHeight
+
+    return { top, height }
+  }
 
   const getDynamicAppointments = (dates) => {
-    const dynamicAppointments = {};
-
-    // Initialize all dates with empty arrays
+    const dynamicAppointments = {}
     dates.forEach((date) => {
-      dynamicAppointments[date] = [];
-    });
+      dynamicAppointments[date] = []
+    })
 
-    // Process fetched schedules data
     if (schedules && schedules.length > 0) {
       schedules.forEach((booking) => {
-        const bookingDate = new Date(booking.booking_start_datetime);
-        const bookingTime = bookingDate.toLocaleTimeString("en-US", {
-          hour: "numeric",
-          minute: "2-digit",
-          hour12: true,
-        });
+        try {
+          const bookingStartDate = new Date(booking.booking_start_datetime)
+          const bookingEndDate = new Date(booking.booking_end_datetime)
 
-        // Format date to match our date format (e.g., "2nd August")
-        const dayName = bookingDate.getDate();
-        const monthName = bookingDate.toLocaleString("default", {
-          month: "long",
-        });
-        const formattedDate = `${dayName}${getDaySuffix(dayName)} ${monthName}`;
+          const localBookingStartDate = new Date(
+            bookingStartDate.getTime() - bookingStartDate.getTimezoneOffset() * 60000,
+          )
+          const localBookingEndDate = new Date(bookingEndDate.getTime() - bookingEndDate.getTimezoneOffset() * 60000)
 
-        // Check if this date is in our current view
-        if (dates.includes(formattedDate)) {
-          // Get services list for this booking
-          const serviceNames = booking.booking_services
-            .map((bookingService) => {
-              const serviceDetail = services.find(
-                (s) => s.id === bookingService.service_id
-              );
-              return serviceDetail
-                ? serviceDetail.name
-                : `Service ${bookingService.service_id.substring(0, 8)}`;
-            })
-            .join(", ");
+          const startTime = localBookingStartDate.toLocaleTimeString("en-US", {
+            hour: "numeric",
+            minute: "2-digit",
+            hour12: true,
+          })
 
-          const appointmentData = {
-            booking_id: booking.booking_id,
-            time: bookingTime,
-            stylistId: booking.stylist?.stylist_id || "unknown",
-            stylistName: booking.stylist?.stylist_name || "Unknown Stylist",
-            service: serviceNames, // Now shows actual service names
-            services: booking.booking_services,
-            phone:
-              booking.non_online_customer?.non_online_customer_mobile_number ||
-              "N/A",
-            clientName:
-              booking.non_online_customer?.non_online_customer_name ||
-              "Online Customer",
-            workstation: booking.workstation?.workstation_name || "N/A",
-            salon: booking.salon?.salon_name || "N/A",
-          };
+          const endTime = localBookingEndDate.toLocaleTimeString("en-US", {
+            hour: "numeric",
+            minute: "2-digit",
+            hour12: true,
+          })
 
-          dynamicAppointments[formattedDate].push(appointmentData);
+          const dayName = localBookingStartDate.getDate()
+          const monthName = localBookingStartDate.toLocaleString("default", { month: "long" })
+          const formattedDate = `${dayName}${getDaySuffix(dayName)} ${monthName}`
+
+          if (dates.includes(formattedDate)) {
+            const serviceNames = booking.booking_services
+              .map((bookingService) => {
+                const serviceDetail = services.find((s) => s.id === bookingService.service_id)
+                return serviceDetail?.name || `Service ${bookingService.service_id.substring(0, 8)}`
+              })
+              .join(", ")
+
+            const position = calculateSlotPosition(startTime, endTime)
+
+            const appointmentData = {
+              booking_id: booking.booking_id,
+              startTime,
+              endTime,
+              position,
+              stylistId: booking.stylist?.stylist_id || "unknown",
+              stylistName: booking.stylist?.stylist_name || "Unknown Stylist",
+              service: serviceNames,
+              services: booking.booking_services,
+              phone: booking.non_online_customer?.non_online_customer_mobile_number || "N/A",
+              clientName: booking.non_online_customer?.non_online_customer_name || "Online Customer",
+              workstation: booking.workstation?.workstation_name || "N/A",
+              salon: booking.salon?.salon_name || "N/A",
+              date: formattedDate,
+            }
+
+            dynamicAppointments[formattedDate].push(appointmentData)
+          }
+        } catch (error) {
+          console.error("Error processing booking:", booking, error)
         }
-      });
+      })
     }
 
-    return dynamicAppointments;
-  };
+    return dynamicAppointments
+  }
 
-  const currentDates = generateDates(selectedDays);
-  const appointments = getDynamicAppointments(currentDates);
+  const currentDates = generateDates(selectedDays)
+  const allAppointments = getDynamicAppointments(currentDates)
 
-  // Regenerate appointments when schedules data changes
-  useEffect(() => {
-    if (schedules.length > 0) {
-      console.log("Schedules updated, regenerating appointments...");
-    }
-  }, [schedules]);
+  // Filter appointments based on selected stylists
+  const filteredAppointments = {}
+  currentDates.forEach((date) => {
+    filteredAppointments[date] =
+      allAppointments[date]?.filter((appointment) => {
+        return selectedStylists.includes(appointment.stylistId)
+      }) || []
+  })
 
-  const dayFilters = ["1 Day", "2 Days", "3 Days", "5 Days"];
-  const dates = currentDates.map((date) =>
-    date.split(" ")[0].replace(/\D/g, "")
-  );
+  // Get selected stylists data
+  const selectedStylistsData = stylists.filter((stylist) => selectedStylists.includes(stylist.id))
 
   const getStylistById = (id) => {
-    // First try to find in the fetched stylists list
-    const fetchedStylist = stylists.find((s) => s.id === id);
-    if (fetchedStylist) return fetchedStylist;
-
-    // If not found in fetched list, create a dynamic one based on stylist name/id
-    const colorIndex =
-      typeof id === "string"
-        ? id.length % defaultColors.length
-        : id % defaultColors.length;
-
+    const fetchedStylist = stylists.find((s) => s.id === id)
+    if (fetchedStylist) return fetchedStylist
+    const colorIndex = typeof id === "string" ? id.length % defaultColors.length : id % defaultColors.length
     return {
       id: id,
-      name:
-        typeof id === "string"
-          ? `Stylist ${id.substring(0, 8)}`
-          : `Stylist ${id}`,
+      name: typeof id === "string" ? `Stylist ${id.substring(0, 8)}` : `Stylist ${id}`,
       color: defaultColors[colorIndex],
       avatar: "👤",
-    };
-  };
-
-  const getAppointmentsForTimeSlot = (date, time) => {
-    return appointments[date]?.filter((apt) => apt.time === time) || [];
-  };
+    }
+  }
 
   const handleServiceToggle = (serviceId) => {
     setNewSlot((prev) => ({
@@ -296,430 +308,400 @@ const SchedulingInterface = () => {
       services: prev.services.includes(serviceId)
         ? prev.services.filter((id) => id !== serviceId)
         : [...prev.services, serviceId],
-    }));
-  };
+    }))
+  }
 
-  const handleAppointmentClick = (appointment, date, time) => {
-    setSelectedAppointment({ ...appointment, date, time });
-    setShowAppointmentPanel(true);
-  };
+  const handleAppointmentClick = (appointment) => {
+    setSelectedAppointment(appointment)
+    setShowAppointmentPanel(true)
+  }
+
+  const handleStylistToggle = (stylistId) => {
+    setSelectedStylists((prev) => {
+      if (prev.includes(stylistId)) {
+        return prev.filter((id) => id !== stylistId)
+      } else {
+        return [...prev, stylistId]
+      }
+    })
+  }
+
+  const handleSelectAllStylists = () => {
+    const allStylistIds = stylists.filter((s) => s.is_active !== false).map((s) => s.id)
+    if (selectedStylists.length === allStylistIds.length) {
+      setSelectedStylists([]) // Deselect all
+    } else {
+      setSelectedStylists(allStylistIds) // Select all
+    }
+  }
+
+  const getStylistColumnIndex = (stylistId) => {
+    return selectedStylists.indexOf(stylistId)
+  }
 
   return (
     <div className="scheduling-container">
       {/* Sidebar */}
       <div className="sidebar">
-        <div className="salon-title">Example Saloon</div>
-
-        {/* User Filters */}
         <div className="filter-section">
+          <h3>Staff Members</h3>
           <button
-            className={`filter-btn ${selectedFilter === "All" ? "active" : ""}`}
-            onClick={() => setSelectedFilter("All")}
+            className={`filter-btn all-btn ${selectedStylists.length === stylists.filter((s) => s.is_active !== false).length ? "active" : ""}`}
+            onClick={handleSelectAllStylists}
           >
-            All
+            <span className="filter-icon">👥</span>
+            {selectedStylists.length === stylists.filter((s) => s.is_active !== false).length
+              ? "Deselect All"
+              : "Select All"}
           </button>
 
-          <div className="user-filters">
+          <div className="stylists-list">
             {stylists
               .filter((stylist) => stylist.is_active !== false)
               .map((stylist) => (
-                <div key={stylist.id} className="user-filter">
-                  <div
-                    className="user-avatar"
-                    style={{ backgroundColor: stylist.color }}
-                  >
+                <div
+                  key={stylist.id}
+                  className={`stylist-item ${selectedStylists.includes(stylist.id) ? "active" : ""}`}
+                  onClick={() => handleStylistToggle(stylist.id)}
+                >
+                  <div className="stylist-checkbox">
+                    <input
+                      type="checkbox"
+                      checked={selectedStylists.includes(stylist.id)}
+                      onChange={() => handleStylistToggle(stylist.id)}
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                  </div>
+                  <div className="stylist-avatar" style={{ backgroundColor: stylist.color }}>
                     {stylist.avatar}
                   </div>
-                  <span className="user-name">{stylist.name}</span>
+                  <span className="stylist-name">{stylist.name}</span>
+                  <div className="active-indicator"></div>
                 </div>
               ))}
           </div>
         </div>
 
-        {/* Day Filters */}
-        <div className="day-filters">
-          {dayFilters.map((day) => (
-            <button
-              key={day}
-              className={`day-filter-btn ${
-                selectedDays === day ? "active" : ""
-              }`}
-              onClick={() => setSelectedDays(day)}
-            >
-              {day}
-            </button>
-          ))}
+        <div className="day-filters-section">
+          <h3>View Period</h3>
+          <div className="day-filters">
+            {dayFilters.map((day) => (
+              <button
+                key={day}
+                className={`day-filter-btn ${selectedDays === day ? "active" : ""}`}
+                onClick={() => setSelectedDays(day)}
+              >
+                {day}
+              </button>
+            ))}
+          </div>
         </div>
+
+        {selectedStylists.length > 0 && (
+          <div className="selected-stylists-info">
+            <h4>
+              Selected: {selectedStylists.length} stylist{selectedStylists.length !== 1 ? "s" : ""}
+            </h4>
+            <div className="selected-stylists-preview">
+              {selectedStylistsData.map((stylist) => (
+                <div key={stylist.id} className="selected-stylist-chip" style={{ backgroundColor: stylist.color }}>
+                  {stylist.name.split(" ")[0]}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Main Content */}
       <div className="main-content">
-        {/* Header */}
         <div className="header">
-          <span className="edit-text">edit available time slots</span>
-          <button
-            className="add-slot-btn"
-            onClick={() => setShowAddSlotPanel(true)}
-          >
-            Add Slot
+          <div className="header-info">
+            <h2>Schedule Management</h2>
+            <p>Manage and edit available time slots</p>
+          </div>
+          <button className="add-slot-btn" onClick={() => setShowAddSlotPanel(true)}>
+            <span>+</span>
+            Add Appointment
           </button>
         </div>
 
-        {/* Calendar Grid */}
         {loading ? (
-          <div
-            className="loading-container"
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              height: "200px",
-              fontSize: "16px",
-              color: "#666",
-            }}
-          >
-            Loading appointments...
+          <div className="loading-container">
+            <div className="loading-spinner"></div>
+            <p>Loading appointments...</p>
+          </div>
+        ) : selectedStylists.length === 0 ? (
+          <div className="no-selection-container">
+            <div className="no-selection-message">
+              <h3>No stylists selected</h3>
+              <p>Please select one or more stylists to view their schedules</p>
+            </div>
           </div>
         ) : (
-          <div className="calendar-grid">
-            {/* Time Column */}
-            <div className="time-column">
-              <div className="time-header"></div>
-              {timeSlots.map((time, index) => (
-                <div key={index} className="time-slot">
-                  {time}
+          <div className="calendar-container">
+            <div className="calendar-grid">
+              {/* Time Column */}
+              <div className="time-column">
+                <div className="time-header">Time</div>
+                {timeSlots.map((time, index) => (
+                  <div key={index} className="time-slot">
+                    {time}
+                  </div>
+                ))}
+              </div>
+
+              {/* Date Columns */}
+              {currentDates.map((date) => (
+                <div key={date} className="date-column">
+                  <div className="date-header">
+                    <div className="date-info">
+                      <span className="date-day">{date.split(" ")[0]}</span>
+                      <span className="date-month">{date.split(" ")[1]}</span>
+                    </div>
+                  </div>
+
+                  {/* Stylist Sub-headers */}
+                  <div className="stylist-headers">
+                    {selectedStylistsData.map((stylist) => (
+                      <div
+                        key={stylist.id}
+                        className="stylist-header"
+                        style={{ backgroundColor: `${stylist.color}20`, borderTopColor: stylist.color }}
+                      >
+                        <div className="stylist-header-avatar" style={{ backgroundColor: stylist.color }}>
+                          {stylist.avatar}
+                        </div>
+                        <span className="stylist-header-name">{stylist.name.split(" ")[0]}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="appointments-container">
+                    {/* Time slot grid */}
+                    {timeSlots.map((time, timeIndex) => (
+                      <div key={timeIndex} className="time-grid-row">
+                        {selectedStylistsData.map((stylist) => (
+                          <div
+                            key={`${timeIndex}-${stylist.id}`}
+                            className="time-grid-slot"
+                            style={{ width: `${100 / selectedStylists.length}%` }}
+                          />
+                        ))}
+                      </div>
+                    ))}
+
+                    {/* Appointments positioned absolutely */}
+                    {filteredAppointments[date]?.map((appointment, aptIndex) => {
+                      const stylist = getStylistById(appointment.stylistId)
+                      const columnIndex = getStylistColumnIndex(appointment.stylistId)
+                      const columnWidth = 100 / selectedStylists.length
+                      const leftPosition = columnIndex * columnWidth
+
+                      return (
+                        <div
+                          key={aptIndex}
+                          className="appointment-block"
+                          style={{
+                            backgroundColor: stylist.color,
+                            top: `${appointment.position.top}px`, // +72 for headers height
+                            height: `${Math.max(appointment.position.height, 32)}px`,
+                            left: `${leftPosition}%`,
+                            width: `${columnWidth - 1}%`, // -1% for spacing
+                          }}
+                          onClick={() => handleAppointmentClick(appointment)}
+                        >
+                          <div className="appointment-content">
+                            <div className="appointment-header">
+                              <span className="appointment-stylist">{appointment.stylistName.split(" ")[0]}</span>
+                              {appointment.clientName && appointment.clientName !== "Online Customer" && (
+                                <PersonStandingIcon className="service-icon h-4" />
+                              )}
+                              {appointment.clientName && appointment.clientName === "Online Customer" && (
+                                <Phone className="service-icon h-4" />
+                              )}
+                              <span className="appointment-time">
+                                {appointment.startTime.split(" ")[0]} - {appointment.endTime.split(" ")[0]}
+                              </span>
+                            </div>
+                            <div className="appointment-service">{appointment.service}</div>
+                            <div className="appointment-client">{appointment.clientName}</div>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
                 </div>
               ))}
             </div>
-
-            {/* Date Columns */}
-            {Object.keys(appointments).map((date) => (
-              <div key={date} className="date-column">
-                <div className="date-header">{date}</div>
-                {timeSlots.map((time, timeIndex) => {
-                  const slotAppointments = getAppointmentsForTimeSlot(
-                    date,
-                    time
-                  );
-                  return (
-                    <div key={timeIndex} className="appointment-slot">
-                      {slotAppointments.length > 0 && (
-                        <div className="appointment-blocks">
-                          {slotAppointments.map((appointment, aptIndex) => {
-                            const stylist = getStylistById(
-                              appointment.stylistId
-                            );
-                            const blockWidth = `${
-                              100 / slotAppointments.length
-                            }%`;
-                            return (
-                              <div
-                                key={aptIndex}
-                                className="appointment-block"
-                                style={{
-                                  backgroundColor: stylist.color,
-                                  width: blockWidth,
-                                  height: "100%",
-                                }}
-                                onClick={() =>
-                                  handleAppointmentClick(
-                                    appointment,
-                                    date,
-                                    time
-                                  )
-                                }
-                              >
-                                <div className="appointment-header">
-                                  <span className="provider-name">
-                                    {appointment.stylistName || stylist.name}
-                                  </span>
-                                  <span className="appointment-icon">✂️</span>
-                                </div>
-                                <div className="appointment-service">
-                                  {appointment.service}
-                                </div>
-                                <div className="appointment-phone">
-                                  {appointment.phone}
-                                </div>
-                              </div>
-                            );
-                          })}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            ))}
           </div>
         )}
       </div>
 
       {/* Add Slot Panel */}
-      <div className={`add-slot-panel ${showAddSlotPanel ? "open" : ""}`}>
-        <div className="panel-header">
-          <h2>Add Time Slot</h2>
-          <button
-            className="close-btn"
-            onClick={() => setShowAddSlotPanel(false)}
-          >
-            ×
-          </button>
-        </div>
-
-        <div className="panel-content">
-          {/* Name Field */}
-          <div className="form-group">
-            <label>Name</label>
-            <div className="name-input-container">
-              <input
-                type="text"
-                placeholder="Kamal"
-                value={newSlot.name}
-                onChange={(e) =>
-                  setNewSlot((prev) => ({ ...prev, name: e.target.value }))
-                }
-              />
-              <div className="gender-icons">
-                <span className="gender-icon">♂</span>
-                <span className="gender-icon">♀</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Services */}
-          <div className="form-group">
-            <label>Services</label>
-            <div className="search-container">
-              <input
-                type="text"
-                placeholder="Search Services.."
-                className="search-input"
-              />
-              <span className="search-icon">🔍</span>
-            </div>
-            <div className="services-list">
-              {services.map((service) => (
-                <div key={service.id} className="service-item">
-                  <input
-                    type="checkbox"
-                    id={`service-${service.id}`}
-                    checked={newSlot.services.includes(service.id)}
-                    onChange={() => handleServiceToggle(service.id)}
-                  />
-                  <label htmlFor={`service-${service.id}`}>
-                    {service.name}
-                  </label>
-                  <span className="service-price">Rs {service.price}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Stylist Selection */}
-          <div className="form-group">
-            <div className="stylist-selection">
-              <button
-                className={`stylist-btn ${
-                  newSlot.stylist === "Any" ? "active" : ""
-                }`}
-                onClick={() =>
-                  setNewSlot((prev) => ({ ...prev, stylist: "Any" }))
-                }
-              >
-                Any
-              </button>
-              {stylists.map((stylist) => (
-                <div key={stylist.id} className="stylist-option">
-                  <div
-                    className={`stylist-avatar ${
-                      newSlot.stylist === stylist.name ? "selected" : ""
-                    }`}
-                    style={{ backgroundColor: stylist.color }}
-                    onClick={() =>
-                      setNewSlot((prev) => ({ ...prev, stylist: stylist.name }))
-                    }
-                  >
-                    {stylist.avatar}
-                  </div>
-                  <span className="stylist-name">{stylist.name}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Date Selection */}
-          <div className="form-group">
-            <div className="date-selection">
-              {dates.map((date, index) => (
-                <button
-                  key={index}
-                  className={`date-btn ${
-                    newSlot.date === date ? "active" : ""
-                  }`}
-                  onClick={() => setNewSlot((prev) => ({ ...prev, date }))}
-                >
-                  <span className="date-number">{date}</span>
-                  <span className="date-month">July</span>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Time Selection */}
-          <div className="form-group">
-            <div className="time-selection">
-              {["9:00 am", "10:00 am", "11:00 am", "2:00 pm"].map(
-                (time, index) => (
-                  <button
-                    key={index}
-                    className={`time-btn ${index === 0 ? "selected" : ""}`}
-                    onClick={() => setNewSlot((prev) => ({ ...prev, time }))}
-                  >
-                    {time}
-                  </button>
-                )
-              )}
-            </div>
-          </div>
-
-          {/* Confirm Button */}
-          <button className="confirm-btn">Confirm</button>
-        </div>
-      </div>
-
-      {/* Appointment Details Panel */}
-      <div
-        className={`appointment-details-panel ${
-          showAppointmentPanel ? "open" : ""
-        }`}
-      >
-        {selectedAppointment && (
-          <>
+      {showAddSlotPanel && (
+        <>
+          <div className="overlay" onClick={() => setShowAddSlotPanel(false)} />
+          <div className="side-panel add-slot-panel">
             <div className="panel-header">
-              <div className="appointment-info">
-                <div className="stylist-info">
-                  <div
-                    className="stylist-avatar-large"
-                    style={{
-                      backgroundColor: getStylistById(
-                        selectedAppointment.stylistId
-                      )?.color,
-                    }}
-                  >
-                    👤
-                  </div>
-                  <span className="stylist-name-large">
-                    {selectedAppointment.stylistName ||
-                      getStylistById(selectedAppointment.stylistId)?.name}
-                  </span>
-                </div>
-                <div className="date-circle">
-                  <span className="date-number">
-                    {selectedAppointment.date.split(" ")[0]}
-                  </span>
-                  <span className="date-month">
-                    {selectedAppointment.date.split(" ")[1]}
-                  </span>
-                </div>
-              </div>
-              <button
-                className="close-btn"
-                onClick={() => setShowAppointmentPanel(false)}
-              >
+              <h2>Add New Appointment</h2>
+              <button className="close-btn" onClick={() => setShowAddSlotPanel(false)}>
                 ×
               </button>
             </div>
 
             <div className="panel-content">
-              {/* Name Field */}
               <div className="form-group">
-                <label>Name</label>
-                <div className="name-input-container">
-                  <input
-                    type="text"
-                    value={selectedAppointment.clientName}
-                    readOnly
-                  />
-                  <div className="gender-icons">
-                    <span className="gender-icon">♂</span>
-                    <span className="gender-icon">♀</span>
-                  </div>
-                </div>
+                <label htmlFor="client-name">Client Name</label>
+                <input
+                  id="client-name"
+                  type="text"
+                  placeholder="Enter client name"
+                  value={newSlot.name}
+                  onChange={(e) => setNewSlot((prev) => ({ ...prev, name: e.target.value }))}
+                />
               </div>
 
-              {/* Services */}
               <div className="form-group">
                 <label>Services</label>
-                <div className="appointment-services">
-                  {selectedAppointment.services &&
-                    selectedAppointment.services.map((service, index) => {
-                      const serviceDetail = services.find(
-                        (s) => s.id === service.service_id
-                      );
-                      return (
-                        <div key={index} className="service-item-readonly">
-                          <span className="service-name">
-                            {serviceDetail
-                              ? serviceDetail.name
-                              : `Service ${service.service_id.substring(0, 8)}`}
-                          </span>
-                          <span className="service-price">
-                            Rs {service.service_price_at_booking}
-                          </span>
-                          <span className="service-duration">
-                            {service.service_duration_at_booking} min
-                          </span>
-                        </div>
-                      );
-                    })}
-                  {(!selectedAppointment.services ||
-                    selectedAppointment.services.length === 0) && (
-                    <div className="service-item-readonly">
-                      <span className="service-name">
-                        {selectedAppointment.service}
-                      </span>
-                      <span className="service-price">Rs 1400</span>
+                {/* <input type="text" placeholder="Search services..." className="search-input" /> */}
+                <div className="services-list">
+                  {services.map((service) => (
+                    <div key={service.id} className="service-item">
+                      <div className="service-info">
+                        <input
+                          type="checkbox"
+                          id={`service-${service.id}`}
+                          checked={newSlot.services.includes(service.id)}
+                          onChange={() => handleServiceToggle(service.id)}
+                        />
+                        <label htmlFor={`service-${service.id}`}>
+                          <span className="service-name">{service.name}</span>
+                          <span className="service-duration">{service.duration} min</span>
+                        </label>
+                      </div>
+                      <span className="service-price">₹{service.price}</span>
                     </div>
-                  )}
+                  ))}
                 </div>
               </div>
 
-              {/* Time */}
               <div className="form-group">
+                <label>Select Stylist</label>
+                <div className="stylist-selection">
+                  <button
+                    className={`stylist-option ${newSlot.stylist === "Any" ? "selected" : ""}`}
+                    onClick={() => setNewSlot((prev) => ({ ...prev, stylist: "Any" }))}
+                  >
+                    Any Available
+                  </button>
+                  {stylists.map((stylist) => (
+                    <button
+                      key={stylist.id}
+                      className={`stylist-option ${newSlot.stylist === stylist.name ? "selected" : ""}`}
+                      onClick={() => setNewSlot((prev) => ({ ...prev, stylist: stylist.name }))}
+                    >
+                      <div className="stylist-color" style={{ backgroundColor: stylist.color }}></div>
+                      {stylist.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <button className="confirm-btn">
+                <span>✓</span>
+                Confirm Appointment
+              </button>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* Appointment Details Panel */}
+      {showAppointmentPanel && selectedAppointment && (
+        <>
+          <div className="overlay" onClick={() => setShowAppointmentPanel(false)} />
+          <div className="side-panel appointment-details-panel">
+            <div className="panel-header">
+              <div className="appointment-header-info">
+                <div
+                  className="stylist-avatar-large"
+                  style={{ backgroundColor: getStylistById(selectedAppointment.stylistId)?.color }}
+                >
+                  👤
+                </div>
+                <div className="appointment-meta">
+                  <h2>{selectedAppointment.stylistName}</h2>
+                  <p>{selectedAppointment.date}</p>
+                </div>
+              </div>
+              <button className="close-btn" onClick={() => setShowAppointmentPanel(false)}>
+                ×
+              </button>
+            </div>
+
+            <div className="panel-content">
+              <div className="form-group">
+                <label>Client Name</label>
+                <input type="text" value={selectedAppointment.clientName} readOnly />
+              </div>
+
+              <div className="form-group">
+                <label>Services</label>
+                <div className="services-readonly">
+                  {selectedAppointment.services?.map((service, index) => {
+                    const serviceDetail = services.find((s) => s.id === service.service_id)
+                    return (
+                      <div key={index} className="service-readonly-item">
+                        <div className="service-info">
+                          {serviceDetail.clientName && serviceDetail.clientName !== "Online Customer" && (
+                            <PersonStandingIcon className="service-icon" />
+                          )}
+                          {serviceDetail.clientName && serviceDetail.clientName === "Online Customer" && (
+                            <Phone className="service-icon" />
+                          )}
+                          <span className="service-name">
+                            {serviceDetail?.name || `Service ${service.service_id.substring(0, 8)}`}
+                          </span>
+                          <span className="service-duration">{service.service_duration_at_booking} min</span>
+                        </div>
+                        <span className="service-price">₹{service.service_price_at_booking}</span>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+
+              <div className="form-group">
+                <label>Time Slot</label>
                 <input
                   type="text"
-                  value={selectedAppointment.time}
-                  className="time-input-readonly"
+                  value={`${selectedAppointment.startTime} - ${selectedAppointment.endTime}`}
                   readOnly
                 />
               </div>
 
-              {/* Action Buttons */}
-              <div className="appointment-actions">
-                <button className="edit-booking-btn">Edit Booking</button>
-                <button className="cancel-booking-btn">Cancel booking</button>
+              {/* <div className="form-group">
+                <label>Phone Number</label>
+                <input type="text" value={selectedAppointment.phone} readOnly />
+              </div> */}
+
+              <div className="action-buttons">
+                <button className="edit-btn">
+                  <span>✏️</span>
+                  Edit Booking
+                </button>
+                <button className="cancel-btn">
+                  <span>🗑️</span>
+                  Cancel Booking
+                </button>
               </div>
-
-              {/* Confirm Button */}
-              <button className="confirm-btn">Confirm</button>
             </div>
-          </>
-        )}
-      </div>
-
-      {/* Overlay */}
-      {(showAddSlotPanel || showAppointmentPanel) && (
-        <div
-          className="overlay"
-          onClick={() => {
-            setShowAddSlotPanel(false);
-            setShowAppointmentPanel(false);
-          }}
-        />
+          </div>
+        </>
       )}
     </div>
-  );
-};
+  )
+}
 
-export default SchedulingInterface;
+export default SchedulingInterface
