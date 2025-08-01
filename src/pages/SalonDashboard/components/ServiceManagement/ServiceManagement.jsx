@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import API from '../../../../utils/api';
 import './ServiceManagement.css';
+import LoadingSpinner from '../../../../components/LoadingSpinner/LoadingSpinner';
 
 const ServiceManagement = () => {
   const [services, setServices] = useState([]);
@@ -24,12 +25,13 @@ const ServiceManagement = () => {
   }, []);
 
   const fetchServices = async () => {
+    setLoading(true);
     try {
-      const response = await API.get('/salon-admin/service');
+      const response = await API.get('/salon-admin/services');
       setServices(response.data);
-      setLoading(false);
     } catch (error) {
       console.error('Error fetching services:', error);
+    } finally {
       setLoading(false);
     }
   };
@@ -89,7 +91,7 @@ const ServiceManagement = () => {
         show_price: formData.show_price
       };
 
-      const response = await API.post('/salon-admin/service', payload);
+      const response = await API.post('/salon-admin/services', payload);
       
       // Add the new service to the list
       setServices([...services, response.data]);
@@ -114,7 +116,7 @@ const ServiceManagement = () => {
         show_price: formData.show_price
       };
 
-      await API.put(`/salon-admin/service/${serviceId}`, payload);
+      await API.put(`/salon-admin/services/${serviceId}`, payload);
       
       // Update local state
       setServices(services.map(service => 
@@ -129,7 +131,7 @@ const ServiceManagement = () => {
     }
   };
 
-  if (loading) return <div className="service-management-container">Loading services...</div>;
+  if (loading) return <LoadingSpinner message="Loading services..." />;
 
   return (
     <div className="service-management-container">

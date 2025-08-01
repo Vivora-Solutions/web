@@ -2,20 +2,25 @@ import { useEffect, useState } from 'react';
 import EditableField from './EditableField';
 // import UploadImage from '../UploadImage';
 import API from '../../../../utils/api';
+import LoadingSpinner from '../../../../components/LoadingSpinner/LoadingSpinner';
 
 const SalonInfo = () => {
   const [salon, setSalon] = useState(null);
   const [formData, setFormData] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchSalon = async () => {
+      setLoading(true);
       try {
         const res = await API.get('/salon-admin/my');
         setSalon(res.data);
         setFormData(res.data);
       } catch (err) {
         console.error('Failed to fetch salon info:', err);
+      } finally {
+        setLoading(false);
       }
     };
     fetchSalon();
@@ -54,10 +59,10 @@ const SalonInfo = () => {
     await handleUpdate(updated);
   };
 
-  if (!formData) return <p>Loading...</p>;
+  if (!formData) return <LoadingSpinner message="Loading salon info..." />;
 
   return (
-    <div className="w-full px-6 py-4 bg-white shadow-md rounded-md">
+    <div className="w-full px-6 py-4 bg-transparent">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-semibold">Salon Information</h2>
         {!isEditing ? (

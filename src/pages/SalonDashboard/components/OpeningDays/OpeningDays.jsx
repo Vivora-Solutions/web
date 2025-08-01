@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './OpeningDays.css';
 import API from '../../../../utils/api';
+import LoadingSpinner from '../../../../components/LoadingSpinner/LoadingSpinner';
 
 const OpeningHours = () => {
   const [openingHours, setOpeningHours] = useState([]);
@@ -14,6 +15,7 @@ const OpeningHours = () => {
 
   useEffect(() => {
     const fetchOpeningHours = async () => {
+      setIsLoading(true);
       try {
         const response = await API.get('/salon-admin/opening-hours');
         // Ensure we have exactly 7 days
@@ -28,9 +30,9 @@ const OpeningHours = () => {
           };
         });
         setOpeningHours(completeDays);
-        setIsLoading(false);
       } catch (error) {
         console.error('Error fetching opening hours:', error);
+      } finally {
         setIsLoading(false);
       }
     };
@@ -93,8 +95,9 @@ const OpeningHours = () => {
     }
   };
 
-  if (isLoading) return <div>Loading opening hours...</div>;
-
+  if (isLoading) {
+    return <LoadingSpinner message="Loading opening hours..." />;
+  }
   return (
     <div className="opening-hours-container">
       <div className="opening-hours-header">
