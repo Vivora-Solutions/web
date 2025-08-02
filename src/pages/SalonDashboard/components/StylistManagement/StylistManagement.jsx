@@ -1,64 +1,136 @@
-import React, { useState, useEffect } from "react";
-import { User, Edit, Trash2, Plus, X, Save, Settings } from "lucide-react";
-import API from "../../../../utils/api";
-import LoadingSpinner from "../../../../components/LoadingSpinner/LoadingSpinner";
+"use client"
 
-const StylistManagement = () => {
-  const [stylists, setStylists] = useState([]);
-  const [services, setServices] = useState([]);
-  const [showAddForm, setShowAddForm] = useState(false);
-  const [showServicesModal, setShowServicesModal] = useState(false);
-  const [selectedStylist, setSelectedStylist] = useState(null);
-  const [stylistServices, setStylistServices] = useState([]);
-  const [loading, setLoading] = useState(false);
+import { useState, useEffect } from "react"
+import { User, Trash2, Plus, X, Settings, Calendar, CheckCircle } from "lucide-react"
+import "./StylistManagement.css"
+import ScheduleCalendar from "../ScheduleCalendar/ScheduleCalendar"
 
+import API from "../../../../utils/api"
+
+
+// Mock API for demonstration
+const mockAPI = {
+  get: (url) => {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        if (url.includes("/stylists")) {
+          resolve({
+            data: [
+              {
+                stylist_id: 1,
+                stylist_name: "Sarah Johnson",
+                stylist_contact_number: "+1 234 567 8900",
+                profile_pic_link: "",
+                bio: "Expert hair stylist with 5+ years experience",
+                is_active: true,
+              },
+              {
+                stylist_id: 2,
+                stylist_name: "Mike Chen",
+                stylist_contact_number: "+1 234 567 8901",
+                profile_pic_link: "",
+                bio: "Specialist in modern cuts and coloring",
+                is_active: true,
+              },
+              {
+                stylist_id: 3,
+                stylist_name: "Emma Davis",
+                stylist_contact_number: "+1 234 567 8902",
+                profile_pic_link: "",
+                bio: "Wedding and event styling expert",
+                is_active: true,
+              },
+            ],
+          })
+        } else if (url.includes("/services")) {
+          resolve({
+            data: [
+              {
+                service_id: 1,
+                service_name: "Haircut & Style",
+                service_category: "Hair",
+                price: 45,
+                duration_minutes: 60,
+              },
+              {
+                service_id: 2,
+                service_name: "Hair Coloring",
+                service_category: "Hair",
+                price: 85,
+                duration_minutes: 120,
+              },
+              {
+                service_id: 3,
+                service_name: "Manicure",
+                service_category: "Nails",
+                price: 25,
+                duration_minutes: 45,
+              },
+            ],
+          })
+        }
+      }, 500)
+    })
+  },
+  post: (url, data) => {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        console.log("POST:", url, data)
+        resolve({ data: { success: true } })
+      }, 1000)
+    })
+  },
+  put: (url, data) => {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        console.log("PUT:", url, data)
+        resolve({ data: { success: true } })
+      }, 1000)
+    })
+  },
+}
+
+const StylistManagement = ({ onOpenSchedule }) => {
+  const [stylists, setStylists] = useState([])
+  const [services, setServices] = useState([])
+  const [showAddForm, setShowAddForm] = useState(false)
+  const [showServicesModal, setShowServicesModal] = useState(false)
+  const [selectedStylist, setSelectedStylist] = useState(null)
+  const [stylistServices, setStylistServices] = useState([])
+  const [loading, setLoading] = useState(false)
   const [formData, setFormData] = useState({
     stylist_name: "",
     stylist_contact_number: "",
     profile_pic_link: "",
     bio: "",
-
     is_active: true,
-  });
+  })
+
+  const [showScheduleCalendar, setShowScheduleCalendar] = useState(false)
+  const [selectedStylistForSchedule, setSelectedStylistForSchedule] = useState(null)
 
   useEffect(() => {
     const loadData = async () => {
-      setLoading(true);
-      await fetchServices();
-      await fetchStylists();
-      setLoading(false);
-    };
-    loadData();
-  }, []);
+      setLoading(true)
+      try {
+        const [stylistsResponse, servicesResponse] = await Promise.all([
+          API.get("/salon-admin/stylists"),
+          API.get("/salon-admin/services"),
+        ])
+        setStylists(stylistsResponse.data)
+        setServices(servicesResponse.data)
+        console.log("Stylists loaded:", stylistsResponse.data)
+        console.log("Services loaded:", servicesResponse.data)
 
-  const fetchServices = async () => {
-    try {
-      const response = await API.get("/salon-admin/services");
-      setServices(response.data);
-    } catch (error) {
-      console.error("Error fetching services:", error);
+      } catch (error) {
+        console.error("Error fetching data:", error)
+      } finally {
+        setLoading(false)
+        console.log("Data loaded successfully")
+      }
     }
-  };
-
-  const fetchStylists = async () => {
-    try {
-      const response = await API.get("/salon-admin/stylists");
-      setStylists(response.data);
-    } catch (error) {
-      console.error("Error fetching stylists:", error);
-    }
-  };
-
-  const fetchStylistServices = async (stylistId) => {
-    try {
-      const response = await API.get(
-        `/salon-admin/stylist/${stylistId}/services`
-      );
-      setStylistServices(response.data.map((service) => service.service_id));
-    } catch (error) {
-      console.error("Error fetching stylist services:", error);
-    }
-  };
+    loadData()
+  }, [])
 
   const resetForm = () => {
     setFormData({
@@ -66,135 +138,178 @@ const StylistManagement = () => {
       stylist_contact_number: "",
       profile_pic_link: "",
       bio: "",
-      salon_id: "",
       is_active: true,
-    });
-  };
+    })
+  }
 
   const handleAddStylist = async () => {
-    setLoading(true);
+    setLoading(true)
     try {
-      await API.post("/salon-admin/stylist", formData);
-      setShowAddForm(false);
-      resetForm();
-      fetchStylists();
+      await mockAPI.post("/salon-admin/stylist", formData)
+      const newStylist = {
+        stylist_id: Date.now(),
+        ...formData,
+      }
+      setStylists((prev) => [...prev, newStylist])
+      setShowAddForm(false)
+      resetForm()
     } catch (error) {
-      console.error("Error adding stylist:", error);
+      console.error("Error adding stylist:", error)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const handleDeleteStylist = async (stylistId) => {
     if (window.confirm("Delete this stylist?")) {
       try {
-        await API.put(`/salon-admin/stylist/${stylistId}/hide`, {
+        await API.delete(`/salon-admin/stylist/${stylistId}`, {
           is_active: false,
-        });
-
-        fetchStylists();
+        })
+        setStylists((prev) =>
+          prev.map((s) =>
+            s.stylist_id === stylistId ? { ...s, is_active: false } : s,
+          ),
+        )
       } catch (error) {
-        console.error("Error deleting stylist:", error);
+        console.error("Error deleting stylist:", error)
       }
     }
-  };
+  }
 
   const handleManageServices = async (stylist) => {
-    setSelectedStylist(stylist);
-    await fetchStylistServices(stylist.stylist_id);
-    setShowServicesModal(true);
-  };
+    setSelectedStylist(stylist)
+    // Fetch existing services for this stylist
+    const response = await API.get(`/salon-admin/stylist/${stylist.stylist_id}/services`)
+    setStylistServices(response.data.map((service) => service.service_id))
+    setShowServicesModal(true)
+  }
+
+  const handleManageSchedule = (stylist) => {
+    setSelectedStylistForSchedule(stylist)
+    setShowScheduleCalendar(true)
+  }
 
   const handleServiceToggle = (serviceId) => {
     setStylistServices((prev) =>
-      prev.includes(serviceId)
-        ? prev.filter((id) => id !== serviceId)
-        : [...prev, serviceId]
-    );
-  };
+      prev.includes(serviceId) ? prev.filter((id) => id !== serviceId) : [...prev, serviceId],
+    )
+  }
 
-  const handleUpdateServices = async () => {
-    setLoading(true);
+  const handleActivateStylist = async (stylistId) => {
     try {
-      await API.post("/salon-admin/stylist/services", {
+      console.log("Activating stylist:", stylistId)
+      await API.put(`/salon-admin/stylist/${stylistId}`, { is_active: true })
+      setStylists((prev) =>
+        prev.map((s) =>
+          s.stylist_id === stylistId ? { ...s, is_active: true } : s,
+        ),
+      )
+    } catch (error) {
+      console.error("Error activating stylist:", error)
+    }
+  }
+  const handleUpdateServices = async () => {
+    setLoading(true)
+    try {
+      await mockAPI.post("/salon-admin/stylist/services", {
         stylist_id: selectedStylist.stylist_id,
         service_ids: stylistServices,
-      });
-      setShowServicesModal(false);
-      setSelectedStylist(null);
+      })
+      setShowServicesModal(false)
+      setSelectedStylist(null)
+      alert("Services updated successfully!")
     } catch (error) {
-      console.error("Error updating services:", error);
+      console.error("Error updating services:", error)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
-  if (loading) {
-    return <LoadingSpinner message="Loading stylists..." />;
+  if (loading && stylists.length === 0) {
+    return (
+      <div className="loading-container">
+        <div className="loading-spinner"></div>
+        <p>Loading stylists...</p>
+      </div>
+    )
   }
 
   return (
-    <div className="p-4 mx-auto">
+    <div className="stylist-management-container">
       {/* Header */}
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-xl font-bold">Employees</h1>
-        <button
-          onClick={() => setShowAddForm(true)}
-          className="flex items-center gap-1 bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600"
-        >
-          <Plus size={16} />
+      <div className="header">
+        <div className="header-info">
+          <h2>Employee Management</h2>
+          <p>Manage your salon staff and their schedules</p>
+        </div>
+        <button onClick={() => setShowAddForm(true)} className="add-slot-btn">
+          <Plus size={20} />
           Add Employee
         </button>
       </div>
 
-      {/* Stylists List */}
-      <div className="bg-white rounded shadow p-4">
+      {/* Stylists Grid */}
+      <div className="stylists-grid">
         {stylists.length === 0 ? (
-          <p className="text-gray-500 text-center py-4">No employees found</p>
+          <div className="no-stylists-message">
+            <User size={48} />
+            <p>No employees found</p>
+            <span>Add your first employee to get started</span>
+          </div>
         ) : (
-          <div className="space-y-2">
+          <div className="stylists-list">
             {stylists.map((stylist) => (
-              <div
-                key={stylist.stylist_id}
-                className="flex items-center justify-between p-3 border rounded"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
+              <div key={stylist.stylist_id} className="stylist-card">
+                <div className="stylist-info">
+                  <div className="stylist-avatar">
                     {stylist.profile_pic_link ? (
-                      <img
-                        src={stylist.profile_pic_link}
-                        alt={stylist.stylist_name}
-                        className="w-8 h-8 rounded-full object-cover"
-                      />
+                      <img src={stylist.profile_pic_link || "/placeholder.svg"} alt={stylist.stylist_name} />
                     ) : (
-                      <User size={16} className="text-gray-500" />
+                      <User size={24} />
                     )}
+                    <div className="status-indicator"></div>
                   </div>
-                  <div>
-                    <h3 className="font-medium text-sm">
-                      {stylist.stylist_name}
-                    </h3>
-                    <p className="text-gray-600 text-xs">
-                      {stylist.stylist_contact_number}
-                    </p>
+                  <div className="stylist-details">
+                    <h3>{stylist.stylist_name}</h3>
+                    <p className="contact">{stylist.stylist_contact_number}</p>
+                    {stylist.bio && <p className="bio">{stylist.bio}</p>}
                   </div>
                 </div>
-                <div className="flex gap-1">
-                  <button
-                    onClick={() => handleManageServices(stylist)}
-                    className="p-1 text-green-500 hover:bg-green-50 rounded"
-                    title="Manage Services"
-                  >
-                    <Settings size={16} />
-                  </button>
-                  <button
-                    onClick={() => handleDeleteStylist(stylist.stylist_id)}
-                    className="p-1 text-red-500 hover:bg-red-50 rounded"
-                    title="Delete"
-                  >
-                    <Trash2 size={16} />
-                  </button>
-                </div>
+                {stylist.is_active ? (
+                  <div className="stylist-actions">
+                    <button
+                      onClick={() => handleManageSchedule(stylist)}
+                      className="action-btn schedule-btn"
+                      title="Manage Schedule"
+                    >
+                      <Calendar size={18} />
+                    </button>
+                    <button
+                      onClick={() => handleManageServices(stylist)}
+                      className="action-btn services-btn"
+                      title="Manage Services"
+                    >
+                      <Settings size={18} />
+                    </button>
+                    <button
+                      onClick={() => handleDeleteStylist(stylist.stylist_id)}
+                      className="action-btn delete-btn"
+                      title="Delete"
+                    >
+                      <Trash2 size={18} />
+                    </button>
+                  </div>) : (
+                  <div >
+                    <button
+                      onClick={() => handleActivateStylist(stylist.stylist_id)}
+                      className="active-btn"
+                      title="Activate Stylist"
+                    >
+                      <CheckCircle size={18} />
+                    </button>
+                  </div>
+                )}
               </div>
             ))}
           </div>
@@ -203,142 +318,139 @@ const StylistManagement = () => {
 
       {/* Add Stylist Modal */}
       {showAddForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded p-4 w-full max-w-sm">
-            <div className="flex justify-between items-center mb-3">
-              <h2 className="text-lg font-medium">Add Employee</h2>
+        <>
+          <div className="overlay" onClick={() => setShowAddForm(false)} />
+          <div className="side-panel">
+            <div className="panel-header">
+              <h2>Add New Employee</h2>
               <button
                 onClick={() => {
-                  setShowAddForm(false);
-                  resetForm();
+                  setShowAddForm(false)
+                  resetForm()
                 }}
+                className="close-btn"
               >
                 <X size={20} />
               </button>
             </div>
-
-            <div className="space-y-3">
-              <input
-                type="text"
-                placeholder="Name"
-                value={formData.stylist_name}
-                onChange={(e) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    stylist_name: e.target.value,
-                  }))
-                }
-                className="w-full p-2 border rounded text-sm"
-                required
-              />
-
-              <input
-                type="tel"
-                placeholder="Contact Number"
-                value={formData.stylist_contact_number}
-                onChange={(e) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    stylist_contact_number: e.target.value,
-                  }))
-                }
-                className="w-full p-2 border rounded text-sm"
-                required
-              />
-
-              <input
-                type="url"
-                placeholder="Profile Picture URL (optional)"
-                value={formData.profile_pic_link}
-                onChange={(e) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    profile_pic_link: e.target.value,
-                  }))
-                }
-                className="w-full p-2 border rounded text-sm"
-              />
-
-              <textarea
-                placeholder="Bio (optional)"
-                value={formData.bio}
-                onChange={(e) =>
-                  setFormData((prev) => ({ ...prev, bio: e.target.value }))
-                }
-                rows={2}
-                className="w-full p-2 border rounded text-sm"
-              />
-
-              {/* <input
-                type="text"
-                placeholder="Salon ID"
-                value={formData.salon_id}
-                onChange={(e) => setFormData(prev => ({...prev, salon_id: e.target.value}))}
-                className="w-full p-2 border rounded text-sm"
-                required
-              /> */}
-
-              <button
-                onClick={handleAddStylist}
-                disabled={loading}
-                className="w-full bg-gray-800 text-white py-2 rounded text-sm hover:bg-gray-900 disabled:opacity-50"
-              >
+            <div className="panel-content">
+              <div className="form-group">
+                <label>Name</label>
+                <input
+                  type="text"
+                  placeholder="Enter employee name"
+                  value={formData.stylist_name}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      stylist_name: e.target.value,
+                    }))
+                  }
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label>Contact Number</label>
+                <input
+                  type="tel"
+                  placeholder="Enter contact number"
+                  value={formData.stylist_contact_number}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      stylist_contact_number: e.target.value,
+                    }))
+                  }
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label>Profile Picture URL</label>
+                <input
+                  type="url"
+                  placeholder="Enter profile picture URL (optional)"
+                  value={formData.profile_pic_link}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      profile_pic_link: e.target.value,
+                    }))
+                  }
+                />
+              </div>
+              <div className="form-group">
+                <label>Bio</label>
+                <textarea
+                  placeholder="Enter bio (optional)"
+                  value={formData.bio}
+                  onChange={(e) => setFormData((prev) => ({ ...prev, bio: e.target.value }))}
+                  rows={3}
+                />
+              </div>
+              <button onClick={handleAddStylist} disabled={loading} className="confirm-btn">
                 {loading ? "Adding..." : "Add Employee"}
               </button>
             </div>
           </div>
-        </div>
+        </>
       )}
 
       {/* Services Management Modal */}
       {showServicesModal && selectedStylist && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded p-4 w-full max-w-md max-h-96 overflow-y-auto">
-            <div className="flex justify-between items-center mb-3">
-              <h2 className="text-lg font-medium">
-                Services for {selectedStylist.stylist_name}
-              </h2>
+        <>
+          <div className="overlay" onClick={() => setShowServicesModal(false)} />
+          <div className="side-panel">
+            <div className="panel-header">
+              <h2>Services for {selectedStylist.stylist_name}</h2>
               <button
                 onClick={() => {
-                  setShowServicesModal(false);
-                  setSelectedStylist(null);
+                  setShowServicesModal(false)
+                  setSelectedStylist(null)
                 }}
+                className="close-btn"
               >
                 <X size={20} />
               </button>
             </div>
-
-            <div className="space-y-2 mb-4">
-              {services.map((service) => (
-                <label
-                  key={service.service_id}
-                  className="flex items-center gap-2 text-sm"
-                >
-                  <input
-                    type="checkbox"
-                    checked={stylistServices.includes(service.service_id)}
-                    onChange={() => handleServiceToggle(service.service_id)}
-                    className="w-4 h-4"
-                  />
-                  <span>
-                    {service.service_name} - {service.service_category}
-                  </span>
-                </label>
-              ))}
+            <div className="panel-content">
+              <div className="services-list">
+                {services.map((service) => (
+                  <div key={service.service_id} className="service-item">
+                    <div className="service-info">
+                      <input
+                        type="checkbox"
+                        id={`service-${service.service_id}`}
+                        checked={stylistServices.includes(service.service_id)}
+                        onChange={() => handleServiceToggle(service.service_id)}
+                      />
+                      <label htmlFor={`service-${service.service_id}`}>
+                        <span className="service-name">{service.service_name}</span>
+                        <span className="service-duration">{service.duration_minutes} min</span>
+                      </label>
+                    </div>
+                    <span className="service-price">${service.price}</span>
+                  </div>
+                ))}
+              </div>
+              <button onClick={handleUpdateServices} disabled={loading} className="confirm-btn">
+                {loading ? "Updating..." : "Update Services"}
+              </button>
             </div>
-
-            <button
-              onClick={handleUpdateServices}
-              disabled={loading}
-              className="w-full bg-green-600 text-white py-2 rounded text-sm hover:bg-green-700 disabled:opacity-50"
-            >
-              {loading ? "Updating..." : "Update Services"}
-            </button>
           </div>
-        </div>
+        </>
+      )}
+      {/* Schedule Calendar */}
+      {showScheduleCalendar && selectedStylistForSchedule && (
+        <ScheduleCalendar
+          stylist={selectedStylistForSchedule}
+          onClose={() => {
+            setShowScheduleCalendar(false)
+            setSelectedStylistForSchedule(null)
+          }}
+        />
       )}
     </div>
-  );
-};
+  )
+}
 
-export default StylistManagement;
+export default StylistManagement
