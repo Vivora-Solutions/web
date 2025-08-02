@@ -11,7 +11,9 @@ const SchedulingInterface = () => {
   const [showAddSlotPanel, setShowAddSlotPanel] = useState(false)
   const [schedules, setSchedules] = useState([])
   const [loading, setLoading] = useState(false)
+  const [isSithumMethod, setIsSithumMethod] = useState(false)
   const [stylists, setStylists] = useState([])
+  const [availabilityCheckUrl, setAvailabilityCheckUrl] = useState("/salons/available-time-slots")
   const [avilabilityCheck, setAvilabilityCheck] = useState(false)
   const [services, setServices] = useState([])
   const [availableTimeSlots, setAvailableTimeSlots] = useState([])
@@ -417,7 +419,7 @@ const SchedulingInterface = () => {
         salon_id: schedules[0]?.salon?.salon_id || null,
         date: newSlot.date || null,
       };
-      const response = await API.post(`/salons/available-time-slots`, payload);
+      const response = await API.post(availabilityCheckUrl, payload);
       setAvailableTimeSlots(response.data.data || []);
       setAvilabilityCheck(true);
       console.log("Available time slots:", response.data.data);
@@ -544,6 +546,13 @@ const SchedulingInterface = () => {
             <h2>Schedule Management</h2>
             <p>Manage and edit available time slots</p>
           </div>
+          <button className="add-slot-btn" onClick={() => {
+            setIsSithumMethod(!isSithumMethod);
+            isSithumMethod ? setAvailabilityCheckUrl("/salons/available-time-slots-sithum") : setAvailabilityCheckUrl("/salons/available-time-slots");
+          }}>
+            <span>+</span>
+            {isSithumMethod ? "Using Sithum" : "Using Sahan"}
+          </button>
           <button className="add-slot-btn" onClick={() => setShowAddSlotPanel(true)}>
             <span>+</span>
             Add Appointment
