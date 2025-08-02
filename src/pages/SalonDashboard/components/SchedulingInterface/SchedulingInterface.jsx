@@ -12,13 +12,16 @@ const SchedulingInterface = () => {
   const [schedules, setSchedules] = useState([])
   const [loading, setLoading] = useState(false)
   const [stylists, setStylists] = useState([])
+  const [avilabilityCheck, setAvilabilityCheck] = useState(false)
   const [services, setServices] = useState([])
+  const [availableTimeSlots, setAvailableTimeSlots] = useState([])
   const [newSlot, setNewSlot] = useState({
+    id: "",
     name: "",
     services: [],
     stylist: "Any",
-    date: "",
-    time: "",
+    startTime: "",
+    endTime: "",
   })
   const [showAppointmentPanel, setShowAppointmentPanel] = useState(false)
   const [selectedAppointment, setSelectedAppointment] = useState(null)
@@ -222,7 +225,6 @@ const SchedulingInterface = () => {
 
     if (schedules && schedules.length > 0) {
       schedules.forEach((booking) => {
-        console.log("Processing booking:", booking);
         try {
           const bookingStartDate = new Date(booking.booking_start_datetime)
           const bookingEndDate = new Date(booking.booking_end_datetime)
@@ -235,18 +237,21 @@ const SchedulingInterface = () => {
           const startTime = localBookingStartDate.toLocaleTimeString("en-US", {
             hour: "numeric",
             minute: "2-digit",
-            hour12: true,
+            hour12: false,
+            timeZone: "-05:30",
           })
 
           const endTime = localBookingEndDate.toLocaleTimeString("en-US", {
             hour: "numeric",
             minute: "2-digit",
-            hour12: true,
+            hour12: false,
+            timeZone: "-05:30",
           })
 
           const dayName = localBookingStartDate.getDate()
           const monthName = localBookingStartDate.toLocaleString("default", { month: "long" })
           const formattedDate = `${dayName}${getDaySuffix(dayName)} ${monthName}`
+          const bookingDate = `${localBookingStartDate.getFullYear()}-${String(localBookingStartDate.getMonth() + 1).padStart(2, "0")}-${String(localBookingStartDate.getDate()).padStart(2, "0")}`
 
           if (dates.includes(formattedDate)) {
             console.log("Found matching date:", formattedDate);
@@ -284,6 +289,7 @@ const SchedulingInterface = () => {
               salon: booking.salon?.salon_name || "N/A",
               date: formattedDate,
               notes: booking.notes || "",
+              bookingDate: bookingDate,
             }
 
             dynamicAppointments[formattedDate].push(appointmentData)
@@ -359,6 +365,102 @@ const SchedulingInterface = () => {
 
   const getStylistColumnIndex = (stylistId) => {
     return selectedStylists.indexOf(stylistId)
+  }
+
+  const handleEditBooking = (appointment) => {
+    //open add slot panel with pre-filled data
+    console.log("Editing booking:", appointment);
+    setNewSlot({
+      id: appointment.booking_id || "",
+      name: appointment.clientName || "",
+      date: appointment.bookingDate || "",
+      mobile: appointment.phone || "",
+      services: appointment.services?.map((s) => s.service_id) || [],
+      stylist: appointment.stylistId || "",
+      startTime: appointment.startTime || "",
+      endTime: appointment.endTime || "",
+    });
+    setShowAppointmentPanel(false);
+    setShowAddSlotPanel(true);
+    console.log("Editing booking:", newSlot);
+
+  }
+  const handleCancelBooking = async (appointment) => {
+    try {
+      await API.delete(`/salon-admin/booking/${appointment.booking_id}`);
+      // reload appointments
+      const updatedSchedules = schedules.filter((s) => s.booking_id !== appointment.booking_id);
+      setSchedules(updatedSchedules);
+      setShowAppointmentPanel(false);
+      setSelectedAppointment(null);
+      alert("Booking canceled successfully.");
+    } catch (error) {
+      console.error("Error canceling booking:", error);
+    }
+  }
+
+  const checkAvailability = async () => {
+    try {
+      // Prepare payload for available time slots API
+      // Convert date to yyyy-mm-dd format
+      // let formattedDate = "";
+      // if (newSlot.date) {
+      //   const dateObj = new Date(newSlot.date);
+      //   const year = dateObj.getFullYear();
+      //   const month = String(dateObj.getMonth() + 1).padStart(2, "0");
+      //   const day = String(dateObj.getDate()).padStart(2, "0");
+      //   formattedDate = `${year}-${month}-${day}`;
+      // }
+      const payload = {
+        service_ids: newSlot.services,
+        stylist_id: newSlot.stylist || null,
+        salon_id: schedules[0]?.salon?.salon_id || null,
+        date: newSlot.date || null,
+      };
+      const response = await API.post(`/salons/available-time-slots`, payload);
+      setAvailableTimeSlots(response.data.data || []);
+      setAvilabilityCheck(true);
+      console.log("Available time slots:", response.data.data);
+    } catch (error) {
+      console.error("Error fetching available time slots:", error);
+    }
+  }
+
+  const handleConfirmAppointment = async () => {
+    const appointment = {
+      stylist_id: newSlot.stylist,
+      booking_start_datetime: newSlot.startTime,
+      booking_end_datetime: newSlot.endTime,
+    };
+    console.log("Confirming appointment:", appointment);
+    try {
+      const response = await API.put(`/salon-admin/booking/${selectedAppointment?.booking_id}`, appointment);
+      setAvailableTimeSlots([]);
+      setAvilabilityCheck(false);
+      setNewSlot({
+        id: "",
+        name: "",
+        date: "",
+        mobile: "",
+        services: [],
+        stylist: "",
+        startTime: "",
+        endTime: "",
+      });
+      setShowAddSlotPanel(false);
+      setShowAppointmentPanel(false);
+      setSelectedAppointment(null);
+      alert("Appointment updated successfully.");
+      // Reload schedules
+      schedules.forEach((schedule) => {
+        if (schedule.booking_id === selectedAppointment?.booking_id) {
+          schedule.booking_start_datetime = newSlot.startTime;
+          schedule.booking_end_datetime = newSlot.endTime;
+        }
+      });
+    } catch (error) {
+      console.error("Error fetching available time slots:", error);
+    }
   }
 
   return (
@@ -526,7 +628,7 @@ const SchedulingInterface = () => {
                           className="appointment-block"
                           style={{
                             backgroundColor: stylist.color,
-                            top: `${appointment.position.top}px`, // +72 for headers height
+                            top: `${appointment.position.top + 256}px`, // +72 for headers height
                             height: `${Math.max(appointment.position.height, 32)}px`,
                             left: `${leftPosition}%`,
                             width: `${columnWidth - 1}%`, // -1% for spacing
@@ -582,6 +684,7 @@ const SchedulingInterface = () => {
                   type="text"
                   placeholder="Enter client name"
                   value={newSlot.name}
+                  readOnly={newSlot.name !== "" ? true : false}
                   onChange={(e) => setNewSlot((prev) => ({ ...prev, name: e.target.value }))}
                 />
               </div>
@@ -592,6 +695,7 @@ const SchedulingInterface = () => {
                   type="text"
                   placeholder="Enter client mobile"
                   value={newSlot.mobile}
+                  readOnly={newSlot.mobile !== "" ? true : false}
                   onChange={(e) => setNewSlot((prev) => ({ ...prev, mobile: e.target.value }))}
                 />
               </div>
@@ -606,8 +710,11 @@ const SchedulingInterface = () => {
                         <input
                           type="checkbox"
                           id={`service-${service.id}`}
+                          readOnly={newSlot.name !== "" ? true : false}
                           checked={newSlot.services.includes(service.id)}
-                          onChange={() => handleServiceToggle(service.id)}
+                          onChange={() => {
+                            if (newSlot.name === "") handleServiceToggle(service.id)
+                          }}
                         />
                         <label htmlFor={`service-${service.id}`}>
                           <span className="service-name">{service.name}</span>
@@ -623,17 +730,22 @@ const SchedulingInterface = () => {
               <div className="form-group">
                 <label>Select Stylist</label>
                 <div className="stylist-selection">
-                  <button
+                  {/* <button
                     className={`stylist-option ${newSlot.stylist === "Any" ? "selected" : ""}`}
-                    onClick={() => setNewSlot((prev) => ({ ...prev, stylist: "Any" }))}
+                    defaultValue={(stylists.find((s) => s.id === newSlot.stylist)?.name) || "Any"}
+                    onClick={() => {
+                      setNewSlot((prev) => ({ ...prev, stylist: "Any" }))
+                    }}
                   >
                     Any Available
-                  </button>
+                  </button> */}
                   {stylists.map((stylist) => (
                     <button
                       key={stylist.id}
-                      className={`stylist-option ${newSlot.stylist === stylist.name ? "selected" : ""}`}
-                      onClick={() => setNewSlot((prev) => ({ ...prev, stylist: stylist.name }))}
+                      className={`stylist-option ${newSlot.stylist === stylist.id ? "selected" : ""}`}
+                      onClick={() => {
+                        setNewSlot((prev) => ({ ...prev, stylist: stylist.id }))
+                      }}
                     >
                       <div className="stylist-color" style={{ backgroundColor: stylist.color }}></div>
                       {stylist.name}
@@ -641,11 +753,52 @@ const SchedulingInterface = () => {
                   ))}
                 </div>
               </div>
+              {/*Section to select the date*/}
+              <div className="form-group">
+                <label htmlFor="appointment-date">Select Date</label>
+                <input
+                  id="appointment-date"
+                  type="date"
+                  value={newSlot.date}
+                  onChange={(e) => setNewSlot((prev) => ({ ...prev, date: e.target.value }))}
+                />
+              </div>
+              {!avilabilityCheck && (
+                <button className="confirm-btn" onClick={checkAvailability}>
+                  <span>✓</span>
+                  Check Availability
+                </button>
+              )}
+              {avilabilityCheck && (
+                //list available time slots
+                <div className="form-group">
+                  <label htmlFor="appointment-time">Select Time Slot</label>
+                  <select
+                    id="appointment-time"
 
-              <button className="confirm-btn">
-                <span>✓</span>
-                Confirm Appointment
-              </button>
+                    onChange={(e) => setNewSlot((prev) => ({ ...prev, startTime: e.target.value.split("|")[0].trim(), endTime: e.target.value.split("|")[1].trim() }))}
+                  >
+                    <option value="">Select a time slot</option>
+                    {availableTimeSlots.map((slot, idx) => {
+                      const start = new Date(slot.start);
+                      const end = new Date(slot.end);
+                      const formatTime = (date) =>
+                        date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: "UTC" });
+                      return (
+                        <option key={idx} value={slot.start + "|" + slot.end}>
+                          {formatTime(start)} - {formatTime(end)}
+                        </option>
+                      );
+                    })}
+                  </select>
+                </div>
+              )}
+              {avilabilityCheck && (
+                <button className="confirm-btn" onClick={handleConfirmAppointment}>
+                  <span>✓</span>
+                  Confirm Appointment
+                </button>
+              )}
             </div>
           </div>
         </>
@@ -733,7 +886,7 @@ const SchedulingInterface = () => {
               <div className="action-buttons">
                 <button className="edit-btn" onClick={() => handleEditBooking(selectedAppointment)}>
                   <span>✏️</span>
-                  Edit Booking
+                  Reschedule Booking
                 </button>
                 <button className="cancel-btn" onClick={() => handleCancelBooking(selectedAppointment)}>
                   <span>🗑️</span>
