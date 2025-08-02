@@ -28,6 +28,10 @@ const SchedulingInterface = () => {
 
   // Time slots from 5 AM to 7 PM with 1-hour intervals
   const timeSlots = [
+    "1.00 am",
+    "2:00 am",
+    "3:00 am",
+    "4:00 am",
     "5:00 am",
     "6:00 am",
     "7:00 am",
@@ -43,6 +47,11 @@ const SchedulingInterface = () => {
     "5:00 pm",
     "6:00 pm",
     "7:00 pm",
+    "8:00 pm",
+    "9:00 pm",
+    "10:00 pm",
+    "11:00 pm",
+    "12:00 am",
   ]
 
   const dayFilters = ["1 Day", "2 Days", "3 Days", "5 Days"]
@@ -213,6 +222,7 @@ const SchedulingInterface = () => {
 
     if (schedules && schedules.length > 0) {
       schedules.forEach((booking) => {
+        console.log("Processing booking:", booking);
         try {
           const bookingStartDate = new Date(booking.booking_start_datetime)
           const bookingEndDate = new Date(booking.booking_end_datetime)
@@ -239,6 +249,7 @@ const SchedulingInterface = () => {
           const formattedDate = `${dayName}${getDaySuffix(dayName)} ${monthName}`
 
           if (dates.includes(formattedDate)) {
+            console.log("Found matching date:", formattedDate);
             const serviceNames = booking.booking_services
               .map((bookingService) => {
                 const serviceDetail = services.find((s) => s.id === bookingService.service_id)
@@ -247,7 +258,16 @@ const SchedulingInterface = () => {
               .join(", ")
 
             const position = calculateSlotPosition(startTime, endTime)
-
+            var name = "";
+            var mobile = "";
+            const customerType = booking.user_id ? "Online Customer" : "Non-Online Customer";
+            if (customerType === "Online Customer") {
+              name = booking.customer?.first_name + " " + booking.customer?.last_name || "N/A";
+              mobile = booking.customer?.contact_number || "N/A";
+            } else {
+              name = booking.non_online_customer?.non_online_customer_name || "N/A";
+              mobile = booking.non_online_customer?.non_online_customer_mobile_number || "N/A";
+            }
             const appointmentData = {
               booking_id: booking.booking_id,
               startTime,
@@ -257,11 +277,13 @@ const SchedulingInterface = () => {
               stylistName: booking.stylist?.stylist_name || "Unknown Stylist",
               service: serviceNames,
               services: booking.booking_services,
-              phone: booking.non_online_customer?.non_online_customer_mobile_number || "N/A",
-              clientName: booking.non_online_customer?.non_online_customer_name || "Online Customer",
+              phone: mobile,
+              clientType: customerType,
+              clientName: name,
               workstation: booking.workstation?.workstation_name || "N/A",
               salon: booking.salon?.salon_name || "N/A",
               date: formattedDate,
+              notes: booking.notes || "",
             }
 
             dynamicAppointments[formattedDate].push(appointmentData)
@@ -514,18 +536,19 @@ const SchedulingInterface = () => {
                           <div className="appointment-content">
                             <div className="appointment-header">
                               <span className="appointment-stylist">{appointment.stylistName.split(" ")[0]}</span>
-                              {appointment.clientName && appointment.clientName !== "Online Customer" && (
+                              {appointment.clientType === "Non-Online Customer" && (
                                 <PersonStandingIcon className="service-icon h-4" />
                               )}
-                              {appointment.clientName && appointment.clientName === "Online Customer" && (
+                              {appointment.clientType === "Online Customer" && (
                                 <Phone className="service-icon h-4" />
                               )}
-                              <span className="appointment-time">
-                                {appointment.startTime.split(" ")[0]} - {appointment.endTime.split(" ")[0]}
-                              </span>
+
                             </div>
-                            <div className="appointment-service">{appointment.service}</div>
-                            <div className="appointment-client">{appointment.clientName}</div>
+                            <span className="appointment-time">
+                              {appointment.startTime.split(" ")[0]} - {appointment.endTime.split(" ")[0]}
+                            </span>
+                            {/* <div className="appointment-service">{appointment.service}</div> */}
+                            {/* <div className="appointment-client">{appointment.clientName}</div> */}
                           </div>
                         </div>
                       )
@@ -544,6 +567,7 @@ const SchedulingInterface = () => {
           <div className="overlay" onClick={() => setShowAddSlotPanel(false)} />
           <div className="side-panel add-slot-panel">
             <div className="panel-header">
+              <PersonStandingIcon className="panel-icon" />
               <h2>Add New Appointment</h2>
               <button className="close-btn" onClick={() => setShowAddSlotPanel(false)}>
                 ×
@@ -559,6 +583,16 @@ const SchedulingInterface = () => {
                   placeholder="Enter client name"
                   value={newSlot.name}
                   onChange={(e) => setNewSlot((prev) => ({ ...prev, name: e.target.value }))}
+                />
+              </div>
+              <div className="form-group">
+                <label htmlFor="client-name">Client Mobile</label>
+                <input
+                  id="client-mobile"
+                  type="text"
+                  placeholder="Enter client mobile"
+                  value={newSlot.mobile}
+                  onChange={(e) => setNewSlot((prev) => ({ ...prev, mobile: e.target.value }))}
                 />
               </div>
 
@@ -642,8 +676,16 @@ const SchedulingInterface = () => {
 
             <div className="panel-content">
               <div className="form-group">
-                <label>Client Name</label>
-                <input type="text" value={selectedAppointment.clientName} readOnly />
+                <label>Client Type</label>
+                <div className="flex items-center gap-2">
+                  <input type="text" value={selectedAppointment.clientType} readOnly />
+                  {selectedAppointment.clientType && selectedAppointment.clientType !== "Online Customer" && (
+                    <PersonStandingIcon className="service-icon" />
+                  )}
+                  {selectedAppointment.clientType && selectedAppointment.clientType === "Online Customer" && (
+                    <Phone className="service-icon" />
+                  )}
+                </div>
               </div>
 
               <div className="form-group">
@@ -654,12 +696,6 @@ const SchedulingInterface = () => {
                     return (
                       <div key={index} className="service-readonly-item">
                         <div className="service-info">
-                          {serviceDetail.clientName && serviceDetail.clientName !== "Online Customer" && (
-                            <PersonStandingIcon className="service-icon" />
-                          )}
-                          {serviceDetail.clientName && serviceDetail.clientName === "Online Customer" && (
-                            <Phone className="service-icon" />
-                          )}
                           <span className="service-name">
                             {serviceDetail?.name || `Service ${service.service_id.substring(0, 8)}`}
                           </span>
@@ -681,17 +717,25 @@ const SchedulingInterface = () => {
                 />
               </div>
 
-              {/* <div className="form-group">
+              <div className="form-group">
+                <label>Client Name</label>
+                <input type="text" value={selectedAppointment.clientName} readOnly />
+              </div>
+              <div className="form-group">
                 <label>Phone Number</label>
                 <input type="text" value={selectedAppointment.phone} readOnly />
-              </div> */}
+              </div>
+              <div className="form-group">
+                <label>Notes</label>
+                <textarea value={selectedAppointment.notes} readOnly />
+              </div>
 
               <div className="action-buttons">
-                <button className="edit-btn">
+                <button className="edit-btn" onClick={() => handleEditBooking(selectedAppointment)}>
                   <span>✏️</span>
                   Edit Booking
                 </button>
-                <button className="cancel-btn">
+                <button className="cancel-btn" onClick={() => handleCancelBooking(selectedAppointment)}>
                   <span>🗑️</span>
                   Cancel Booking
                 </button>
