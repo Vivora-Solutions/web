@@ -15,9 +15,13 @@
 
 .main-panel {
   flex: 1;
-  padding: 2rem;
   overflow-y: auto;
+  padding: 2rem;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  border-radius: 8px;
 }
+
 
 .loading-container {
   min-height: 100vh;
