@@ -8,7 +8,9 @@
 .dashboard-body {
   display: flex;
   flex: 1;
-  height: calc(100vh - 60px); /* adjust based on header */
+  height: calc(100vh - 60px);
+  /* Adjust for header */
+  position: relative;
 }
 
 .main-panel {
@@ -39,23 +41,4 @@
   to {
     transform: rotate(360deg);
   }
-}
-.dashboard-layout {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  background: #f9fafb;
-}
-
-.dashboard-body {
-  display: flex;
-  flex: 1;
-  height: calc(100vh - 60px); /* Adjust for header */
-  position: relative;
-}
-
-.main-panel {
-  flex: 1;
-  padding: 2rem;
-  overflow-y: auto;
 }
