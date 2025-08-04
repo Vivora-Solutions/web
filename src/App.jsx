@@ -1,12 +1,12 @@
-import {Route, Routes, BrowserRouter as Router} from 'react-router-dom';
+import { Route, Routes, BrowserRouter as Router } from 'react-router-dom';
 
 import SuperAdminDashboard from './pages/SuperAdminDashboard/SuperAdminDashboard';
 import SalonDashboard from './pages/SalonDashboard/SalonDashboard';
 import SalonProfile from './pages/User/homeProfile';
 import AppointmentPage from './pages/User/appointmentpage';
-import Login from './pages/Login/Login';  
+import Login from './pages/Login/Login';
 import AllSalonsPage from './pages/SuperAdminDashboard/AllSalonsPage';
-import SalonDetailsPage from './pages/SuperAdminDashboard/SalonDetailsPage';  
+import SalonDetailsPage from './pages/SuperAdminDashboard/SalonDetailsPage';
 import MyBookingsPage from './pages/User/bookings';
 import SalonRegister from './pages/SalonDashboard/SalonRegister';
 import Schedule from './pages/User/schedule';
@@ -17,7 +17,7 @@ import UserProfile from './pages/User/profile';
 function App() {
 
   return (
-    <div>
+    <div className="w-full min-h-screen">
       <Routes>
         <Route path="/login" element={<Login/>} />
         <Route path="/" element={<SalonProfile />} />

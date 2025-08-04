@@ -9,12 +9,13 @@ const PhotoSection = () => {
 
   useEffect(() => {
     const fetchImages = async () => {
+      setIsLoading(true);
       try {
         const response = await API.get('/salon-admin/images');
         setPhotos(response.data.images);
-        setIsLoading(false);
       } catch (error) {
         console.error('Error fetching images:', error);
+      } finally {
         setIsLoading(false);
       }
     };

@@ -13,6 +13,7 @@ const OpeningHours = () => {
 
   useEffect(() => {
     const fetchOpeningHours = async () => {
+      setIsLoading(true);
       try {
         const response = await API.get('/salon-admin/opening-hours');
         const days = response.data.days || [];
@@ -26,9 +27,9 @@ const OpeningHours = () => {
           };
         });
         setOpeningHours(completeDays);
-        setIsLoading(false);
       } catch (error) {
         console.error('Error fetching opening hours:', error);
+      } finally {
         setIsLoading(false);
       }
     };
