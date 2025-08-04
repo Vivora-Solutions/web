@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import './OpeningDays.css';
-import API from '../../../../utils/api';
+import API from '../../../utils/api';
 
 const OpeningHours = () => {
   const [openingHours, setOpeningHours] = useState([]);
@@ -8,7 +7,7 @@ const OpeningHours = () => {
   const [isEditing, setIsEditing] = useState(false);
 
   const daysOfWeek = [
-    'Sunday', 'Monday', 'Tuesday', 'Wednesday', 
+    'Sunday', 'Monday', 'Tuesday', 'Wednesday',
     'Thursday', 'Friday', 'Saturday'
   ];
 
@@ -16,7 +15,6 @@ const OpeningHours = () => {
     const fetchOpeningHours = async () => {
       try {
         const response = await API.get('/salon-admin/opening-hours');
-        // Ensure we have exactly 7 days
         const days = response.data.days || [];
         const completeDays = Array(7).fill().map((_, index) => {
           const existingDay = days.find(d => d.day_of_week === index);
@@ -40,7 +38,7 @@ const OpeningHours = () => {
   const handleToggleOpen = (index) => {
     const updatedHours = [...openingHours];
     updatedHours[index].is_open = !updatedHours[index].is_open;
-    
+
     if (!updatedHours[index].is_open) {
       updatedHours[index].opening_time = null;
       updatedHours[index].closing_time = null;
@@ -48,7 +46,7 @@ const OpeningHours = () => {
       updatedHours[index].opening_time = updatedHours[index].opening_time || '10:00:00';
       updatedHours[index].closing_time = updatedHours[index].closing_time || '17:00:00';
     }
-    
+
     setOpeningHours(updatedHours);
   };
 
@@ -83,7 +81,6 @@ const OpeningHours = () => {
           closing_time: day.is_open ? day.closing_time : null
         }))
       };
-
       await API.post('/salon-admin/opening-hours', payload);
       setIsEditing(false);
       alert('Opening hours updated successfully!');
@@ -93,73 +90,85 @@ const OpeningHours = () => {
     }
   };
 
-  if (isLoading) return <div>Loading opening hours...</div>;
+  if (isLoading) return <div className="text-center py-8">Loading opening hours...</div>;
 
   return (
-    <div className="opening-hours-container">
-      <div className="opening-hours-header">
-        <h2>Opening Hours</h2>
-        <div className="opening-hours-actions">
+    <div className="max-w-3xl mx-auto my-6 p-6 bg-white rounded-lg shadow-md">
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-xl font-semibold">Opening Hours</h2>
+        <div className="flex gap-3">
           {isEditing ? (
             <>
-              <button onClick={() => setIsEditing(false)} className="cancel-button">
+              <button
+                onClick={() => setIsEditing(false)}
+                className="px-4 py-2 text-sm font-medium rounded bg-red-500 text-white hover:bg-red-600"
+              >
                 Cancel
               </button>
-              <button onClick={handleSave} className="save-button">
+              <button
+                onClick={handleSave}
+                className="px-4 py-2 text-sm font-medium rounded bg-blue-500 text-white hover:bg-blue-600"
+              >
                 Save Changes
               </button>
             </>
           ) : (
-            <button onClick={() => setIsEditing(true)} className="edit-button">
+            <button
+              onClick={() => setIsEditing(true)}
+              className="px-4 py-2 text-sm font-medium rounded bg-green-600 text-white hover:bg-green-700"
+            >
               Edit Hours
             </button>
           )}
         </div>
       </div>
 
-      <table className="opening-hours-table">
+      <table className="w-full border-collapse">
         <thead>
-          <tr>
-            <th>Day</th>
-            <th>Open</th>
-            <th>Opening Time</th>
-            <th>Closing Time</th>
+          <tr className="bg-gray-100">
+            <th className="text-left px-4 py-3 font-medium">Day</th>
+            <th className="text-left px-4 py-3 font-medium">Open</th>
+            <th className="text-left px-4 py-3 font-medium">Opening Time</th>
+            <th className="text-left px-4 py-3 font-medium">Closing Time</th>
           </tr>
         </thead>
         <tbody>
           {openingHours.map((day, index) => (
-            <tr key={day.day_of_week}>
-              <td>{daysOfWeek[day.day_of_week]}</td>
-              <td>
+            <tr key={day.day_of_week} className="hover:bg-gray-50">
+              <td className="px-4 py-2">{daysOfWeek[day.day_of_week]}</td>
+              <td className="px-4 py-2">
                 <input
                   type="checkbox"
                   checked={day.is_open}
                   onChange={() => handleToggleOpen(index)}
                   disabled={!isEditing}
+                  className="w-5 h-5"
                 />
               </td>
-              <td>
+              <td className="px-4 py-2">
                 {isEditing && day.is_open ? (
                   <input
                     type="time"
                     value={formatTimeForInput(day.opening_time)}
                     onChange={(e) => handleTimeChange(index, 'opening_time', e.target.value)}
                     disabled={!day.is_open}
+                    className="border border-gray-300 rounded px-2 py-1 text-sm"
                   />
                 ) : (
-                  formatTimeForDisplay(day.opening_time)
+                  <span>{formatTimeForDisplay(day.opening_time)}</span>
                 )}
               </td>
-              <td>
+              <td className="px-4 py-2">
                 {isEditing && day.is_open ? (
                   <input
                     type="time"
                     value={formatTimeForInput(day.closing_time)}
                     onChange={(e) => handleTimeChange(index, 'closing_time', e.target.value)}
                     disabled={!day.is_open}
+                    className="border border-gray-300 rounded px-2 py-1 text-sm"
                   />
                 ) : (
-                  formatTimeForDisplay(day.closing_time)
+                  <span>{formatTimeForDisplay(day.closing_time)}</span>
                 )}
               </td>
             </tr>

@@ -10,19 +10,10 @@ const defaultIcon = new L.Icon({
   iconAnchor: [12, 41],
 })
 
-const MapSection = ({ center, zoom, filteredSalons, onSalonClick }) => {
+const MapSection = ({ center, zoom, filteredSalons, onSalonClick, className }) => {
   return (
-    <div className="h-96 lg:h-auto lg:w-1/2 relative group">
-      <div className="absolute top-6 left-6 z-10">
-        <div className="bg-white/95 backdrop-blur-sm rounded-2xl px-4 py-3 shadow-lg border border-gray-100">
-          <div className="flex items-center gap-3">
-            <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-            <span className="text-sm font-semibold text-gray-700">
-              {filteredSalons.length} salon{filteredSalons.length !== 1 ? "s" : ""} found
-            </span>
-          </div>
-        </div>
-      </div>
+    <div className={className}>
+      
 
       <div className="absolute top-6 right-6 z-10">
         <button className="bg-white/95 backdrop-blur-sm rounded-full p-3 shadow-lg border border-gray-100 hover:bg-white transition-all duration-200 group">

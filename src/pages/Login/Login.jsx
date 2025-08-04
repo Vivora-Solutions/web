@@ -3,7 +3,7 @@ import axios from 'axios';
 import { useLocation } from 'react-router-dom';
 
 const Login = () => {
-  const location = useLocation();
+  const location = useLocation(); 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -89,7 +89,7 @@ const Login = () => {
 
         <p className="mt-5 text-sm">
           Not a member?{' '}
-          <a href="/sign-up" className="text-gray-900 font-medium underline">
+          <a href="/signup" className="text-gray-900 font-medium underline">
             Register Now
           </a>
         </p>

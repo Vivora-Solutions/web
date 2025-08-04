@@ -12,6 +12,7 @@ import SalonRegister from './pages/SalonDashboard/SalonRegister';
 import Schedule from './pages/User/schedule';
 import BookingConfirm from './pages/User/booking-confirm';
 import RegisterCustomerForm from './pages/User/signup';
+import UserProfile from './pages/User/profile';
 
 function App() {
 
@@ -25,6 +26,7 @@ function App() {
         <Route path="/my-bookings" element={<MyBookingsPage />}  />
         <Route path="/booking-confirm" element={<BookingConfirm />} />
         <Route path="/signup" element={<RegisterCustomerForm/>} />
+        <Route path="/profile" element={<UserProfile />} />
 
         <Route path="/admin" element={<SalonDashboard />} />  
         <Route path="/salon-register" element={<SalonRegister />} />

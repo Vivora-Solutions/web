@@ -1,73 +1,64 @@
+import { useEffect, useState } from "react";
+import { Info, Calendar, Image, Scissors, Users, Monitor } from "lucide-react";
 
+import API from "../../utils/api";
+import Header from "../../components/Header/Header";
+import Sidebar from "../../components/Sidebar/Sidebar";
+import SalonInfo from "./components/SalonInfo";
+import OpeningDays from "./components/OpeningDays";
+import PhotoSection from "./components/PhotoSection";
+import ServiceManagement from "./components/ServiceManagement";
+import StylistManagement from "./components/StylistManagement";
+import WorkStationManagement from "./components/WorkStationManagement";
+import SchedulingInterface from "./components/SchedulingInterface/SchedulingInterface";
 
-// src/pages/SalonDashboard/SalonDashboard.jsx
-import React, { useEffect, useState } from 'react';
-import './SalonDashboard.css';
-import Header from '../../components/Header/Header';
-
-import OpeningDays from './components/OpeningDays/OpeningDays';
-import { assets } from '../../assets/assets';
-import ServicesEditor from './components/ServicesEditor/ServicesEditor';
-// import EmployeesEditor from './components/EmployeesEditor/EmployeesEditor';
-import PhotoSection from './components/PhotoSection/PhotoSection';
-import API from '../../utils/api';
-import SalonInfo from './components/DashboardHeader/SalonInfo';
-import ServiceManagement from './components/ServiceManagement/ServiceManagement'; 
-import StylistManagement from './components/StylistManagement/StylistManagement';
-
+const SECTIONS = [
+  { label: "Salon Info", icon: <Info size={20} />, component: <SalonInfo /> },
+  { label: "Opening Hours", icon: <Calendar size={20} />, component: <OpeningDays /> },
+  { label: "Gallery", icon: <Image size={20} />, component: <PhotoSection /> },
+  { label: "Services", icon: <Scissors size={20} />, component: <ServiceManagement /> },
+  { label: "Stylists", icon: <Users size={20} />, component: <StylistManagement /> },
+  { label: "Workstations", icon: <Monitor size={20} />, component: <WorkStationManagement /> },
+  { label: "Booking Schedules", icon: <Calendar size={20} />, component: <SchedulingInterface /> },
+];
 
 const SalonDashboard = () => {
   const [salonData, setSalonData] = useState(null);
+  const [activeSection, setActiveSection] = useState(0);
 
   useEffect(() => {
     const fetchSalon = async () => {
       try {
-        const res = await API.get('/salon-admin/my');
+        const res = await API.get("/salon-admin/my");
         setSalonData(res.data);
-        
       } catch (err) {
-        console.error('Error fetching salon:', err);
+        console.error("Error fetching salon:", err);
       }
     };
     fetchSalon();
   }, []);
 
-const handleUpdate = async (updatedData) => {
-  try {
-    const { is_approved, ...payload } = updatedData; // exclude is_approved
-    console.log(payload); // Optional: for debugging
-
-    // ✅ This is where it should go:
-    await API.put('/salon-admin/update', payload);
-
-    // ✅ Then update local state to reflect change
-    setSalonData(prev => ({ ...prev, ...payload }));
-  } catch (err) {
-    console.error('Update failed:', err);
+  if (!salonData) {
+    return (
+      <div className="min-h-screen flex flex-col justify-center items-center bg-gray-50">
+        <div className="w-10 h-10 border-4 border-gray-300 border-t-indigo-500 rounded-full animate-spin mb-4"></div>
+        <p className="text-gray-600 text-lg">Loading your salon dashboard...</p>
+      </div>
+    );
   }
-};
-
-  if (!salonData) return <p>Loading...</p>;
 
   return (
-    <div>
+    <div className="min-h-screen flex flex-col bg-gray-50">
       <Header />
-      <div className="salon-dashboard-container">
-        <SalonInfo/>
-        {/* <DashboardHeader salon={salonData} onUpdate={handleUpdate} /> */}
-        <div className="opening-days-container">
-          <OpeningDays />
-        </div>
-        <PhotoSection bannerImages={salonData.banner_images || []} />
-        <ServiceManagement />
-        {/* <div className="salon-info-container">
-          <SalonInfo salon={salonData} onUpdate={handleUpdate} />
-        </div> */}
-        <div className="services-employees-container">
-          {/* <ServicesEditor /> */}
-          {/* <EmployeesEditor /> */}
-          <StylistManagement/>
-        </div>
+      <div className="flex flex-1 h-[calc(100vh-60px)]">
+        <Sidebar
+          items={SECTIONS}
+          activeIndex={activeSection}
+          setActiveIndex={setActiveSection}
+        />
+        <main className="flex-1 p-8 overflow-y-auto">
+          {SECTIONS[activeSection].component}
+        </main>
       </div>
     </div>
   );

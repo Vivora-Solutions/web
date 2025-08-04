@@ -1,6 +1,6 @@
+
 import React, { useState, useEffect } from 'react';
-import EditableField from '../../../../components/EditableField/EditableField';
-import './DashboardHeader.css';
+import EditableField from '../../../components/EditableField/EditableField';
 
 const DashboardHeader = ({ salon, onUpdate }) => {
   const [salonLogo, setSalonLogo] = useState(salon.salon_logo_link);
@@ -10,7 +10,7 @@ const DashboardHeader = ({ salon, onUpdate }) => {
     salon_description: '',
     salon_address: '',
     salon_contact_number: '',
-    salon_logo_link: ''
+    salon_logo_link: '',
   });
 
   useEffect(() => {
@@ -19,13 +19,13 @@ const DashboardHeader = ({ salon, onUpdate }) => {
       salon_description: salon.salon_description || '',
       salon_address: salon.salon_address || '',
       salon_contact_number: salon.salon_contact_number || '',
-      salon_logo_link: salon.salon_logo_link || ''
+      salon_logo_link: salon.salon_logo_link || '',
     });
     setSalonLogo(salon.salon_logo_link || '');
   }, [salon]);
 
   const handleChange = (key, value) => {
-    setFormData(prev => ({ ...prev, [key]: value }));
+    setFormData((prev) => ({ ...prev, [key]: value }));
     if (key === 'salon_logo_link') {
       setSalonLogo(value);
     }
@@ -47,8 +47,8 @@ const DashboardHeader = ({ salon, onUpdate }) => {
   };
 
   return (
-    <div className="flex flex-col md:flex-row items-center justify-between gap-6 p-6 bg-white rounded-2xl shadow-md">
-      {/* Logo Section */}
+    <div className="flex flex-col md:flex-row items-center justify-between gap-6 p-6 bg-white rounded-2xl shadow">
+      {/* Logo section */}
       <div className="relative w-36 h-36 shrink-0">
         <img
           src={salonLogo}
@@ -57,11 +57,11 @@ const DashboardHeader = ({ salon, onUpdate }) => {
         />
         <div className="absolute bottom-0 right-0">
           <input
+            id="logo-upload"
             type="file"
             accept="image/*"
             onChange={handleLogoChange}
             className="hidden"
-            id="logo-upload"
           />
           <label
             htmlFor="logo-upload"
@@ -72,7 +72,7 @@ const DashboardHeader = ({ salon, onUpdate }) => {
         </div>
       </div>
 
-      {/* Info Section */}
+      {/* Info section */}
       <div className="flex-1 w-full space-y-4">
         <div className="text-xl font-bold text-gray-800">
           <EditableField

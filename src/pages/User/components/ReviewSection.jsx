@@ -1,75 +1,45 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
+import axios from "axios"
+import dayjs from "dayjs"
+import relativeTime from "dayjs/plugin/relativeTime"
+
+dayjs.extend(relativeTime)
+
+const DEFAULT_PROFILE_PIC = "https://i.pravatar.cc/100?img=1"
 
 const ReviewSection = () => {
-  const reviews = [
-    {
-      id: 1,
-      name: "Sarah Johnson",
-      rating: 5,
-      comment:
-        "Amazing experience! The salon was clean, professional, and the staff was incredibly friendly. My hair looks fantastic!",
-      service: "Hair Styling",
-      image: "/placeholder.svg?height=60&width=60",
-      date: "2 days ago",
-    },
-    {
-      id: 2,
-      name: "Michael Chen",
-      rating: 5,
-      comment: "Best haircut I've had in years! The barber really understood what I wanted and delivered perfectly.",
-      service: "Men's Haircut",
-      image: "/placeholder.svg?height=60&width=60",
-      date: "1 week ago",
-    },
-    {
-      id: 3,
-      name: "Emily Rodriguez",
-      rating: 4,
-      comment:
-        "Great service and atmosphere. The manicure was perfect and lasted for weeks. Will definitely come back!",
-      service: "Manicure",
-      image: "/placeholder.svg?height=60&width=60",
-      date: "3 days ago",
-    },
-    {
-      id: 4,
-      name: "David Thompson",
-      rating: 5,
-      comment: "Exceptional service from start to finish. The massage was incredibly relaxing and therapeutic.",
-      service: "Spa Treatment",
-      image: "/placeholder.svg?height=60&width=60",
-      date: "5 days ago",
-    },
-    {
-      id: 5,
-      name: "Jessica Lee",
-      rating: 4,
-      comment: "The facial was rejuvenating, and my skin feels amazing. Highly recommend this salon!",
-      service: "Facial Treatment",
-      image: "/placeholder.svg?height=60&width=60",
-      date: "1 day ago",
-    },
-    {
-      id: 6,
-      name: "Chris Wilson",
-      rating: 5,
-      comment: "Always a pleasure visiting this salon. The staff is attentive, and the results are consistently great.",
-      service: "Beard Trim",
-      image: "/placeholder.svg?height=60&width=60",
-      date: "4 days ago",
-    },
-  ]
-
-  const reviewsPerPage = 3 // Number of reviews to show per "page"
-  const [visibleReviewsCount, setVisibleReviewsCount] = useState(reviewsPerPage)
+  const [reviews, setReviews] = useState([])
+  const [visibleReviewsCount, setVisibleReviewsCount] = useState(3)
 
   const showMoreReviews = () => {
-    setVisibleReviewsCount((prevCount) => prevCount + reviewsPerPage)
+    setVisibleReviewsCount((prev) => prev + 3)
   }
 
   const hasMoreReviews = visibleReviewsCount < reviews.length
+
+  useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        const res = await axios.get("http://localhost:3000/api/review/review-for-home-page")
+        const fetched = res.data.data.map((item, index) => ({
+          id: index,
+          name: item.user?.customer?.first_name || "Anonymous",
+          rating: item.star_rating,
+          comment: item.review_text,
+          service: item.salon?.salon_name || "Salon",
+          image: DEFAULT_PROFILE_PIC,
+          date: dayjs(item.created_at).fromNow(),
+        }))
+        setReviews(fetched)
+      } catch (err) {
+        console.error("Failed to fetch reviews", err)
+      }
+    }
+
+    fetchReviews()
+  }, [])
 
   return (
     <section className="py-16 bg-gradient-to-br from-purple-50 to-pink-50">
@@ -91,7 +61,7 @@ const ReviewSection = () => {
               className="bg-white rounded-3xl shadow-xl p-8 border border-gray-100 flex flex-col items-center text-center transform transition-transform duration-300 hover:scale-[1.02]"
             >
               <img
-                src={review.image || "/placeholder.svg"}
+                src={review.image}
                 alt={review.name}
                 className="w-20 h-20 rounded-full object-cover border-4 border-purple-100 shadow-lg mb-6"
               />
@@ -111,8 +81,6 @@ const ReviewSection = () => {
                 "{review.comment}"
               </blockquote>
               <div className="mt-auto">
-                {" "}
-                {/* Push content to top, keep name/date at bottom */}
                 <h4 className="font-bold text-gray-800 text-lg">{review.name}</h4>
                 <p className="text-purple-600 font-medium text-sm">{review.service}</p>
                 <p className="text-gray-500 text-xs mt-1">{review.date}</p>

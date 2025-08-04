@@ -7,7 +7,11 @@ import MapSection from "./components/MapSection"
 import SalonList from "./components/SalonList"
 import ReviewSection from "./components/ReviewSection"
 import Footer from "./components/Footer"
+import CTASection from "./components/CTASection"
 import axios from "axios"
+
+
+import { Search, MapPin, Star, Phone, Calendar, ChevronRight, Sparkles, Navigation } from "lucide-react"
 
 const HomePage = () => {
   const [salons, setSalons] = useState([])
@@ -64,24 +68,51 @@ const HomePage = () => {
 
       <HeroSection searchTerm={searchTerm} setSearchTerm={setSearchTerm} salonCount={filteredSalons.length} />
 
+
+
+      <div className="max-w-7xl mx-auto mt-8 px-4">
+        <SalonList
+          filteredSalons={filteredSalons}
+          isLoading={isLoading}
+          onSalonClick={handleSalonClick}
+          onSalonHover={handleSalonHover}
+        />
+      </div>
+
       {/* Main Content Container */}
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-100">
-          <div className="flex flex-col lg:flex-row min-h-[600px]">
-            <MapSection center={center} zoom={zoom} filteredSalons={filteredSalons} onSalonClick={handleSalonClick} />
-
-            <SalonList
+          <div className="flex min-h-[600px]"> {/* Remove flex-col and lg:flex-row */}
+            <MapSection
+              center={center}
+              zoom={zoom}
               filteredSalons={filteredSalons}
-              isLoading={isLoading}
               onSalonClick={handleSalonClick}
-              onSalonHover={handleSalonHover}
+              className="flex-1 w-full h-[600px]" // Pass className for full width/height
             />
           </div>
         </div>
+
+        
       </div>
 
+      
+
       <ReviewSection />
+      <CTASection />
       <Footer />
+
+      <style jsx>{`
+        /* index.css or tailwind.css */
+          .no-scrollbar::-webkit-scrollbar {
+            display: none;
+          }
+          .no-scrollbar {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;     /* Firefox */
+          }
+        }
+      `}</style>
     </div>
   )
 }
