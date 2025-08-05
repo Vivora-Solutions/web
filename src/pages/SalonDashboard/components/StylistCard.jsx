@@ -63,7 +63,7 @@
 //             <Settings size={18} />
 //             <span className="text-xs mt-1">Profile</span>
 //           </button>
-          
+
 //           <button
 //             onClick={() => onManageServices(stylist)}
 //             className="p-2.5 rounded-lg bg-emerald-100 text-emerald-600 hover:bg-emerald-200 hover:scale-105 transition-all"
@@ -92,7 +92,7 @@
 //             <span className="text-xs mt-1">Activate</span>
 //           </button>
 
-          
+
 //         </div>
 //       )}
 //     </div>
@@ -132,14 +132,14 @@ const StylistCard = ({ stylist, onManageSchedule, onManageServices, onManageProf
 
       {stylist.is_active ? (
         <div className="flex gap-2">
-          <button
+          {/* <button
             onClick={() => onManageSchedule(stylist)}
             className="p-2.5 rounded-lg bg-purple-100 text-purple-600 hover:bg-purple-200 hover:scale-105 transition-all"
             title="Calendar View"
           >
             <Calendar size={18} />
             <span className="text-xs mt-1">Calendar</span>
-          </button>
+          </button> */}
 
           <button
             onClick={() => onManageWorkingSchedule(stylist)}
