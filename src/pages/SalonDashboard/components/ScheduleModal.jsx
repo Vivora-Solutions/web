@@ -2,31 +2,33 @@ import { useState } from "react";
 import { X, Save, PlusCircle } from "lucide-react";
 import API from "../../../utils/api";
 
-const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+const daysOfWeek = [
+  "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"
+];
 
 const ScheduleModal = ({ stylist, onClose }) => {
   const existingScheduleList = Array.isArray(stylist.schedule) ? stylist.schedule : [];
-  console.log("Stylist schedule data:", existingScheduleList);
 
-const schedulesMapped = daysOfWeek.map((day, index) => {
-  const existing = existingScheduleList.find(
-    (s) => String(s.day_of_week) === String(index)
-  );
-  console.log("Existing schedule for", day, ":", existing);
+  const schedulesMapped = daysOfWeek.map((day, index) => {
+    const existing = existingScheduleList.find(
+      (s) => Number(s.day_of_week) === Number(index)
+    );
 
-  return existing
-    ? {
-        ...existing,
-        day_of_week: day, // convert numeric index to string name
-        start_time_daily: existing.start_time_daily?.slice(0, 5), // optional formatting
-        end_time_daily: existing.end_time_daily?.slice(0, 5),
-      }
-    : {
-        day_of_week: day,
-        start_time_daily: "",
-        end_time_daily: "",
-      };
-});
+    return existing
+      ? {
+          ...existing,                             // keeps _id, schedule_id, etc
+          day_of_week: index,                      // numeric value (0–6)
+          day_name: day,                           // readable value for UI only
+          start_time_daily: existing.start_time_daily?.slice(0, 5),
+          end_time_daily: existing.end_time_daily?.slice(0, 5),
+        }
+      : {
+          day_of_week: index,
+          day_name: day,
+          start_time_daily: "",
+          end_time_daily: "",
+        };
+  });
 
 
   const [schedules, setSchedules] = useState(schedulesMapped);
@@ -41,21 +43,25 @@ const schedulesMapped = daysOfWeek.map((day, index) => {
   };
 
   const handleSave = async (schedule) => {
+    console.log("Saving schedule:", schedule);
     try {
       setSaving(true);
+      //console.log("Saving schedule:", schedule);
       if (schedule.schedule_id) {
         await API.put(`/salon-admin/schedule/stylists/${stylist.stylist_id}/${schedule.schedule_id}`, schedule);
       } else {
-            await API.post(`/salon-admin/schedule/stylists/${stylist.stylist_id}`, {
-      stylist_id: stylist.stylist_id,
-      day_of_week: daysOfWeek.indexOf(schedule.day_of_week), // convert string to index
-      start_time_daily: schedule.start_time_daily,
-      end_time_daily: schedule.end_time_daily,
-    });
+        console.log("Creating new schedule for stylist:", stylist.stylist_id);
+      //       await API.post(`/salon-admin/schedule/stylists/${stylist.stylist_id}`, {
+      // stylist_id: stylist.stylist_id,
+      // day_of_week: daysOfWeek.indexOf(schedule.day_of_week), // convert string to index
+      // start_time_daily: schedule.start_time_daily,
+      // end_time_daily: schedule.end_time_daily,
+    //});
 
       }
       alert(`Schedule for ${schedule.day_of_week} saved!`);
     } catch (error) {
+      console.error("Saving schedule:", schedule);
       console.error("Failed to save schedule", error);
       alert("Failed to save schedule");
     } finally {

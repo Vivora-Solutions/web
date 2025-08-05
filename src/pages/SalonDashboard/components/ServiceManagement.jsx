@@ -97,6 +97,7 @@ const ServiceManagement = () => {
         price: Number(formData.price),
         duration_minutes: Number(formData.duration_minutes)
       };
+      console.log('Updating service with payload:', payload);
       await API.put(`/salon-admin/services/${serviceId}`, payload);
       await fetchServices(); // <<< refresh the table after update too
       setEditingId(null);

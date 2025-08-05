@@ -105,7 +105,7 @@
 
 import { User, Calendar, Settings, CheckCircle, Ban, Wrench } from "lucide-react";
 
-const StylistCard = ({ stylist, onManageSchedule, onManageServices, onManageProfile, onDisableStylist, onActivateStylist, onManageWorkingSchedule }) => {
+const StylistCard = ({ stylist, onManageServices, onManageProfile, onDisableStylist, onActivateStylist, onManageWorkingSchedule }) => {
   return (
     <div className="bg-white rounded-lg p-5 flex justify-between items-center shadow-sm border border-gray-200 hover:shadow-md hover:-translate-y-0.5 transition-all">
       <div className="flex items-center gap-4">
@@ -132,14 +132,14 @@ const StylistCard = ({ stylist, onManageSchedule, onManageServices, onManageProf
 
       {stylist.is_active ? (
         <div className="flex gap-2">
-          <button
+          {/* <button
             onClick={() => onManageSchedule(stylist)}
             className="p-2.5 rounded-lg bg-purple-100 text-purple-600 hover:bg-purple-200 hover:scale-105 transition-all"
             title="Calendar View"
           >
             <Calendar size={18} />
             <span className="text-xs mt-1">Calendar</span>
-          </button>
+          </button> */}
 
           <button
             onClick={() => onManageWorkingSchedule(stylist)}

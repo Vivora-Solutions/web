@@ -155,6 +155,7 @@ const StylistManagement = ({ onOpenSchedule }) => {
   };
 
   const handleManageScheduleModal = async (stylist) => {
+    console.log("Managing schedule for stylist:", stylist);
     try {
       const response = await API.get(`/salon-admin/schedule/stylists/${stylist.stylist_id}`);
       setScheduleStylistData({
@@ -240,7 +241,7 @@ const StylistManagement = ({ onOpenSchedule }) => {
                 key={stylist.stylist_id}
                 stylist={stylist}
                 onManageWorkingSchedule={handleManageScheduleModal} 
-                onManageSchedule={handleManageSchedule}
+                //onManageSchedule={handleManageSchedule}
                 onManageProfile={handleManageProfile}
                 onManageServices={handleManageServices}
                 onDisableStylist={handleDisableStylist}
