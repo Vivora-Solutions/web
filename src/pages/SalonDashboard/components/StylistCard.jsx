@@ -63,7 +63,7 @@
 //             <Settings size={18} />
 //             <span className="text-xs mt-1">Profile</span>
 //           </button>
-          
+
 //           <button
 //             onClick={() => onManageServices(stylist)}
 //             className="p-2.5 rounded-lg bg-emerald-100 text-emerald-600 hover:bg-emerald-200 hover:scale-105 transition-all"
@@ -92,7 +92,7 @@
 //             <span className="text-xs mt-1">Activate</span>
 //           </button>
 
-          
+
 //         </div>
 //       )}
 //     </div>
