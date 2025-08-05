@@ -1,8 +1,8 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
 import { X, ChevronLeft, ChevronRight, Save, Coffee, Plane, CheckCircle } from "lucide-react"
-import API from "../../../../utils/api"
+import API from "../../../../utils/api" // Assuming this path is correct
 
 const ScheduleCalendar = ({ stylist, onClose }) => {
   const [selectedDate, setSelectedDate] = useState(new Date())
@@ -19,10 +19,11 @@ const ScheduleCalendar = ({ stylist, onClose }) => {
   const gridRef = useRef(null)
 
   const hours = Array.from({ length: 24 }, (_, i) => i)
+
   const scheduleTypes = [
-    { value: "available", label: "Available", icon: CheckCircle, color: "#10b981" },
-    { value: "break", label: "Break", icon: Coffee, color: "#f59e0b" },
-    { value: "leave", label: "Leave", icon: Plane, color: "#ef4444" },
+    { value: "available", label: "Available", icon: CheckCircle, color: "#10b981" }, // Green
+    { value: "break", label: "Break", icon: Coffee, color: "#f59e0b" }, // Orange
+    { value: "leave", label: "Leave", icon: Plane, color: "#ef4444" }, // Red
   ]
 
   // Styles object
@@ -308,17 +309,16 @@ const ScheduleCalendar = ({ stylist, onClose }) => {
       background: "#f7fafc",
       borderBottom: "1px solid #e2e8f0",
       borderRight: "1px solid #e2e8f0",
-      height: "60px",
+      height: "50px",
       display: "flex",
-      alignItems: "flex-start",
+      alignItems: "center",
       justifyContent: "center",
-      paddingTop: "8px",
-      fontSize: "12px",
-      fontWeight: "500",
-      color: "#718096",
+      fontWeight: "600",
+      color: "#4a5568",
+      fontSize: "14px",
       position: "sticky",
-      left: 0,
-      zIndex: 5,
+      top: 0,
+      zIndex: 10,
     },
     calendarCell: {
       height: "60px",
@@ -327,7 +327,7 @@ const ScheduleCalendar = ({ stylist, onClose }) => {
       position: "relative",
       cursor: "crosshair",
       transition: "all 0.2s ease",
-      background: "white",
+      background: "white", // Default background for the hour cell
     },
     minuteSubdivisions: {
       position: "absolute",
@@ -338,12 +338,10 @@ const ScheduleCalendar = ({ stylist, onClose }) => {
     minuteSlot: {
       borderTop: "1px solid rgba(226, 232, 240, 0.5)",
       transition: "all 0.15s ease",
+      backgroundColor: "transparent", // Default for 15-min slot
     },
     minuteSlotFirst: {
       borderTop: "none",
-    },
-    minuteSlotSelected: {
-      backgroundColor: "rgba(66, 153, 225, 0.2)",
     },
     existingIndicator: {
       position: "absolute",
@@ -353,21 +351,35 @@ const ScheduleCalendar = ({ stylist, onClose }) => {
       height: "8px",
       background: "currentColor",
       borderRadius: "50%",
-      opacity: 0.6,
+      opacity: 1, // Changed to solid
     },
   }
+
+  const fetchExistingSchedules = useCallback(async () => {
+    try {
+      const response = await API.get(`/salon-admin/schedule/stylists/${stylist?.stylist_id}`)
+      const scheduleData = response.data?.data || response.data || []
+
+      // Only update state if data has actually changed
+      setExistingSchedules((prev) => {
+        const newData = scheduleData["schedule"] || []
+        return JSON.stringify(prev) === JSON.stringify(newData) ? prev : newData
+      })
+    } catch (error) {
+      console.error("Error fetching schedules:", error)
+    }
+  }, [stylist?.stylist_id]) // Add dependencies here
 
   useEffect(() => {
     generateWeekDates()
     fetchExistingSchedules()
-  }, [selectedDate])
+  }, [selectedDate]) // Removed fetchExistingSchedules from dependency array
 
   const generateWeekDates = () => {
     const startOfWeek = new Date(selectedDate)
     const day = startOfWeek.getDay()
     const diff = startOfWeek.getDate() - day
     startOfWeek.setDate(diff)
-
     const dates = []
     for (let i = 0; i < 7; i++) {
       const date = new Date(startOfWeek)
@@ -377,45 +389,23 @@ const ScheduleCalendar = ({ stylist, onClose }) => {
     setWeekDates(dates)
   }
 
-  const fetchExistingSchedules = async () => {
-    try {
-      console.log("Fetching existing schedules...", `/salon-admin/schedule/${stylist?.stylist_id}`);
-      const response = await API.get(`/salon-admin/schedule/${stylist?.stylist_id}`);
-
-      // Handle the nested data structure - response.data.data contains the array
-      const scheduleData = response.data?.data || response.data || [];
-      setExistingSchedules(scheduleData);
-      console.log("Fetched existing schedules:", scheduleData);
-    } catch (error) {
-      console.error("Error fetching schedules:", error);
-    }
-  }
-
   const getCellPosition = (e) => {
     if (!gridRef.current) return null
-
     const rect = gridRef.current.getBoundingClientRect()
     const x = e.clientX - rect.left
     const y = e.clientY - rect.top
-
     const headerHeight = 50
     const timeColumnWidth = 70
-
     if (y < headerHeight || x < timeColumnWidth) return null
-
     const cellWidth = (rect.width - timeColumnWidth) / 7
     const cellHeight = 60
-
     const dayIndex = Math.floor((x - timeColumnWidth) / cellWidth)
     const hourIndex = Math.floor((y - headerHeight) / cellHeight)
-
     const minuteInHour = Math.floor((((y - headerHeight) % cellHeight) / cellHeight) * 60)
     const minute = Math.floor(minuteInHour / 15) * 15
-
     if (dayIndex < 0 || dayIndex >= 7 || hourIndex < 0 || hourIndex >= 24) {
       return null
     }
-
     return {
       dayIndex,
       hourIndex,
@@ -428,7 +418,6 @@ const ScheduleCalendar = ({ stylist, onClose }) => {
     const dayDiff = Math.abs(end.dayIndex - start.dayIndex)
     const hourDiff = Math.abs(end.hourIndex - start.hourIndex)
     const minuteDiff = Math.abs(end.minute - start.minute)
-
     if (dayDiff > 0 && hourDiff === 0 && minuteDiff === 0) {
       return "horizontal"
     } else if (dayDiff === 0 && (hourDiff > 0 || minuteDiff > 0)) {
@@ -441,10 +430,8 @@ const ScheduleCalendar = ({ stylist, onClose }) => {
 
   const handleMouseDown = (e) => {
     if (scheduleType === "leave") return // No dragging for leave
-
     const position = getCellPosition(e)
     if (!position) return
-
     setIsDragging(true)
     setDragStart(position)
     setDragEnd(position)
@@ -455,10 +442,8 @@ const ScheduleCalendar = ({ stylist, onClose }) => {
 
   const handleMouseMove = (e) => {
     if (!isDragging || !dragStart || scheduleType === "leave") return
-
     const position = getCellPosition(e)
     if (!position) return
-
     setDragEnd(position)
     const type = determineSelectionType(dragStart, position)
     setSelectionType(type)
@@ -471,7 +456,6 @@ const ScheduleCalendar = ({ stylist, onClose }) => {
 
   const handleDayClick = (date) => {
     if (scheduleType !== "leave") return
-
     const dateStr = date.toISOString().split("T")[0]
     setSelectedLeaveDays((prev) => {
       if (prev.includes(dateStr)) {
@@ -483,57 +467,27 @@ const ScheduleCalendar = ({ stylist, onClose }) => {
   }
 
   const updateSelection = (start, end, type) => {
-    const slots = []
+    const slots = new Set() // Use a Set to avoid duplicate slot IDs
+    const minDay = Math.min(start.dayIndex, end.dayIndex)
+    const maxDay = Math.max(start.dayIndex, end.dayIndex)
+    const minHour = Math.min(start.hourIndex, end.hourIndex)
+    const maxHour = Math.max(start.hourIndex, end.hourIndex)
+    const minMinute = Math.min(start.minute, end.minute)
+    const maxMinute = Math.max(start.minute, end.minute)
 
-    switch (type) {
-      case "horizontal":
-        const startDay = Math.min(start.dayIndex, end.dayIndex)
-        const endDay = Math.max(start.dayIndex, end.dayIndex)
-
-        for (let dayIdx = startDay; dayIdx <= endDay; dayIdx++) {
-          const slotId = `${weekDates[dayIdx]?.toISOString().split("T")[0]}-${start.hourIndex}-${start.minute}`
-          slots.push(slotId)
-        }
-        break
-
-      case "vertical":
-        const startTime = start.hourIndex * 60 + start.minute
-        const endTime = end.hourIndex * 60 + end.minute
-        const minTime = Math.min(startTime, endTime)
-        const maxTime = Math.max(startTime, endTime)
-
-        for (let totalMinutes = minTime; totalMinutes <= maxTime; totalMinutes += 15) {
-          const hour = Math.floor(totalMinutes / 60)
-          const minute = totalMinutes % 60
-          const slotId = `${weekDates[start.dayIndex]?.toISOString().split("T")[0]}-${hour}-${minute}`
-          slots.push(slotId)
-        }
-        break
-
-      case "diagonal":
-        const minDay = Math.min(start.dayIndex, end.dayIndex)
-        const maxDay = Math.max(start.dayIndex, end.dayIndex)
-        const minTimeD = Math.min(start.hourIndex * 60 + start.minute, end.hourIndex * 60 + end.minute)
-        const maxTimeD = Math.max(start.hourIndex * 60 + start.minute, end.hourIndex * 60 + end.minute)
-
-        for (let dayIdx = minDay; dayIdx <= maxDay; dayIdx++) {
-          for (let totalMinutes = minTimeD; totalMinutes <= maxTimeD; totalMinutes += 15) {
-            const hour = Math.floor(totalMinutes / 60)
-            const minute = totalMinutes % 60
-            const slotId = `${weekDates[dayIdx]?.toISOString().split("T")[0]}-${hour}-${minute}`
-            slots.push(slotId)
+    for (let dayIdx = minDay; dayIdx <= maxDay; dayIdx++) {
+      for (let hourIdx = minHour; hourIdx <= maxHour; hourIdx++) {
+        for (let minute = 0; minute < 60; minute += 15) {
+          // Only add if within the selected minute range for the start/end hours
+          if ((hourIdx === minHour && minute < minMinute) || (hourIdx === maxHour && minute > maxMinute)) {
+            continue
           }
+          const slotId = `${weekDates[dayIdx]?.toISOString().split("T")[0]}-${hourIdx}-${minute}`
+          slots.add(slotId)
         }
-        break
-
-      case "single":
-      default:
-        const slotId = `${weekDates[start.dayIndex]?.toISOString().split("T")[0]}-${start.hourIndex}-${start.minute}`
-        slots.push(slotId)
-        break
+      }
     }
-
-    setSelectedTimeSlots(slots)
+    setSelectedTimeSlots(Array.from(slots))
   }
 
   const formatTime = (hour, minute = 0) => {
@@ -541,6 +495,10 @@ const ScheduleCalendar = ({ stylist, onClose }) => {
   }
 
   const formatDate = (date) => {
+    if (!(date instanceof Date) || isNaN(date)) {
+      // Check if date is not a Date object or is an invalid Date
+      return "Invalid Date" // Or return an empty string, or handle as appropriate
+    }
     return date.toLocaleDateString("en-US", {
       weekday: "short",
       month: "short",
@@ -560,126 +518,83 @@ const ScheduleCalendar = ({ stylist, onClose }) => {
 
   const hasExistingSchedule = (date, hour, minute = 0) => {
     // Safely handle existingSchedules - ensure it's an array
-    const schedules = existingSchedules ?
-      (Array.isArray(existingSchedules) ?
-        existingSchedules :
-        Object.values(existingSchedules)) :
-      [];
+    const schedules = Array.isArray(existingSchedules) ? existingSchedules : []
+    if (schedules.length === 0) return false
 
-    if (schedules.length === 0) return false;
+    // Get day of week for the date we're checking (0-6, Sunday-Saturday)
+    const dayOfWeek = date.getDay()
 
-    // Convert input date to YYYY-MM-DD format for comparison
-    const currentDateStr = date.toISOString().split('T')[0];
-    const currentTotalMinutes = hour * 60 + minute;
+    // Convert current time to minutes for comparison
+    const currentTotalMinutes = hour * 60 + minute
 
-    // Check if there's any schedule for this date and time slot
-    return schedules.some(schedule => {
+    // Check each schedule to see if it applies to this day/time
+    return schedules.some((schedule) => {
       try {
-        // Handle the new data structure
-        // Check stylist_schedule_day for working hours
-        if (schedule.stylist_schedule_day && Array.isArray(schedule.stylist_schedule_day)) {
-          const matchingDay = schedule.stylist_schedule_day.find(day => day.date === currentDateStr);
-          if (matchingDay && schedule.start_time_daily && schedule.end_time_daily) {
-            // Parse time strings and convert to minutes
-            const [startHour, startMinute] = schedule.start_time_daily.split(':').map(Number);
-            const [endHour, endMinute] = schedule.end_time_daily.split(':').map(Number);
+        // Skip if this schedule is for a different day of week
+        if (schedule.day_of_week !== dayOfWeek) return false
 
-            const startTotalMinutes = startHour * 60 + startMinute;
-            const endTotalMinutes = endHour * 60 + endMinute;
+        // Parse the schedule's start and end times
+        const [startHour, startMinute] = schedule.start_time_daily.split(":").map(Number)
+        const [endHour, endMinute] = schedule.end_time_daily.split(":").map(Number)
 
-            // Handle overnight schedules
-            if (endTotalMinutes < startTotalMinutes) {
-              return currentTotalMinutes >= startTotalMinutes || currentTotalMinutes < endTotalMinutes;
-            }
-            return currentTotalMinutes >= startTotalMinutes && currentTotalMinutes < endTotalMinutes;
-          }
+        const startTotalMinutes = startHour * 60 + startMinute
+        const endTotalMinutes = endHour * 60 + endMinute
+
+        // Handle overnight schedules (end time is next day)
+        if (endTotalMinutes < startTotalMinutes) {
+          return currentTotalMinutes >= startTotalMinutes || currentTotalMinutes < endTotalMinutes
         }
 
-        // Check stylist_leave for leave periods
-        if (schedule.stylist_leave && Array.isArray(schedule.stylist_leave)) {
-          return schedule.stylist_leave.some(leave => {
-            if (!leave.leave_start_time || !leave.leave_end_time) return false;
-
-            // Parse UTC times and convert to local time
-            // Parse UTC times and convert to local time (+5:30)
-            const leaveStartUTC = new Date(leave.leave_start_time);
-            const leaveEndUTC = new Date(leave.leave_end_time);
-
-            // Add 5 hours 30 minutes (19800000 ms)
-            const leaveStart = new Date(leaveStartUTC.getTime() - 5.5 * 60 * 60 * 1000);
-            const leaveEnd = new Date(leaveEndUTC.getTime() - 5.5 * 60 * 60 * 1000);
-
-            const leaveDateStr = leaveStart.toISOString().split('T')[0];
-            if (leaveDateStr !== currentDateStr) return false;
-
-            // Get local time components
-            const leaveStartHour = leaveStart.getHours();
-            const leaveStartMinute = leaveStart.getMinutes();
-            const leaveEndHour = leaveEnd.getHours();
-            const leaveEndMinute = leaveEnd.getMinutes();
-
-            const leaveStartTotal = leaveStartHour * 60 + leaveStartMinute;
-            const leaveEndTotal = leaveEndHour * 60 + leaveEndMinute;
-
-            // Handle overnight leaves
-            if (leaveEndTotal < leaveStartTotal) {
-              return currentTotalMinutes >= leaveStartTotal || currentTotalMinutes < leaveEndTotal;
-            }
-            return currentTotalMinutes >= leaveStartTotal && currentTotalMinutes < leaveEndTotal;
-          });
-        }
-
-        // Fallback: Check for old data structure (start_datetime/end_datetime)
-        if (schedule.start_datetime && schedule.end_datetime) {
-          const scheduleStart = new Date(schedule.start_datetime);
-          const scheduleEnd = new Date(schedule.end_datetime);
-
-          const scheduleDateStr = scheduleStart.toISOString().split('T')[0];
-          if (scheduleDateStr !== currentDateStr) return false;
-
-          const scheduleStartHour = scheduleStart.getHours();
-          const scheduleStartMinute = scheduleStart.getMinutes();
-          const scheduleEndHour = scheduleEnd.getHours();
-          const scheduleEndMinute = scheduleEnd.getMinutes();
-
-          const scheduleStartTotal = scheduleStartHour * 60 + scheduleStartMinute;
-          const scheduleEndTotal = scheduleEndHour * 60 + scheduleEndMinute;
-
-          if (scheduleEndTotal < scheduleStartTotal) {
-            return currentTotalMinutes >= scheduleStartTotal || currentTotalMinutes < scheduleEndTotal;
-          }
-          return currentTotalMinutes >= scheduleStartTotal && currentTotalMinutes < scheduleEndTotal;
-        }
-
-        return false;
+        // Normal same-day schedule
+        return currentTotalMinutes >= startTotalMinutes && currentTotalMinutes < endTotalMinutes
       } catch (error) {
-        console.error('Error processing schedule:', schedule, error);
-        return false;
+        console.error("Error processing schedule:", schedule, error)
+        return false
       }
-    });
-  };
+    })
+  }
 
-  const getCellColor = (date, hour, minute = 0) => {
-    const isSelected = isSlotSelected(date, hour, minute)
-    const hasSchedule = hasExistingSchedule(date, hour, minute)
+  // Helper: Check if any part of the hour has an existing schedule
+  const hasAnyExistingScheduleInHour = (date, hour) => {
+    const schedules = Array.isArray(existingSchedules) ? existingSchedules : []
+    if (schedules.length === 0) return false
 
-    if (isSelected) {
-      const currentType = scheduleTypes.find((t) => t.value === scheduleType)
-      return {
-        backgroundColor: currentType.color + "40",
-        borderColor: currentType.color,
-        borderWidth: "2px",
+    const dayOfWeek = date.getDay()
+    const hourStartMinutes = hour * 60
+    const hourEndMinutes = (hour + 1) * 60
+
+    return schedules.some((schedule) => {
+      try {
+        if (schedule.day_of_week !== dayOfWeek) return false
+
+        const [startHour, startMinute] = schedule.start_time_daily.split(":").map(Number)
+        const [endHour, endMinute] = schedule.end_time_daily.split(":").map(Number)
+
+        const scheduleStartTotalMinutes = startHour * 60 + startMinute
+        const scheduleEndTotalMinutes = endHour * 60 + endMinute
+
+        // Adjust for overnight schedules to simplify overlap check
+        if (scheduleEndTotalMinutes < scheduleStartTotalMinutes) {
+          // If schedule spans midnight, consider it as two segments for overlap check:
+          // 1. From start to end of day (24*60)
+          // 2. From start of day (0) to end
+          return (
+            (scheduleStartTotalMinutes < hourEndMinutes && 24 * 60 > hourStartMinutes) ||
+            (0 < hourEndMinutes && scheduleEndTotalMinutes > hourStartMinutes)
+          )
+        }
+
+        // Normal same-day schedule overlap check
+        return scheduleStartTotalMinutes < hourEndMinutes && scheduleEndTotalMinutes > hourStartMinutes
+      } catch (error) {
+        console.error("Error processing schedule for hour check:", schedule, error)
+        return false
       }
-    }
+    })
+  }
 
-    if (hasSchedule) {
-      return {
-        backgroundColor: "#ef444430",
-        borderColor: "#ef4444",
-        borderWidth: "1px",
-      }
-    }
-
+  // Simplified getCellColor - it only provides default styling for the hour cell
+  const getCellColor = () => {
     return {
       backgroundColor: "#ffffff",
       borderColor: "#e5e7eb",
@@ -687,45 +602,78 @@ const ScheduleCalendar = ({ stylist, onClose }) => {
     }
   }
 
+  // Helper: Get day of week from date (0 = Sunday)
+  const getDayOfWeek = (date) => {
+    return new Date(date).getDay()
+  }
+
   const handleSaveSchedule = async () => {
     setLoading(true)
-
     try {
-      let scheduleData = []
-
+      if (!stylist?.stylist_id) {
+        alert("Stylist not selected.")
+        return
+      }
       if (scheduleType === "leave") {
-        // Handle leave days
-        scheduleData = selectedLeaveDays.map((dateStr) => ({
+        const scheduleData = selectedLeaveDays.map((dateStr) => ({
           stylist_id: stylist.stylist_id,
           start_datetime: new Date(`${dateStr}T00:00:00.000Z`).toISOString(),
           end_datetime: new Date(`${dateStr}T23:59:59.999Z`).toISOString(),
           schedule_type: scheduleType,
         }))
+        await API.post("/salon-admin/stylist/schedule", scheduleData)
+        alert(`Leave saved! ${selectedLeaveDays.length} day(s) marked for leave.`)
+        setSelectedLeaveDays([])
       } else {
-        // Handle time slots
-        scheduleData = selectedTimeSlots.map((slotId) => {
-          const [dateStr, hourStr, minuteStr] = slotId.split("-")
-          const startDateTime = new Date(`${dateStr}T${hourStr.padStart(2, "0")}:${minuteStr.padStart(2, "0")}:00.000Z`)
-          const endDateTime = new Date(startDateTime)
-          endDateTime.setMinutes(endDateTime.getMinutes() + 15)
-
-          return {
-            stylist_id: stylist.stylist_id,
-            start_datetime: startDateTime.toISOString(),
-            end_datetime: endDateTime.toISOString(),
-            schedule_type: scheduleType,
+        if (selectedTimeSlots.length === 0) {
+          alert("Please select a time range.")
+          return
+        }
+        // Group selected slots by day of week and consolidate into ranges
+        const slotsByDay = selectedTimeSlots.reduce((acc, slotId) => {
+          const [dateStr, hour, minute] = slotId.split("-")
+          const date = new Date(dateStr)
+          const dayOfWeek = date.getDay()
+          if (!acc[dayOfWeek]) {
+            acc[dayOfWeek] = []
           }
-        })
+          acc[dayOfWeek].push(Number.parseInt(hour) * 60 + Number.parseInt(minute))
+          return acc
+        }, {})
+
+        for (const dayOfWeek in slotsByDay) {
+          const minutes = slotsByDay[dayOfWeek].sort((a, b) => a - b)
+
+          // Consolidate contiguous 15-minute slots into larger ranges
+          let currentRangeStart = minutes[0]
+          let currentRangeEnd = minutes[0] + 15 // End of the first 15-min slot
+          const consolidatedRanges = []
+
+          for (let i = 1; i < minutes.length; i++) {
+            if (minutes[i] === currentRangeEnd) {
+              currentRangeEnd += 15
+            } else {
+              consolidatedRanges.push({ start: currentRangeStart, end: currentRangeEnd })
+              currentRangeStart = minutes[i]
+              currentRangeEnd = minutes[i] + 15
+            }
+          }
+          consolidatedRanges.push({ start: currentRangeStart, end: currentRangeEnd }) // Add the last range
+
+          for (const range of consolidatedRanges) {
+            const startTime = `${String(Math.floor(range.start / 60)).padStart(2, "0")}:${String(range.start % 60).padStart(2, "0")}`
+            const endTime = `${String(Math.floor(range.end / 60)).padStart(2, "0")}:${String(range.end % 60).padStart(2, "0")}`
+
+            await API.post(`/salon-admin/schedule/stylists/${stylist.stylist_id}`, {
+              day_of_week: Number.parseInt(dayOfWeek),
+              start_time_daily: startTime,
+              end_time_daily: endTime,
+            })
+          }
+        }
+        alert(`Schedule saved! ${selectedTimeSlots.length} slots processed.`)
+        setSelectedTimeSlots([])
       }
-
-      await API.post("/salon-admin/stylist/schedule", scheduleData)
-
-      const count = scheduleType === "leave" ? selectedLeaveDays.length : selectedTimeSlots.length
-      const unit = scheduleType === "leave" ? "days" : "time slots"
-      alert(`Schedule saved! ${count} ${unit} selected for ${scheduleType}`)
-
-      setSelectedTimeSlots([])
-      setSelectedLeaveDays([])
       await fetchExistingSchedules()
     } catch (error) {
       console.error("Error saving schedule:", error)
@@ -739,6 +687,8 @@ const ScheduleCalendar = ({ stylist, onClose }) => {
     const newDate = new Date(selectedDate)
     newDate.setDate(newDate.getDate() + direction * 7)
     setSelectedDate(newDate)
+    setSelectedTimeSlots([]) // Clear selection when navigating weeks
+    setSelectedLeaveDays([]) // Also clear leave days selection for consistency
   }
 
   const getSelectionPreview = () => {
@@ -746,25 +696,31 @@ const ScheduleCalendar = ({ stylist, onClose }) => {
       if (selectedLeaveDays.length === 0) return null
       return `${selectedLeaveDays.length} day${selectedLeaveDays.length !== 1 ? "s" : ""} selected for leave`
     }
+    if (selectedTimeSlots.length === 0) return null
 
-    if (!dragStart || !dragEnd || !selectionType) return null
+    const datesInSelection = new Set()
+    let minTotalMinutes = 24 * 60 // Max possible minutes
+    let maxTotalMinutes = -1 // Min possible minutes
 
-    const startDay = Math.min(dragStart.dayIndex, dragEnd.dayIndex)
-    const endDay = Math.max(dragStart.dayIndex, dragEnd.dayIndex)
-    const startTime = Math.min(dragStart.hourIndex * 60 + dragStart.minute, dragEnd.hourIndex * 60 + dragEnd.minute)
-    const endTime = Math.max(dragStart.hourIndex * 60 + dragStart.minute, dragEnd.hourIndex * 60 + dragEnd.minute)
+    selectedTimeSlots.forEach((slotId) => {
+      const [dateStr, hourStr, minuteStr] = slotId.split("-")
+      datesInSelection.add(dateStr)
+      const totalMinutes = Number.parseInt(hourStr) * 60 + Number.parseInt(minuteStr)
 
-    switch (selectionType) {
-      case "horizontal":
-        return `${formatTime(dragStart.hourIndex, dragStart.minute)} across ${endDay - startDay + 1} days`
-      case "vertical":
-        return `${formatDate(weekDates[startDay])}: ${formatTime(Math.floor(startTime / 60), startTime % 60)} - ${formatTime(Math.floor(endTime / 60), endTime % 60)}`
-      case "diagonal":
-        return `${endDay - startDay + 1} days, ${formatTime(Math.floor(startTime / 60), startTime % 60)} - ${formatTime(Math.floor(endTime / 60), endTime % 60)}`
-      case "single":
-        return `${formatDate(weekDates[startDay])}: ${formatTime(dragStart.hourIndex, dragStart.minute)}`
-      default:
-        return null
+      minTotalMinutes = Math.min(minTotalMinutes, totalMinutes)
+      maxTotalMinutes = Math.max(maxTotalMinutes, totalMinutes)
+    })
+
+    const formattedStartTime = formatTime(Math.floor(minTotalMinutes / 60), minTotalMinutes % 60)
+    const formattedEndTime = formatTime(Math.floor((maxTotalMinutes + 15) / 60), (maxTotalMinutes + 15) % 60) // End of the last selected 15-min slot
+
+    const numDays = datesInSelection.size
+
+    if (numDays === 1) {
+      const selectedDateObj = weekDates.find((d) => d.toISOString().split("T")[0] === Array.from(datesInSelection)[0])
+      return `${formatDate(selectedDateObj)}: ${formattedStartTime} - ${formattedEndTime}`
+    } else {
+      return `${numDays} days, ${formattedStartTime} - ${formattedEndTime}`
     }
   }
 
@@ -777,17 +733,15 @@ const ScheduleCalendar = ({ stylist, onClose }) => {
   useEffect(() => {
     const handleGlobalMouseMove = (e) => handleMouseMove(e)
     const handleGlobalMouseUp = () => handleMouseUp()
-
     if (isDragging) {
       document.addEventListener("mousemove", handleGlobalMouseMove)
       document.addEventListener("mouseup", handleGlobalMouseUp)
     }
-
     return () => {
       document.removeEventListener("mousemove", handleGlobalMouseMove)
       document.removeEventListener("mouseup", handleGlobalMouseUp)
     }
-  }, [isDragging, dragStart])
+  }, [isDragging, dragStart]) // Removed handleMouseMove from dependency array
 
   if (!stylist) {
     return null
@@ -819,7 +773,6 @@ const ScheduleCalendar = ({ stylist, onClose }) => {
             <X size={20} />
           </button>
         </div>
-
         {/* Controls */}
         <div style={styles.controls}>
           <div style={styles.controlsRow}>
@@ -845,7 +798,6 @@ const ScheduleCalendar = ({ stylist, onClose }) => {
                 <ChevronRight size={18} />
               </button>
             </div>
-
             {/* Save Button */}
             <button
               onClick={handleSaveSchedule}
@@ -871,7 +823,6 @@ const ScheduleCalendar = ({ stylist, onClose }) => {
               {loading ? "Saving..." : `Save ${totalSelections > 0 ? `(${totalSelections})` : ""}`}
             </button>
           </div>
-
           {/* Schedule Type Selection */}
           <div style={styles.scheduleTypes}>
             {scheduleTypes.map((type) => {
@@ -901,7 +852,6 @@ const ScheduleCalendar = ({ stylist, onClose }) => {
               )
             })}
           </div>
-
           {/* Instructions */}
           <div className="flex justify-between items-center mb-4">
             <div style={styles.instructions}>
@@ -911,7 +861,6 @@ const ScheduleCalendar = ({ stylist, onClose }) => {
                   : "💡 Drag horizontally for same time across days, vertically for time ranges on same day"}
               </p>
             </div>
-
             {/* Selection Preview */}
             {(isDragging || totalSelections > 0) && (
               <div style={styles.selectionPreview}>
@@ -922,7 +871,6 @@ const ScheduleCalendar = ({ stylist, onClose }) => {
             )}
           </div>
         </div>
-
         {/* Calendar Content */}
         {scheduleType === "leave" ? (
           /* Simple Day Calendar for Leave */
@@ -1010,33 +958,21 @@ const ScheduleCalendar = ({ stylist, onClose }) => {
                   </div>
                 </div>
               ))}
-
               {/* Time Rows */}
               {hours.flatMap((hour) => [
                 /* Time Label */
                 <div key={`time-${hour}`} style={styles.timeSlot}>
                   {formatTime(hour)}
                 </div>,
-
                 /* Time Slots for Each Day */
                 ...weekDates.map((date, dateIndex) => {
-                  const cellStyle = getCellColor(date, hour)
+                  const cellStyle = getCellColor() // Simplified to only return default
                   return (
                     <div
                       key={`cell-${dateIndex}-${hour}`}
                       style={{
                         ...styles.calendarCell,
                         ...cellStyle,
-                      }}
-                      onMouseEnter={(e) => {
-                        if (!isSlotSelected(date, hour)) {
-                          e.target.style.backgroundColor = "rgba(66, 153, 225, 0.05)"
-                        }
-                      }}
-                      onMouseLeave={(e) => {
-                        if (!isSlotSelected(date, hour)) {
-                          e.target.style.backgroundColor = cellStyle.backgroundColor
-                        }
                       }}
                     >
                       {/* 15-minute subdivisions */}
@@ -1045,25 +981,36 @@ const ScheduleCalendar = ({ stylist, onClose }) => {
                           const minuteHasSchedule = hasExistingSchedule(date, hour, minute)
                           const minuteIsSelected = isSlotSelected(date, hour, minute)
 
+                          let minuteSlotBgColor = styles.minuteSlot.backgroundColor // Default transparent
+                          let minuteSlotBorderLeft = "none"
+
+                          // Apply existing schedule color first
+                          if (minuteHasSchedule) {
+                            minuteSlotBgColor = scheduleTypes.find((t) => t.value === "leave").color // Solid red for existing
+                            minuteSlotBorderLeft = `3px solid ${scheduleTypes.find((t) => t.value === "leave").color}`
+                          }
+                          // Apply selected color, overriding existing if both are true
+                          if (minuteIsSelected) {
+                            const currentType = scheduleTypes.find((t) => t.value === scheduleType)
+                            minuteSlotBgColor = currentType.color // Solid color based on selected type
+                            minuteSlotBorderLeft = `3px solid ${currentType.color}`
+                          }
+
                           return (
                             <div
                               key={minute}
                               style={{
                                 ...styles.minuteSlot,
                                 ...(minute === 0 ? styles.minuteSlotFirst : {}),
-                                ...(minuteIsSelected ? styles.minuteSlotSelected : {}),
-                                ...(minuteHasSchedule ? {
-                                  backgroundColor: "#ef444430",
-                                  borderLeft: "3px solid #ef4444",
-                                } : {}),
+                                backgroundColor: minuteSlotBgColor,
+                                borderLeft: minuteSlotBorderLeft,
                               }}
                             />
                           )
                         })}
                       </div>
-
                       {/* Existing schedule indicator */}
-                      {hasExistingSchedule(date, hour) && <div style={styles.existingIndicator} />}
+                      {hasAnyExistingScheduleInHour(date, hour) && <div style={styles.existingIndicator} />}
                     </div>
                   )
                 }),
