@@ -11,6 +11,7 @@ import ServiceManagement from "./components/ServiceManagement";
 import StylistManagement from "./components/StylistManagement";
 import WorkStationManagement from "./components/WorkStationManagement";
 import SchedulingInterface from "./components/SchedulingInterface/SchedulingInterface";
+import StylistScheduleManager from "./components/ScheduleModal";
 
 const SECTIONS = [
   { label: "Salon Info", icon: <Info size={20} />, component: <SalonInfo /> },
@@ -20,6 +21,7 @@ const SECTIONS = [
   { label: "Stylists", icon: <Users size={20} />, component: <StylistManagement /> },
   { label: "Workstations", icon: <Monitor size={20} />, component: <WorkStationManagement /> },
   { label: "Booking Schedules", icon: <Calendar size={20} />, component: <SchedulingInterface /> },
+  { label: "Working Schedules", icon: <Calendar size={20} />, component: <StylistScheduleManager /> },
 ];
 
 const SalonDashboard = () => {

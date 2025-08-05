@@ -7,6 +7,8 @@ import EmptyState from "./EmptyState"
 import StylistCard from "./StylistCard"
 import AddStylistModal from "./AddStylistModal"
 import ServicesModal from "./ServicesModal"
+import ProfileModal from "./ProfileModal";
+import ScheduleModal from "./ScheduleModal"
 
 const StylistManagement = ({ onOpenSchedule }) => {
   const [stylists, setStylists] = useState([])
@@ -25,6 +27,19 @@ const StylistManagement = ({ onOpenSchedule }) => {
   })
   const [showScheduleCalendar, setShowScheduleCalendar] = useState(false)
   const [selectedStylistForSchedule, setSelectedStylistForSchedule] = useState(null)
+
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const [profileFormData, setProfileFormData] = useState({
+    stylist_name: "",
+    stylist_contact_number: "",
+    profile_pic_link: "",
+    bio: "",
+    is_active: true,
+  });
+
+  const [scheduleStylistData, setScheduleStylistData] = useState(null)
+  const [showScheduleModal, setShowScheduleModal] = useState(false)
+
 
   useEffect(() => {
     const loadData = async () => {
@@ -106,6 +121,54 @@ const StylistManagement = ({ onOpenSchedule }) => {
     setShowServicesModal(true)
   }
 
+  //handleManageProfile
+  const handleManageProfile = async (stylist) => {
+    setLoading(true);
+    try {
+      // GET the existing stylist info
+      const response = await API.get(`/salon-admin/stylist/${stylist.stylist_id}`);
+      console.log("Stylist details:", response.data[0]);
+      setSelectedStylist(stylist);
+      setProfileFormData(response.data[0]);     // <-- prefill the form
+      setShowProfileModal(true);
+    } catch (e) {
+      console.error("Error fetching stylist details:", e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUpdateStylistProfile = async () => {
+    setLoading(true);
+    try {
+      await API.put(`/salon-admin/stylist/${selectedStylist.stylist_id}`, profileFormData);
+      // update frontend state so card shows updated info
+      setStylists(prev => prev.map(s => s.stylist_id === selectedStylist.stylist_id ? { ...s, ...profileFormData } : s));
+      alert("Profile updated successfully!");
+      setShowProfileModal(false);
+      setSelectedStylist(null);
+    } catch (error) {
+      console.error("Error updating stylist:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleManageScheduleModal = async (stylist) => {
+    try {
+      const response = await API.get(`/salon-admin/schedule/stylists/${stylist.stylist_id}`);
+      setScheduleStylistData({
+        ...stylist,
+        schedule: response.data.data.schedule,
+      });
+      console.log("Schedule data:", response.data.data.schedule);
+      setShowScheduleModal(true);
+    } catch (error) {
+      console.error("Error fetching schedule:", error);
+    }
+  };
+
+
   const handleManageSchedule = (stylist) => {
     setSelectedStylistForSchedule(stylist)
     setShowScheduleCalendar(true)
@@ -176,7 +239,9 @@ const StylistManagement = ({ onOpenSchedule }) => {
               <StylistCard
                 key={stylist.stylist_id}
                 stylist={stylist}
+                onManageWorkingSchedule={handleManageScheduleModal} 
                 onManageSchedule={handleManageSchedule}
+                onManageProfile={handleManageProfile}
                 onManageServices={handleManageServices}
                 onDisableStylist={handleDisableStylist}
                 onActivateStylist={handleActivateStylist}
@@ -207,6 +272,31 @@ const StylistManagement = ({ onOpenSchedule }) => {
         onServiceToggle={handleServiceToggle}
         onUpdateServices={handleUpdateServices}
       />
+
+
+      <ProfileModal
+        show={showProfileModal}
+        profileFormData={profileFormData}
+        setProfileFormData={setProfileFormData}
+        loading={loading}
+        onClose={() => {
+          setShowProfileModal(false)
+          setSelectedStylist(null)
+        }}
+        onSubmit={handleUpdateStylistProfile}
+      />
+
+      {showScheduleModal && scheduleStylistData && (
+      <ScheduleModal
+        stylist={scheduleStylistData}
+        onClose={() => {
+          setShowScheduleModal(false);
+          setScheduleStylistData(null);
+        }}
+      />
+    )}
+
+
 
       {/* Schedule Calendar */}
       {showScheduleCalendar && selectedStylistForSchedule && (
