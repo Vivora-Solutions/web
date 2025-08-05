@@ -64,7 +64,7 @@ const ApiService = {
 
   async updateStylistSchedule(stylistId, schedule) {
     // TODO: Replace with actual API call
-    const response = await API.put(`/salon-admin/schedule/stylists/${stylistId}`, schedule);
+    const response = await API.put(`/salon-admin/schedule/stylists/${stylistId}/${schedule.id}`, schedule);
     console.log("Updating stylist schedule:", stylistId, schedule)
     return { success: true }
   },
@@ -78,9 +78,9 @@ const ApiService = {
   },
 
   async createAppointment(appointment) {
-    // Transform appointment data to match API format
-    const startDateTime = new Date(`${appointment.date}T${appointment.startTime}:00`).toISOString();
-    const endDateTime = new Date(`${appointment.date}T${appointment.endTime}:00`).toISOString();
+    // Use direct string concatenation instead of Date conversion to avoid "Invalid time value"
+    const startDateTime = appointment.startTime;
+    const endDateTime = appointment.endTime;
 
     const apiData = {
       stylist_id: appointment.stylistId,
@@ -102,11 +102,11 @@ const ApiService = {
   },
 
   async updateAppointment(appointmentId, appointment) {
-    // Transform appointment data to match API format
-    const startDateTime = new Date(`${appointment.date}T${appointment.startTime}:00`).toISOString();
-    const endDateTime = new Date(`${appointment.date}T${appointment.endTime}:00`).toISOString();
+    const startDateTime = appointment.startTime;
+    const endDateTime = appointment.endTime;
 
     const apiData = {
+      stylist_id: appointment.stylistId,
       booking_start_datetime: startDateTime,
       booking_end_datetime: endDateTime,
       notes: appointment.notes || "",
@@ -167,6 +167,7 @@ const SchedulingInterface = () => {
   const [dragEnd, setDragEnd] = useState(null)
   const [loading, setLoading] = useState(false)
   const [maxDays, setMaxDays] = useState(1)
+  const [salonId, setSalonId] = useState("")
 
   // Data states - using real API structure
   const [stylists, setStylists] = useState([])
@@ -196,6 +197,7 @@ const SchedulingInterface = () => {
     notes: "",
     status: "confirmed",
   })
+  const [availableTimeSlots, setAvailableTimeSlots] = useState([])
 
   // Notification state
   const [notification, setNotification] = useState(null)
@@ -233,6 +235,8 @@ const SchedulingInterface = () => {
         ApiService.getLeaves(),
       ])
 
+      setSalonId(stylistsData[0]?.salon_id || "")
+
       // Transform API data to internal format
       const transformedStylists = stylistsData.map((stylist, index) => ({
         id: stylist.stylist_id,
@@ -256,17 +260,10 @@ const SchedulingInterface = () => {
           appointment.non_online_customer?.non_online_customer_mobile_number ||
           "",
         stylistId: appointment.stylist.stylist_id,
-        date: new Date(appointment.booking_start_datetime).toISOString().split("T")[0],
-        startTime: new Date(appointment.booking_start_datetime).toLocaleTimeString("en-US", {
-          hour12: false,
-          hour: "2-digit",
-          minute: "2-digit",
-        }),
-        endTime: new Date(appointment.booking_end_datetime).toLocaleTimeString("en-US", {
-          hour12: false,
-          hour: "2-digit",
-          minute: "2-digit",
-        }),
+        // Fix timezone issue by parsing UTC dates correctly without additional timezone conversion
+        date: appointment.booking_start_datetime.split("T")[0],
+        startTime: appointment.booking_start_datetime.split("T")[1].substring(0, 5), // Extract HH:MM from ISO string
+        endTime: appointment.booking_end_datetime.split("T")[1].substring(0, 5), // Extract HH:MM from ISO string
         services: appointment.booking_services.map((bs) => bs.service.service_id),
         isWalkIn: !appointment.user_id,
         notes: appointment.notes || "",
@@ -288,7 +285,7 @@ const SchedulingInterface = () => {
       setAppointments(transformedAppointments)
       setServices(transformedServices)
       setLeaves(leavesData)
-      setSelectedStylists(transformedStylists.filter((s) => s.isActive).map((s) => s.id))
+      setSelectedStylists([]) // Keep stylists deselected by default
       generateWeekDates()
     } catch (error) {
       console.error("Error loading data:", error)
@@ -312,6 +309,14 @@ const SchedulingInterface = () => {
       dates.push(date)
     }
     setWeekDates(dates)
+  }
+
+  // Helper function to format date consistently without timezone issues
+  const formatDateToString = (date) => {
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    return `${year}-${month}-${day}`
   }
 
   const formatTime = (hour, minute = 0) => {
@@ -411,6 +416,8 @@ const SchedulingInterface = () => {
   const updateSelection = (start, end) => {
     const slots = []
     const breakSlots = []
+
+    // Calculate selection boundaries
     const minDateIndex = Math.min(start.dateIndex, end.dateIndex)
     const maxDateIndex = Math.max(start.dateIndex, end.dateIndex)
     const minStylistIndex = Math.min(start.stylistIndex, end.stylistIndex)
@@ -418,78 +425,81 @@ const SchedulingInterface = () => {
     const minTime = Math.min(start.hourIndex * 60 + start.minute, end.hourIndex * 60 + end.minute)
     const maxTime = Math.max(start.hourIndex * 60 + start.minute, end.hourIndex * 60 + end.minute)
 
-    // Group slots by date and stylist, then combine consecutive time periods
-    const groupedSlots = {}
+    // Helper function to format time consistently
+    const formatDateTime = (date, totalMinutes) => {
+      const hour = Math.floor(totalMinutes / 60)
+      const minute = totalMinutes % 60
+      return `${date}T${hour.toString().padStart(2, "0")}:${minute.toString().padStart(2, "0")}:00Z`
+    }
 
+    // Group time slots by stylist and date for break slot creation
+    const groupedSlots = new Map()
+
+    // Generate all selected slots
     for (let dateIdx = minDateIndex; dateIdx <= maxDateIndex; dateIdx++) {
       for (let stylistIdx = minStylistIndex; stylistIdx <= maxStylistIndex; stylistIdx++) {
-        const dateKey = `${selectedStylists[stylistIdx]}-${weekDates[dateIdx].toISOString().split("T")[0]}`
+        const stylistId = selectedStylists[stylistIdx]
+        const date = formatDateToString(weekDates[dateIdx])
+        const groupKey = `${stylistId}-${date}`
 
-        if (!groupedSlots[dateKey]) {
-          groupedSlots[dateKey] = {
-            stylistId: selectedStylists[stylistIdx],
-            date: weekDates[dateIdx].toISOString().split("T")[0],
+        // Initialize group if not exists
+        if (!groupedSlots.has(groupKey)) {
+          groupedSlots.set(groupKey, {
+            stylistId,
+            date,
             timeSlots: []
-          }
+          })
         }
 
+        // Add all 15-minute slots in the time range
         for (let totalMinutes = minTime; totalMinutes <= maxTime; totalMinutes += 15) {
           const hour = Math.floor(totalMinutes / 60)
           const minute = totalMinutes % 60
-          const slotId = `${selectedStylists[stylistIdx]}-${weekDates[dateIdx].toISOString().split("T")[0]}-${hour}-${minute}`
 
+          // Create slot ID for individual slot tracking
+          const slotId = `${stylistId}-${date}-${hour}-${minute}`
           slots.push(slotId)
-          groupedSlots[dateKey].timeSlots.push(totalMinutes)
+
+          // Add to group for break slot creation
+          groupedSlots.get(groupKey).timeSlots.push(totalMinutes)
         }
       }
     }
 
-    // Create combined break slots from grouped time periods
-    Object.values(groupedSlots).forEach(group => {
+    // Create break slots by combining consecutive time periods
+    groupedSlots.forEach(group => {
       if (group.timeSlots.length === 0) return
 
-      // Sort time slots
+      // Sort and combine consecutive slots
       const sortedTimes = [...group.timeSlots].sort((a, b) => a - b)
-
-      // Combine consecutive 15-minute slots
-      let currentStart = sortedTimes[0]
-      let currentEnd = sortedTimes[0] + 15
+      let blockStart = sortedTimes[0]
+      let blockEnd = sortedTimes[0] + 15
 
       for (let i = 1; i < sortedTimes.length; i++) {
         const currentTime = sortedTimes[i]
 
-        // If the current time slot is consecutive (within 15 minutes of the last end time)
-        if (currentTime <= currentEnd) {
-          // Extend the current block
-          currentEnd = currentTime + 15
+        if (currentTime <= blockEnd) {
+          // Extend current block
+          blockEnd = currentTime + 15
         } else {
-          // Create a break slot for the previous consecutive block
-          const startHour = Math.floor(currentStart / 60)
-          const startMinute = currentStart % 60
-          const endHour = Math.floor(currentEnd / 60)
-          const endMinute = currentEnd % 60
+          // Save current block and start new one
+          breakSlots.push([
+            formatDateTime(group.date, blockStart),
+            formatDateTime(group.date, blockEnd),
+            group.date
+          ])
 
-          const startDateTime = `${group.date}T${startHour.toString().padStart(2, "0")}:${startMinute.toString().padStart(2, "0")}:00Z`
-          const endDateTime = `${group.date}T${endHour.toString().padStart(2, "0")}:${endMinute.toString().padStart(2, "0")}:00Z`
-
-          breakSlots.push([startDateTime, endDateTime, group.date])
-
-          // Start a new block
-          currentStart = currentTime
-          currentEnd = currentTime + 15
+          blockStart = currentTime
+          blockEnd = currentTime + 15
         }
       }
 
-      // Don't forget the last block
-      const startHour = Math.floor(currentStart / 60)
-      const startMinute = currentStart % 60
-      const endHour = Math.floor(currentEnd / 60)
-      const endMinute = currentEnd % 60
-
-      const startDateTime = `${group.date}T${startHour.toString().padStart(2, "0")}:${startMinute.toString().padStart(2, "0")}:00Z`
-      const endDateTime = `${group.date}T${endHour.toString().padStart(2, "0")}:${endMinute.toString().padStart(2, "0")}:00Z`
-
-      breakSlots.push([startDateTime, endDateTime, group.date])
+      // Add the final block
+      breakSlots.push([
+        formatDateTime(group.date, blockStart),
+        formatDateTime(group.date, blockEnd),
+        group.date
+      ])
     })
 
     setSelectedBreakSlots(breakSlots)
@@ -497,7 +507,7 @@ const SchedulingInterface = () => {
   }
 
   const isSlotSelected = (stylistId, date, hour, minute = 0) => {
-    const slotId = `${stylistId}-${date.toISOString().split("T")[0]}-${hour}-${minute}`
+    const slotId = `${stylistId}-${formatDateToString(date)}-${hour}-${minute}`
     return selectedTimeSlots.includes(slotId)
   }
 
@@ -532,7 +542,7 @@ const SchedulingInterface = () => {
   // Leave day selection
   const handleDayClick = (date) => {
     if (scheduleType !== "leave") return
-    const dateStr = date.toISOString().split("T")[0]
+    const dateStr = formatDateToString(date)
     setSelectedLeaveDays((prev) => {
       if (prev.includes(dateStr)) {
         return prev.filter((d) => d !== dateStr)
@@ -543,26 +553,26 @@ const SchedulingInterface = () => {
   }
 
   const isDaySelected = (date) => {
-    const dateStr = date.toISOString().split("T")[0]
+    const dateStr = formatDateToString(date)
     return selectedLeaveDays.includes(dateStr)
   }
 
   // Check if stylist has leave on a specific date
   const hasLeaveOnDate = (stylistId, date) => {
-    const dateStr = date.toISOString().split("T")[0]
+    const dateStr = formatDateToString(date)
     return leaves.some((leave) => leave.stylist_id === stylistId && leave.date === dateStr)
   }
 
   // Check if stylist has leave on a specific time slot
   const hasLeaveAtTimeSlot = (stylistId, date, hour, minute = 0) => {
-    const currentSlotStart = `${date.toISOString().split("T")[0]}T${hour.toString().padStart(2, "0")}:${minute.toString().padStart(2, "0")}:00+00:00`
+    const currentSlotStart = `${formatDateToString(date)}T${hour.toString().padStart(2, "0")}:${minute.toString().padStart(2, "0")}:00+00:00`
     let endHour = hour
     let endMinute = minute + 15
     if (endMinute >= 60) {
       endHour += 1
       endMinute -= 60
     }
-    const currentSlotEnd = `${date.toISOString().split("T")[0]}T${endHour.toString().padStart(2, "0")}:${endMinute.toString().padStart(2, "0")}:00+00:00`
+    const currentSlotEnd = `${formatDateToString(date)}T${endHour.toString().padStart(2, "0")}:${endMinute.toString().padStart(2, "0")}:00+00:00`
 
     return leaves.some((leave) => {
       if (leave.stylist_id !== stylistId) return false
@@ -605,20 +615,22 @@ const SchedulingInterface = () => {
   }
 
   const handleAddAppointment = () => {
-    const today = new Date().toISOString().split("T")[0]
+    const today = new Date()
+    const localDate = formatDateToString(today)
     setNewAppointment({
       id: "",
       clientName: "",
       clientPhone: "",
       services: [],
       stylistId: selectedStylists[0] || "",
-      date: today,
+      date: localDate,
       startTime: "09:00",
       endTime: "10:00",
       isWalkIn: false,
       notes: "",
       status: "confirmed",
     })
+    setAvailableTimeSlots([]) // Reset available time slots
     setShowAddAppointmentPanel(true)
     setIsEditingAppointment(false)
   }
@@ -638,9 +650,68 @@ const SchedulingInterface = () => {
       notes: appointment.notes,
       status: appointment.status,
     })
+    setAvailableTimeSlots([]) // Reset available time slots for editing
     setShowAddAppointmentPanel(true)
     setIsEditingAppointment(true)
     setShowAppointmentDetailsPanel(false)
+  }
+
+  // Check availability function
+  const handleCheckAvailability = async () => {
+    if (!newAppointment.stylistId || !newAppointment.date || newAppointment.services.length === 0) {
+      showNotification("Please select stylist, date, and services first", "error")
+      return
+    }
+
+    setLoading(true)
+    try {
+      // Prepare the API request data
+      console.log("Checking availability for appointment:", stylists[0])
+      const requestData = {
+        service_ids: newAppointment.services,
+        stylist_id: newAppointment.stylistId,
+        salon_id: salonId, // Use actual salon ID from context
+        date: newAppointment.date
+      }
+
+      console.log("Checking availability with data:", requestData)
+
+      // Call the backend API to get available time slots
+      const response = await API.post("/salons/available-time-slots-sithum", requestData)
+      console.log("Availability response:", response.data)
+      if (response.data.success && response.data.data) {
+        const slots = response.data.data.map(slot => ({
+          startTime: slot.start,
+          endTime: slot.end
+        }))
+
+        setAvailableTimeSlots(slots)
+
+        if (slots.length === 0) {
+          showNotification("No available time slots found for the selected date and services", "error")
+        } else {
+          showNotification(`Found ${slots.length} available time slots`, "success")
+        }
+      } else {
+        showNotification("No available time slots found", "error")
+        setAvailableTimeSlots([])
+      }
+    } catch (error) {
+      console.error("Error checking availability:", error)
+
+      // Handle different types of errors
+      if (error.response?.status === 400) {
+        showNotification(error.response.data.error || "Invalid request data", "error")
+      } else if (error.response?.status === 500) {
+        showNotification(error.response.data.details || "Server error", "error")
+      } else {
+        showNotification("Failed to check availability. Please try again.", "error")
+      }
+
+      setAvailableTimeSlots([])
+    } finally {
+      setLoading(false)
+    }
   }
 
   const handleSaveAppointment = async () => {
@@ -684,20 +755,30 @@ const SchedulingInterface = () => {
       let result
       if (isEditingAppointment) {
         result = await ApiService.updateAppointment(newAppointment.id, newAppointment)
-        setAppointments((prev) => prev.map((apt) => (apt.id === newAppointment.id ? newAppointment : apt)))
         showNotification("Appointment updated successfully!")
       } else {
         result = await ApiService.createAppointment(newAppointment)
-        const id = Date.now().toString()
-        setAppointments((prev) => [...prev, { ...newAppointment, id }])
         showNotification("Appointment created successfully!")
       }
 
       setShowAddAppointmentPanel(false)
       resetAppointmentForm()
+
+      // Reload data to reflect changes and fix any display issues
+      await loadData()
     } catch (error) {
       console.error("Error saving appointment:", error)
-      showNotification("Error saving appointment. Please try again.", "error")
+
+      // Show more specific error messages from backend
+      if (error.response?.data?.error) {
+        showNotification(error.response.data.error, "error")
+      } else if (error.response?.data?.message) {
+        showNotification(error.response.data.message, "error")
+      } else if (error.message) {
+        showNotification(error.message, "error")
+      } else {
+        showNotification("Error saving appointment. Please try again.", "error")
+      }
     } finally {
       setLoading(false)
     }
@@ -709,10 +790,12 @@ const SchedulingInterface = () => {
     try {
       setLoading(true)
       await ApiService.deleteAppointment(appointmentId)
-      setAppointments((prev) => prev.filter((apt) => apt.id !== appointmentId))
       setShowAppointmentDetailsPanel(false)
       setSelectedAppointment(null)
       showNotification("Appointment deleted successfully!")
+
+      // Reload data to reflect changes
+      await loadData()
     } catch (error) {
       console.error("Error deleting appointment:", error)
       showNotification("Error deleting appointment. Please try again.", "error")
@@ -800,7 +883,12 @@ const SchedulingInterface = () => {
 
   // Get appointments for display
   const getAppointmentsForDate = (date, stylistId) => {
-    const dateStr = date.toISOString().split("T")[0]
+    // Use local date string to avoid timezone issues
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    const dateStr = `${year}-${month}-${day}`
+
     return appointments.filter((apt) => apt.date === dateStr && apt.stylistId === stylistId)
   }
 
@@ -821,8 +909,9 @@ const SchedulingInterface = () => {
 
   // Helper function to get upcoming leaves
   const getUpcomingLeaves = () => {
-    const today = new Date().toISOString().split("T")[0]
-    return leaves.filter((leave) => leave.date >= today)
+    const today = new Date()
+    const localToday = formatDateToString(today)
+    return leaves.filter((leave) => leave.date >= localToday)
   }
 
   // Helper function to handle leave selection for deletion
@@ -1983,6 +2072,7 @@ const SchedulingInterface = () => {
                         value={newAppointment.clientName}
                         onChange={(e) => setNewAppointment({ ...newAppointment, clientName: e.target.value })}
                         placeholder="Enter client name"
+                        disabled={isEditingAppointment}
                         style={{
                           width: "100%",
                           padding: "12px 16px",
@@ -1992,8 +2082,10 @@ const SchedulingInterface = () => {
                           fontFamily: "inherit",
                           outline: "none",
                           transition: "border-color 0.2s ease",
+                          backgroundColor: isEditingAppointment ? "#f5f5f5" : "white",
+                          cursor: isEditingAppointment ? "not-allowed" : "text",
                         }}
-                        onFocus={(e) => (e.target.style.borderColor = COLORS.info)}
+                        onFocus={(e) => !isEditingAppointment && (e.target.style.borderColor = COLORS.info)}
                         onBlur={(e) => (e.target.style.borderColor = COLORS.border)}
                       />
                     </div>
@@ -2006,6 +2098,7 @@ const SchedulingInterface = () => {
                         value={newAppointment.clientPhone}
                         onChange={(e) => setNewAppointment({ ...newAppointment, clientPhone: e.target.value })}
                         placeholder="Enter phone number"
+                        disabled={isEditingAppointment}
                         style={{
                           width: "100%",
                           padding: "12px 16px",
@@ -2015,8 +2108,10 @@ const SchedulingInterface = () => {
                           fontFamily: "inherit",
                           outline: "none",
                           transition: "border-color 0.2s ease",
+                          backgroundColor: isEditingAppointment ? "#f5f5f5" : "white",
+                          cursor: isEditingAppointment ? "not-allowed" : "text",
                         }}
-                        onFocus={(e) => (e.target.style.borderColor = COLORS.info)}
+                        onFocus={(e) => !isEditingAppointment && (e.target.style.borderColor = COLORS.info)}
                         onBlur={(e) => (e.target.style.borderColor = COLORS.border)}
                       />
                     </div>
@@ -2026,9 +2121,21 @@ const SchedulingInterface = () => {
                         id="walkIn"
                         checked={newAppointment.isWalkIn}
                         onChange={(e) => setNewAppointment({ ...newAppointment, isWalkIn: e.target.checked })}
-                        style={{ accentColor: COLORS.info, transform: "scale(1.2)" }}
+                        disabled={isEditingAppointment}
+                        style={{
+                          accentColor: COLORS.info,
+                          transform: "scale(1.2)",
+                          cursor: isEditingAppointment ? "not-allowed" : "pointer",
+                        }}
                       />
-                      <label htmlFor="walkIn" style={{ fontWeight: "600", color: COLORS.text }}>
+                      <label
+                        htmlFor="walkIn"
+                        style={{
+                          fontWeight: "600",
+                          color: isEditingAppointment ? COLORS.textLight : COLORS.text,
+                          cursor: isEditingAppointment ? "not-allowed" : "pointer",
+                        }}
+                      >
                         Walk-in Customer
                       </label>
                     </div>
@@ -2047,7 +2154,10 @@ const SchedulingInterface = () => {
                       </label>
                       <select
                         value={newAppointment.stylistId}
-                        onChange={(e) => setNewAppointment({ ...newAppointment, stylistId: e.target.value })}
+                        onChange={(e) => {
+                          setNewAppointment({ ...newAppointment, stylistId: e.target.value })
+                          setAvailableTimeSlots([]) // Reset available slots when stylist changes
+                        }}
                         style={{
                           width: "100%",
                           padding: "12px 16px",
@@ -2072,7 +2182,7 @@ const SchedulingInterface = () => {
                           ))}
                       </select>
                     </div>
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "12px" }}>
+                    <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "12px" }}>
                       <div>
                         <label style={{ display: "block", fontWeight: "600", color: COLORS.text, marginBottom: "8px" }}>
                           Date *
@@ -2080,51 +2190,10 @@ const SchedulingInterface = () => {
                         <input
                           type="date"
                           value={newAppointment.date}
-                          onChange={(e) => setNewAppointment({ ...newAppointment, date: e.target.value })}
-                          style={{
-                            width: "100%",
-                            padding: "12px 16px",
-                            border: `2px solid ${COLORS.border}`,
-                            borderRadius: "8px",
-                            fontSize: "14px",
-                            fontFamily: "inherit",
-                            outline: "none",
-                            transition: "border-color 0.2s ease",
+                          onChange={(e) => {
+                            setNewAppointment({ ...newAppointment, date: e.target.value })
+                            setAvailableTimeSlots([]) // Reset available slots when date changes
                           }}
-                          onFocus={(e) => (e.target.style.borderColor = COLORS.info)}
-                          onBlur={(e) => (e.target.style.borderColor = COLORS.border)}
-                        />
-                      </div>
-                      <div>
-                        <label style={{ display: "block", fontWeight: "600", color: COLORS.text, marginBottom: "8px" }}>
-                          Start Time *
-                        </label>
-                        <input
-                          type="time"
-                          value={newAppointment.startTime}
-                          onChange={(e) => setNewAppointment({ ...newAppointment, startTime: e.target.value })}
-                          style={{
-                            width: "100%",
-                            padding: "12px 16px",
-                            border: `2px solid ${COLORS.border}`,
-                            borderRadius: "8px",
-                            fontSize: "14px",
-                            fontFamily: "inherit",
-                            outline: "none",
-                            transition: "border-color 0.2s ease",
-                          }}
-                          onFocus={(e) => (e.target.style.borderColor = COLORS.info)}
-                          onBlur={(e) => (e.target.style.borderColor = COLORS.border)}
-                        />
-                      </div>
-                      <div>
-                        <label style={{ display: "block", fontWeight: "600", color: COLORS.text, marginBottom: "8px" }}>
-                          End Time *
-                        </label>
-                        <input
-                          type="time"
-                          value={newAppointment.endTime}
-                          onChange={(e) => setNewAppointment({ ...newAppointment, endTime: e.target.value })}
                           style={{
                             width: "100%",
                             padding: "12px 16px",
@@ -2140,6 +2209,101 @@ const SchedulingInterface = () => {
                         />
                       </div>
                     </div>
+
+                    {/* Available Time Slots - Only show after checking availability */}
+                    {availableTimeSlots.length > 0 && (
+                      <div>
+                        <label style={{ display: "block", fontWeight: "600", color: COLORS.text, marginBottom: "8px" }}>
+                          Available Time Slots *
+                        </label>
+                        <select
+                          value={newAppointment.startTime && newAppointment.endTime ? `${newAppointment.startTime}|${newAppointment.endTime}` : ""}
+                          onChange={(e) => {
+                            const [startTime, endTime] = e.target.value.split('|')
+                            setNewAppointment({
+                              ...newAppointment,
+                              startTime,
+                              endTime
+                            })
+                            console.log(`Selected time slot: ${startTime} - ${endTime}`)
+                          }}
+                          style={{
+                            width: "100%",
+                            padding: "12px 16px",
+                            border: `2px solid ${COLORS.border}`,
+                            borderRadius: "8px",
+                            fontSize: "14px",
+                            fontFamily: "inherit",
+                            outline: "none",
+                            transition: "border-color 0.2s ease",
+                            backgroundColor: "white",
+                          }}
+                          onFocus={(e) => (e.target.style.borderColor = COLORS.info)}
+                          onBlur={(e) => (e.target.style.borderColor = COLORS.border)}
+                        >
+                          <option value="">Select available time slot</option>
+                          {availableTimeSlots.map((slot, index) => {
+                            return (
+                              <option key={index} value={`${slot.startTime}|${slot.endTime}`}>
+                                {slot.startTime.split('T')[1].split(":").slice(0, 2).join(":")} - {slot.endTime.split('T')[1].split(":").slice(0, 2).join(":")}
+                              </option>
+                            )
+                          })}
+                        </select>
+                      </div>
+                    )}
+
+                    {/* Manual Time Input - Only show if no available slots checked yet */}
+                    {availableTimeSlots.length === 0 && (
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+                        <div>
+                          <label style={{ display: "block", fontWeight: "600", color: COLORS.text, marginBottom: "8px" }}>
+                            Start Time *
+                          </label>
+                          <input
+                            type="time"
+                            value={newAppointment.startTime}
+                            onChange={(e) => setNewAppointment({ ...newAppointment, startTime: e.target.value })}
+                            disabled={true}
+                            style={{
+                              width: "100%",
+                              padding: "12px 16px",
+                              border: `2px solid ${COLORS.border}`,
+                              borderRadius: "8px",
+                              fontSize: "14px",
+                              fontFamily: "inherit",
+                              outline: "none",
+                              transition: "border-color 0.2s ease",
+                              backgroundColor: "#f5f5f5",
+                              cursor: "not-allowed",
+                            }}
+                          />
+                        </div>
+                        <div>
+                          <label style={{ display: "block", fontWeight: "600", color: COLORS.text, marginBottom: "8px" }}>
+                            End Time *
+                          </label>
+                          <input
+                            type="time"
+                            value={newAppointment.endTime}
+                            onChange={(e) => setNewAppointment({ ...newAppointment, endTime: e.target.value })}
+                            disabled={true}
+                            style={{
+                              width: "100%",
+                              padding: "12px 16px",
+                              border: `2px solid ${COLORS.border}`,
+                              borderRadius: "8px",
+                              fontSize: "14px",
+                              fontFamily: "inherit",
+                              outline: "none",
+                              transition: "border-color 0.2s ease",
+                              backgroundColor: "#f5f5f5",
+                              cursor: "not-allowed",
+                            }}
+                          />
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -2158,25 +2322,45 @@ const SchedulingInterface = () => {
                           padding: "12px 16px",
                           border: `2px solid ${newAppointment.services.includes(service.id) ? COLORS.info : COLORS.border}`,
                           borderRadius: "8px",
-                          cursor: "pointer",
+                          cursor: isEditingAppointment ? "not-allowed" : "pointer",
                           transition: "all 0.2s ease",
-                          background: newAppointment.services.includes(service.id) ? "rgba(66, 153, 225, 0.1)" : "white",
+                          background: newAppointment.services.includes(service.id)
+                            ? "rgba(66, 153, 225, 0.1)"
+                            : isEditingAppointment
+                              ? "#f5f5f5"
+                              : "white",
+                          opacity: isEditingAppointment ? 0.7 : 1,
                         }}
                         onClick={() => {
-                          const updatedServices = newAppointment.services.includes(service.id)
-                            ? newAppointment.services.filter((id) => id !== service.id)
-                            : [...newAppointment.services, service.id]
-                          setNewAppointment({ ...newAppointment, services: updatedServices })
+                          if (!isEditingAppointment) {
+                            const updatedServices = newAppointment.services.includes(service.id)
+                              ? newAppointment.services.filter((id) => id !== service.id)
+                              : [...newAppointment.services, service.id]
+                            setNewAppointment({ ...newAppointment, services: updatedServices })
+                            setAvailableTimeSlots([]) // Reset available slots when services change
+                          }
                         }}
                       >
                         <input
                           type="checkbox"
                           checked={newAppointment.services.includes(service.id)}
+                          disabled={isEditingAppointment}
                           onChange={() => { }}
-                          style={{ marginRight: "12px", accentColor: COLORS.info, transform: "scale(1.2)" }}
+                          style={{
+                            marginRight: "12px",
+                            accentColor: COLORS.info,
+                            transform: "scale(1.2)",
+                            cursor: isEditingAppointment ? "not-allowed" : "pointer",
+                          }}
                         />
                         <div style={{ flex: 1 }}>
-                          <div style={{ fontWeight: "600", color: COLORS.text, marginBottom: "4px" }}>{service.name}</div>
+                          <div style={{
+                            fontWeight: "600",
+                            color: isEditingAppointment ? COLORS.textLight : COLORS.text,
+                            marginBottom: "4px"
+                          }}>
+                            {service.name}
+                          </div>
                           <div style={{ fontSize: "12px", color: COLORS.textLight }}>
                             {service.duration} min • ${service.price}
                           </div>
@@ -2196,6 +2380,7 @@ const SchedulingInterface = () => {
                     onChange={(e) => setNewAppointment({ ...newAppointment, notes: e.target.value })}
                     placeholder="Add any special notes or requirements..."
                     rows={3}
+                    disabled={isEditingAppointment}
                     style={{
                       width: "100%",
                       padding: "12px 16px",
@@ -2206,52 +2391,116 @@ const SchedulingInterface = () => {
                       outline: "none",
                       transition: "border-color 0.2s ease",
                       resize: "vertical",
+                      backgroundColor: isEditingAppointment ? "#f5f5f5" : "white",
+                      cursor: isEditingAppointment ? "not-allowed" : "text",
                     }}
-                    onFocus={(e) => (e.target.style.borderColor = COLORS.info)}
+                    onFocus={(e) => !isEditingAppointment && (e.target.style.borderColor = COLORS.info)}
                     onBlur={(e) => (e.target.style.borderColor = COLORS.border)}
                   />
                 </div>
 
                 {/* Action Buttons */}
-                <div style={{ display: "flex", gap: "12px" }}>
-                  <button
-                    onClick={() => setShowAddAppointmentPanel(false)}
-                    style={{
-                      flex: 1,
-                      padding: "14px 20px",
-                      background: "transparent",
-                      border: `2px solid ${COLORS.border}`,
-                      color: COLORS.text,
-                      borderRadius: "8px",
-                      fontWeight: "600",
-                      cursor: "pointer",
-                      transition: "all 0.2s ease",
-                    }}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={handleSaveAppointment}
-                    disabled={loading}
-                    style={{
-                      flex: 2,
-                      padding: "14px 20px",
-                      background: loading ? COLORS.textLight : `linear-gradient(135deg, ${COLORS.success}, #38a169)`,
-                      color: "white",
-                      border: "none",
-                      borderRadius: "8px",
-                      fontWeight: "700",
-                      cursor: loading ? "not-allowed" : "pointer",
-                      transition: "all 0.2s ease",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      gap: "8px",
-                    }}
-                  >
-                    <Save size={16} />
-                    {loading ? "Saving..." : isEditingAppointment ? "Update Appointment" : "Create Appointment"}
-                  </button>
+                <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                  {/* Check Availability Button - Show when required fields filled but no time slots available */}
+                  {newAppointment.stylistId &&
+                    newAppointment.date &&
+                    newAppointment.services.length > 0 &&
+                    availableTimeSlots.length === 0 && (
+                      <button
+                        onClick={handleCheckAvailability}
+                        disabled={loading}
+                        style={{
+                          width: "100%",
+                          padding: "14px 20px",
+                          background: loading ? COLORS.textLight : `linear-gradient(135deg, ${COLORS.info}, #3182ce)`,
+                          color: "white",
+                          border: "none",
+                          borderRadius: "8px",
+                          fontWeight: "700",
+                          cursor: loading ? "not-allowed" : "pointer",
+                          transition: "all 0.2s ease",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          gap: "8px",
+                        }}
+                      >
+                        <Clock size={16} />
+                        {loading ? "Checking..." : "Check Availability"}
+                      </button>
+                    )}
+
+                  {/* Create/Update Buttons - Show when time slot is selected or no availability check needed */}
+                  {(availableTimeSlots.length > 0 && newAppointment.startTime && newAppointment.endTime) ||
+                    (!newAppointment.stylistId || !newAppointment.date || newAppointment.services.length === 0) ? (
+                    <div style={{ display: "flex", gap: "12px" }}>
+                      <button
+                        onClick={() => setShowAddAppointmentPanel(false)}
+                        style={{
+                          flex: 1,
+                          padding: "14px 20px",
+                          background: "transparent",
+                          border: `2px solid ${COLORS.border}`,
+                          color: COLORS.text,
+                          borderRadius: "8px",
+                          fontWeight: "600",
+                          cursor: "pointer",
+                          transition: "all 0.2s ease",
+                        }}
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={handleSaveAppointment}
+                        disabled={loading || !newAppointment.clientName || !newAppointment.stylistId ||
+                          !newAppointment.date || !newAppointment.startTime || !newAppointment.endTime ||
+                          newAppointment.services.length === 0}
+                        style={{
+                          flex: 2,
+                          padding: "14px 20px",
+                          background: loading || !newAppointment.clientName || !newAppointment.stylistId ||
+                            !newAppointment.date || !newAppointment.startTime || !newAppointment.endTime ||
+                            newAppointment.services.length === 0
+                            ? COLORS.textLight
+                            : `linear-gradient(135deg, ${COLORS.success}, #38a169)`,
+                          color: "white",
+                          border: "none",
+                          borderRadius: "8px",
+                          fontWeight: "700",
+                          cursor: loading || !newAppointment.clientName || !newAppointment.stylistId ||
+                            !newAppointment.date || !newAppointment.startTime || !newAppointment.endTime ||
+                            newAppointment.services.length === 0
+                            ? "not-allowed"
+                            : "pointer",
+                          transition: "all 0.2s ease",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          gap: "8px",
+                        }}
+                      >
+                        <Save size={16} />
+                        {loading ? "Saving..." : isEditingAppointment ? "Update Appointment" : "Create Appointment"}
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => setShowAddAppointmentPanel(false)}
+                      style={{
+                        width: "100%",
+                        padding: "14px 20px",
+                        background: "transparent",
+                        border: `2px solid ${COLORS.border}`,
+                        color: COLORS.text,
+                        borderRadius: "8px",
+                        fontWeight: "600",
+                        cursor: "pointer",
+                        transition: "all 0.2s ease",
+                      }}
+                    >
+                      Cancel
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
