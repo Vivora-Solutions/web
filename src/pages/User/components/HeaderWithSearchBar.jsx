@@ -21,7 +21,7 @@ const HeaderWithSearchBar = ({ searchTerm, setSearchTerm }) => {
       <input
         type="text"
         placeholder="Search by salon name or address..."
-        className="w-full pl-12 pr-4 py-4 text-gray-700 bg-white border border-gray-200 rounded-2xl shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-400 text-lg"
+        className="w-full pl-12 pr-4 py-1.5 text-gray-700 bg-white border border-gray-200 rounded-2xl shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-400 text-base"
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
       />

@@ -1,11 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useLocation } from 'react-router-dom';
 
 const Login = () => {
+  const location = useLocation(); 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (location.state?.email) setEmail(location.state.email);
+    if (location.state?.password) setPassword(location.state.password);
+  }, [location.state]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -20,16 +27,21 @@ const Login = () => {
       );
 
       const { access_token, customRole } = response.data;
-
+      
       localStorage.setItem('access_token', access_token);
       localStorage.setItem('user_role', customRole);
 
-      if (customRole === 'salon_admin') {
+      const redirectPath = localStorage.getItem("redirectAfterLogin");
+
+      if (redirectPath) {
+        localStorage.removeItem("redirectAfterLogin");
+        window.location.href = `/${redirectPath}`;
+      } else if (customRole === 'salon_admin') {
         window.location.href = '/admin';
       } else if (customRole === 'super_admin') {
         window.location.href = '/super-admin';
       } else if (customRole === 'customer') {
-        window.location.href = '/my-bookings';
+        window.location.href = '/';
       } else {
         setError('Invalid user role. Please contact support.');
       }
@@ -44,7 +56,7 @@ const Login = () => {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <div className="bg-white p-10 rounded-xl shadow-lg w-full max-w-md text-center">
-        <h2 className="text-2xl font-semibold text-gray-800 mb-6">Salon Login</h2>
+        <h2 className="text-2xl font-semibold text-gray-800 mb-6">Login</h2>
         <form className="flex flex-col gap-4" onSubmit={handleLogin}>
           <input
             type="email"
@@ -76,8 +88,8 @@ const Login = () => {
         )}
 
         <p className="mt-5 text-sm">
-          New Salon?{' '}
-          <a href="/register" className="text-gray-900 font-medium underline">
+          Not a member?{' '}
+          <a href="/signup" className="text-gray-900 font-medium underline">
             Register Now
           </a>
         </p>

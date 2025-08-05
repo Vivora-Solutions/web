@@ -1,5 +1,3 @@
-"use client"
-
 import { useEffect, useState } from "react"
 import "./SchedulingInterface.css"
 import API from "../../../../utils/api"
@@ -182,7 +180,7 @@ const SchedulingInterface = () => {
   const generateDates = (days) => {
     const dates = []
     const today = new Date()
-    today.setDate(today.getDate() - 5) // Start from tomorrow
+    // today.setDate(today.getDate() - 5) // Start from tomorrow
     for (let i = 0; i < Number.parseInt(days.split(" ")[0]); i++) {
       const date = new Date(today)
       date.setDate(today.getDate() + i)
@@ -220,91 +218,90 @@ const SchedulingInterface = () => {
   }
 
   const getDynamicAppointments = (dates) => {
-    const dynamicAppointments = {}
-    dates.forEach((date) => {
-      dynamicAppointments[date] = []
-    })
+  const dynamicAppointments = {};
+  dates.forEach((date) => {
+    dynamicAppointments[date] = [];
+  });
 
-    if (schedules && schedules.length > 0) {
-      schedules.forEach((booking) => {
-        try {
-          const bookingStartDate = new Date(booking.booking_start_datetime)
-          const bookingEndDate = new Date(booking.booking_end_datetime)
+  if (schedules && schedules.length > 0) {
+    schedules.forEach((booking) => {
+      try {
+        const bookingStartDate = new Date(booking.booking_start_datetime);
+        const bookingEndDate = new Date(booking.booking_end_datetime);
 
-          const localBookingStartDate = new Date(
-            bookingStartDate.getTime() - bookingStartDate.getTimezoneOffset() * 60000,
-          )
-          const localBookingEndDate = new Date(bookingEndDate.getTime() - bookingEndDate.getTimezoneOffset() * 60000)
+        const localBookingStartDate = new Date(
+          bookingStartDate.getTime() - bookingStartDate.getTimezoneOffset() * 60000,
+        );
+        const localBookingEndDate = new Date(bookingEndDate.getTime() - bookingEndDate.getTimezoneOffset() * 60000);
 
-          const startTime = localBookingStartDate.toLocaleTimeString("en-US", {
-            hour: "numeric",
-            minute: "2-digit",
-            hour12: false,
-            timeZone: "-05:30",
-          })
+        const startTime = localBookingStartDate.toLocaleTimeString("en-US", {
+          hour: "numeric",
+          minute: "2-digit",
+          hour12: false,
+          timeZone: "-05:30",
+        });
 
-          const endTime = localBookingEndDate.toLocaleTimeString("en-US", {
-            hour: "numeric",
-            minute: "2-digit",
-            hour12: false,
-            timeZone: "-05:30",
-          })
+        const endTime = localBookingEndDate.toLocaleTimeString("en-US", {
+          hour: "numeric",
+          minute: "2-digit",
+          hour12: false,
+          timeZone: "-05:30",
+        });
 
-          const dayName = localBookingStartDate.getDate()
-          const monthName = localBookingStartDate.toLocaleString("default", { month: "long" })
-          const formattedDate = `${dayName}${getDaySuffix(dayName)} ${monthName}`
-          const bookingDate = `${localBookingStartDate.getFullYear()}-${String(localBookingStartDate.getMonth() + 1).padStart(2, "0")}-${String(localBookingStartDate.getDate()).padStart(2, "0")}`
+        const dayName = localBookingStartDate.getDate();
+        const monthName = localBookingStartDate.toLocaleString("default", { month: "long" });
+        const formattedDate = `${dayName}${getDaySuffix(dayName)} ${monthName}`;
+        const bookingDate = `${localBookingStartDate.getFullYear()}-${String(localBookingStartDate.getMonth() + 1).padStart(2, "0")}-${String(localBookingStartDate.getDate()).padStart(2, "0")}`;
 
-          if (dates.includes(formattedDate)) {
-            console.log("Found matching date:", formattedDate);
-            const serviceNames = booking.booking_services
-              .map((bookingService) => {
-                const serviceDetail = services.find((s) => s.id === bookingService.service_id)
-                return serviceDetail?.name || `Service ${bookingService.service_id.substring(0, 8)}`
-              })
-              .join(", ")
+        if (dates.includes(formattedDate)) {
+          console.log("Found matching date:", formattedDate);
+          const serviceNames = booking.booking_services
+            .map((bookingService) => {
+              const serviceDetail = services.find((s) => s.id === bookingService.service_id);
+              return serviceDetail?.name || `Service ${(bookingService.service_id || '').substring(0, 8)}`;
+            })
+            .join(", ");
 
-            const position = calculateSlotPosition(startTime, endTime)
-            var name = "";
-            var mobile = "";
-            const customerType = booking.user_id ? "Online Customer" : "Non-Online Customer";
-            if (customerType === "Online Customer") {
-              name = booking.customer?.first_name + " " + booking.customer?.last_name || "N/A";
-              mobile = booking.customer?.contact_number || "N/A";
-            } else {
-              name = booking.non_online_customer?.non_online_customer_name || "N/A";
-              mobile = booking.non_online_customer?.non_online_customer_mobile_number || "N/A";
-            }
-            const appointmentData = {
-              booking_id: booking.booking_id,
-              startTime,
-              endTime,
-              position,
-              stylistId: booking.stylist?.stylist_id || "unknown",
-              stylistName: booking.stylist?.stylist_name || "Unknown Stylist",
-              service: serviceNames,
-              services: booking.booking_services,
-              phone: mobile,
-              clientType: customerType,
-              clientName: name,
-              workstation: booking.workstation?.workstation_name || "N/A",
-              salon: booking.salon?.salon_name || "N/A",
-              date: formattedDate,
-              notes: booking.notes || "",
-              bookingDate: bookingDate,
-            }
-
-            dynamicAppointments[formattedDate].push(appointmentData)
+          const position = calculateSlotPosition(startTime, endTime);
+          var name = "";
+          var mobile = "";
+          const customerType = booking.user_id ? "Online Customer" : "Non-Online Customer";
+          if (customerType === "Online Customer") {
+            name = booking.customer?.first_name + " " + booking.customer?.last_name || "N/A";
+            mobile = booking.customer?.contact_number || "N/A";
+          } else {
+            name = booking.non_online_customer?.non_online_customer_name || "N/A";
+            mobile = booking.non_online_customer?.non_online_customer_mobile_number || "N/A";
           }
-        } catch (error) {
-          console.error("Error processing booking:", booking, error)
-        }
-      })
-    }
+          const appointmentData = {
+            booking_id: booking.booking_id,
+            startTime,
+            endTime,
+            position,
+            stylistId: booking.stylist?.stylist_id || "unknown",
+            stylistName: booking.stylist?.stylist_name || "Unknown Stylist",
+            service: serviceNames,
+            services: booking.booking_services,
+            phone: mobile,
+            clientType: customerType,
+            clientName: name,
+            workstation: booking.workstation?.workstation_name || "N/A",
+            salon: booking.salon?.salon_name || "N/A",
+            date: formattedDate,
+            notes: booking.notes || "",
+            bookingDate: bookingDate,
+          };
 
-    return dynamicAppointments
+          dynamicAppointments[formattedDate].push(appointmentData);
+        }
+      } catch (error) {
+        console.error("Error processing booking:", booking, error);
+      }
+    });
   }
 
+  return dynamicAppointments;
+};
   const currentDates = generateDates(selectedDays)
   const allAppointments = getDynamicAppointments(currentDates)
 
@@ -853,21 +850,26 @@ const SchedulingInterface = () => {
               <div className="form-group">
                 <label>Services</label>
                 <div className="services-readonly">
-                  {selectedAppointment.services?.map((service, index) => {
-                    const serviceDetail = services.find((s) => s.id === service.service_id)
-                    return (
-                      <div key={index} className="service-readonly-item">
-                        <div className="service-info">
-                          <span className="service-name">
-                            {serviceDetail?.name || `Service ${service.service_id.substring(0, 8)}`}
-                          </span>
-                          <span className="service-duration">{service.service_duration_at_booking} min</span>
-                        </div>
-                        <span className="service-price">₹{service.service_price_at_booking}</span>
-                      </div>
-                    )
-                  })}
-                </div>
+  {selectedAppointment.services?.map((service, index) => {
+    const serviceDetail = services.find((s) => s.id === service.service_id);
+    return (
+      <div key={index} className="service-readonly-item">
+        <div className="service-info">
+          <span className="service-name">
+            {serviceDetail?.name || 
+             (service.service_id ? `Service ${service.service_id.substring(0, 8)}` : 'Unknown Service')}
+          </span>
+          <span className="service-duration">
+            {service.service_duration_at_booking || service.duration || 'N/A'} min
+          </span>
+        </div>
+        <span className="service-price">
+          ₹{service.service_price_at_booking || 'N/A'}
+        </span>
+      </div>
+    );
+  })}
+</div>
               </div>
 
               <div className="form-group">
