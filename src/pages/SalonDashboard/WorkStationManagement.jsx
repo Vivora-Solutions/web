@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Monitor, Edit, Trash2, Plus, X, Save } from "lucide-react";
-import API from "../../../utils/api";
-import LoadingSpinner from "../../../components/LoadingSpinner/LoadingSpinner";
+import { ProtectedAPI } from "../../utils/api";
+import LoadingSpinner from "../../components/LoadingSpinner";
 
 const WorkStationManagement = () => {
   const [workStations, setWorkStations] = useState([]);
@@ -17,7 +17,7 @@ const WorkStationManagement = () => {
   const fetchWorkStations = async () => {
     try {
       setLoading(true);
-      const response = await API.get("/salon-admin/working-stations");
+      const response = await ProtectedAPI.get("/salon-admin/working-stations");
       setWorkStations(response.data.data || []);
     } catch (error) {
       console.error("Error fetching workstations:", error);
@@ -41,12 +41,12 @@ const WorkStationManagement = () => {
     try {
       setLoading(true);
       if (editingId) {
-        await API.put("/salon-admin/working-stations", {
+        await ProtectedAPI.put("/salon-admin/working-stations", {
           workstation_id: editingId,
           workstation_name: formData.workstation_name.trim(),
         });
       } else {
-        await API.post("/salon-admin/working-stations", {
+        await ProtectedAPI.post("/salon-admin/working-stations", {
           workstation_name: formData.workstation_name.trim(),
         });
       }

@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react"
-import axios from "axios"
 import { useLocation, useNavigate } from "react-router-dom"
 import useBookingStore from "../../store/bookingStore"
-import Header from "../../components/Header/Header"
-import API from "../../utils/api"
+import Header from "../../components/Header"
+import { ProtectedAPI , PublicAPI } from "../../utils/api"
 import { ChevronLeft, ChevronRight, MapPin, Star, CheckCircle } from "lucide-react"
 
 const defaultProfilePic = "https://ui-avatars.com/api/?name=No+Image&background=ccc&color=555&size=100"
@@ -56,7 +55,7 @@ const Schedule = () => {
     if (!salonId || !serviceIds) return
     const fetchStylists = async () => {
       try {
-        const response = await axios.post("http://localhost:3000/api/bookings/eligible-stylists", {
+        const response = await PublicAPI.post("/bookings/eligible-stylists", {
           salonId,
           serviceIds,
         })
@@ -81,7 +80,7 @@ const Schedule = () => {
     setTimeSlots([])
     setLoadingSlots(true)
     try {
-      const response = await axios.post("http://localhost:3000/api/salons/available-time-slots-sithum", {
+      const response = await PublicAPI.post("/salons/available-time-slots-sithum", {
         service_ids: serviceIds,
         stylist_id: stylistId,
         salon_id: salonId,
@@ -107,7 +106,7 @@ const Schedule = () => {
     }
     setBookingDetails(details)
     try {
-      const response = await API.get("/auth/me")
+      const response = await ProtectedAPI.get("/auth/me")
       if (response.data && response.data.email) {
         navigate("/booking-confirm")
       } else {

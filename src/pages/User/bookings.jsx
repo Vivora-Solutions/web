@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import API from '../../utils/api';
+import { ProtectedAPI } from '../../utils/api';
 
-import Header from '../../components/Header/Header';
+import Header from '../../components/Header';
 import { CheckCircle, Clock, CalendarCheck2 } from 'lucide-react';
 
 const MyBookingsPage = () => {
@@ -21,8 +21,8 @@ const MyBookingsPage = () => {
     const fetchBookings = async () => {
       setLoading(true);
       try {
-        const ongoingRes = await API.get('/bookings');
-        const historyRes = await API.get('/bookings/history');
+        const ongoingRes = await ProtectedAPI.get('/bookings');
+        const historyRes = await ProtectedAPI.get('/bookings/history');
         setOngoingBookings(ongoingRes.data || []);
         setBookingHistory(historyRes.data?.data || []);
       } catch (error) {
@@ -38,7 +38,7 @@ const MyBookingsPage = () => {
     if (!window.confirm('Are you sure you want to cancel this booking?')) return;
 
     try {
-      await API.delete(`/bookings/${bookingId}`);
+      await ProtectedAPI.delete(`/bookings/${bookingId}`);
       // Refresh bookings after deletion
       setOngoingBookings((prev) =>
         prev.filter((booking) => booking.booking_id !== bookingId)

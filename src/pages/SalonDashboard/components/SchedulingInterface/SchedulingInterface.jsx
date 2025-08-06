@@ -24,7 +24,7 @@ import {
   CheckCircle2,
   XCircle,
 } from "lucide-react"
-import API from "../../../../utils/api"
+import { ProtectedAPI }  from "../../../../utils/api"
 
 // Centralized color configuration
 const COLORS = {
@@ -57,14 +57,14 @@ const COLORS = {
 const ApiService = {
   // Stylists
   async getStylists() {
-    const stylists = await API.get('/salon-admin/schedule/stylists');
+    const stylists = await ProtectedAPI.get('/salon-admin/schedule/stylists');
     console.log("Fetching stylists:", stylists.data.data)
     return stylists.data.data
   },
 
   async updateStylistSchedule(stylistId, schedule) {
     // TODO: Replace with actual API call
-    const response = await API.put(`/salon-admin/schedule/stylists/${stylistId}/${schedule.id}`, schedule);
+    const response = await ProtectedAPI.put(`/salon-admin/schedule/stylists/${stylistId}/${schedule.id}`, schedule);
     console.log("Updating stylist schedule:", stylistId, schedule)
     return { success: true }
   },
@@ -72,7 +72,7 @@ const ApiService = {
   // Appointments
   async getAppointments(startDate, endDate) {
     // TODO: Replace with actual API call
-    const response = await API.get(`/salon-admin/booking`);
+    const response = await ProtectedAPI.get(`/salon-admin/booking`);
     console.log("Fetching appointments:", response.data)
     return response.data;
   },
@@ -95,7 +95,7 @@ const ApiService = {
 
     console.log("Creating appointment with data:", apiData);
 
-    const response = await API.post('/salon-admin/booking', apiData);
+    const response = await ProtectedAPI.post('/salon-admin/booking', apiData);
     console.log("Appointment creation response:", response.data);
 
     return response.data;
@@ -114,40 +114,40 @@ const ApiService = {
 
     console.log("Updating appointment with data:", appointmentId, apiData);
 
-    const response = await API.put(`/salon-admin/booking/${appointmentId}`, apiData);
+    const response = await ProtectedAPI.put(`/salon-admin/booking/${appointmentId}`, apiData);
     console.log("Appointment update response:", response.data);
 
     return response.data;
   },
 
   async deleteAppointment(appointmentId) {
-    const response = await API.delete(`/salon-admin/booking/${appointmentId}`);
+    const response = await ProtectedAPI.delete(`/salon-admin/booking/${appointmentId}`);
     console.log("Deleting appointment:", appointmentId)
     return response.data;
   },
 
   // Services
   async getServices() {
-    const response = await API.get('/salon-admin/services');
+    const response = await ProtectedAPI.get('/salon-admin/services');
     console.log("Fetching services:", response.data)
     return response.data;
   },
 
   // Leaves
   async getLeaves(startDate, endDate) {
-    const response = await API.get(`/salon-admin/schedule/leaves`);
+    const response = await ProtectedAPI.get(`/salon-admin/schedule/leaves`);
     console.log("Fetching leaves:", response.data.data)
     return response.data.data;
   },
 
   async createLeave(leave) {
-    const response = await API.post(`/salon-admin/schedule/stylists/${leave.stylist_id}/leave`, leave);
+    const response = await ProtectedAPI.post(`/salon-admin/schedule/stylists/${leave.stylist_id}/leave`, leave);
     console.log("Creating leave:", response.data);
     return response.data;
   },
 
   async deleteLeave(leaveData) {
-    const response = await API.delete(`/salon-admin/schedule/stylists/${leaveData.stylist_id}/leave/${leaveData.leave_id}`);
+    const response = await ProtectedAPI.delete(`/salon-admin/schedule/stylists/${leaveData.stylist_id}/leave/${leaveData.leave_id}`);
     console.log("Leave deletion response:", response.data);
     return response.data;
   },
@@ -677,7 +677,7 @@ const SchedulingInterface = () => {
       console.log("Checking availability with data:", requestData)
 
       // Call the backend API to get available time slots
-      const response = await API.post("/salons/available-time-slots-sithum", requestData)
+      const response = await ProtectedAPI.post("/salons/available-time-slots-sithum", requestData)
       console.log("Availability response:", response.data)
       if (response.data.success && response.data.data) {
         const slots = response.data.data.map(slot => ({

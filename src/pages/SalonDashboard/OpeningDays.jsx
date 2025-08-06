@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import API from '../../../utils/api';
+import { ProtectedAPI } from '../../utils/api';
 
 const OpeningHours = () => {
   const [openingHours, setOpeningHours] = useState([]);
@@ -15,7 +15,7 @@ const OpeningHours = () => {
     const fetchOpeningHours = async () => {
       setIsLoading(true);
       try {
-        const response = await API.get('/salon-admin/opening-hours');
+        const response = await ProtectedAPI.get('/salon-admin/opening-hours');
         const days = response.data.days || [];
         const completeDays = Array(7).fill().map((_, index) => {
           const existingDay = days.find(d => d.day_of_week === index);
@@ -82,7 +82,7 @@ const OpeningHours = () => {
           closing_time: day.is_open ? day.closing_time : null
         }))
       };
-      await API.post('/salon-admin/opening-hours', payload);
+      await ProtectedAPI.post('/salon-admin/opening-hours', payload);
       setIsEditing(false);
       alert('Opening hours updated successfully!');
     } catch (error) {

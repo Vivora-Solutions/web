@@ -13,6 +13,13 @@ import Schedule from './pages/User/schedule';
 import BookingConfirm from './pages/User/booking-confirm';
 import RegisterCustomerForm from './pages/User/signup';
 import UserProfile from './pages/User/profile';
+import SalonInfo from './pages/SalonDashboard/SalonInfo';
+import OpeningDays from './pages/SalonDashboard/OpeningDays';
+import PhotoSection from './pages/SalonDashboard/PhotoSection';
+import ServiceManagement from './pages/SalonDashboard/ServiceManagement';
+import StylistManagement from './pages/SalonDashboard/StylistManagement';
+import WorkStationManagement from './pages/SalonDashboard/WorkStationManagement';
+import SchedulingInterface from './pages/SalonDashboard/components/SchedulingInterface/SchedulingInterface';
 
 function App() {
 
@@ -27,9 +34,18 @@ function App() {
         <Route path="/booking-confirm" element={<BookingConfirm />} />
         <Route path="/signup" element={<RegisterCustomerForm/>} />
         <Route path="/profile" element={<UserProfile />} />
-
-        <Route path="/admin" element={<SalonDashboard />} />  
+ 
         <Route path="/salon-register" element={<SalonRegister />} />
+        {/* -------- Salon Admin Dashboard -------- */}
+          <Route path="/admin" element={<SalonDashboard />}>
+            <Route path="salon-info" element={<SalonInfo />} />
+            <Route path="opening-hours" element={<OpeningDays />} />
+            <Route path="gallery" element={<PhotoSection />} />
+            <Route path="services" element={<ServiceManagement />} />
+            <Route path="stylists" element={<StylistManagement />} />
+            <Route path="workstations" element={<WorkStationManagement />} />
+            <Route path="booking-schedules" element={<SchedulingInterface />} />
+          </Route>
         
         <Route path="/super-admin" element={<SuperAdminDashboard />} />
         <Route path="/all-salons" element={<AllSalonsPage />} />

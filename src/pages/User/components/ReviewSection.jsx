@@ -1,9 +1,9 @@
-"use client"
-
 import { useEffect, useState } from "react"
 import axios from "axios"
 import dayjs from "dayjs"
 import relativeTime from "dayjs/plugin/relativeTime"
+
+import { PublicAPI } from "../../../utils/api"
 
 dayjs.extend(relativeTime)
 
@@ -22,7 +22,7 @@ const ReviewSection = () => {
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        const res = await axios.get("http://localhost:3000/api/review/review-for-home-page")
+        const res = await PublicAPI.get("http://localhost:3000/api/review/review-for-home-page")
         const fetched = res.data.data.map((item, index) => ({
           id: index,
           name: item.user?.customer?.first_name || "Anonymous",

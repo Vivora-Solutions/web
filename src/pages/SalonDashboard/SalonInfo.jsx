@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import EditableField from "./EditableField";
-import API from "../../../utils/api";
+import EditableField from "./components/EditableField";
+import { ProtectedAPI }  from "../../utils/api";
 
 const SalonInfo = () => {
   const [salon, setSalon] = useState(null);
@@ -11,7 +11,7 @@ const SalonInfo = () => {
   useEffect(() => {
     const fetchSalon = async () => {
       try {
-        const res = await API.get("/salon-admin/my");
+        const res = await ProtectedAPI.get("/salon-admin/my");
         setSalon(res.data);
         setFormData(res.data);
       } catch (err) {
@@ -37,7 +37,7 @@ const SalonInfo = () => {
         salon_contact_number: formData.salon_contact_number,
         salon_logo_link: formData.salon_logo_link,
       };
-      await API.put("/salon-admin/update", payload);
+      await ProtectedAPI.put("/salon-admin/update", payload);
       setSalon((prev) => ({ ...prev, ...payload }));
       setIsEditing(false);
       alert("Salon updated successfully!");
