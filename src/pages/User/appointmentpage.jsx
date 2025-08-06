@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react"
 import { useParams, useNavigate } from "react-router-dom" 
-import axios from "axios"
 import { Star, MapPin, Clock, ReceiptText } from "lucide-react" 
 
-import Header from "../../components/Header/Header"
+import Header from "../../components/Header"
 import SalonImageGallery from "./components/SalonImageGallery"
+import { PublicAPI } from "../../utils/api"
 
 const AppointmentPage = () => {
   const { salonId } = useParams()
@@ -19,7 +19,7 @@ const AppointmentPage = () => {
   useEffect(() => {
     const fetchSalonDetails = async () => {
       try {
-        const res = await axios.get(`http://localhost:3000/api/salons/by-id/${salonId}`)
+        const res = await PublicAPI.get(`/salons/by-id/${salonId}`)
         setSalon(res.data)
       } catch (error) {
         console.error("Error fetching salon details:", error)
@@ -29,7 +29,7 @@ const AppointmentPage = () => {
 
     const fetchSalonServices = async () => {
       try {
-        const res = await axios.get(`http://localhost:3000/api/salons/${salonId}/services`)
+        const res = await PublicAPI.get(`/salons/${salonId}/services`)
         if (res.data.success) {
           setServices(res.data.data)
           setFilteredServices(res.data.data)

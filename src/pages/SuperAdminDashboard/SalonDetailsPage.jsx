@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import API from '../../utils/api';
+import { ProtectedAPI } from '../../utils/api';
 
 const SalonDetailsPage = () => {
   const { salonid } = useParams();
@@ -11,7 +11,7 @@ const SalonDetailsPage = () => {
   useEffect(() => {
     const fetchSalonInfo = async () => {
       try {
-        const res = await API.get(`/super-admin/salons/${salonid}`);
+        const res = await ProtectedAPI.get(`/super-admin/salons/${salonid}`);
         setSalonInfo(res.data);
       } catch (err) {
         console.error('Error fetching salon info:', err);
@@ -20,7 +20,7 @@ const SalonDetailsPage = () => {
 
     const fetchBookings = async () => {
       try {
-        const res = await API.get(`/super-admin/booking/${salonid}`);
+        const res = await ProtectedAPI.get(`/super-admin/booking/${salonid}`);
         setBookings(res.data || []);
       } catch (err) {
         console.error('Error fetching bookings:', err);

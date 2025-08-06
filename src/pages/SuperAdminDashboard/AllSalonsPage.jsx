@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom'; 
-import API from '../../utils/api';
+import { ProtectedAPI } from '../../utils/api';
 
 const AllSalonsPage = () => {
   const [salons, setSalons] = useState([]);
@@ -10,7 +10,7 @@ const AllSalonsPage = () => {
   useEffect(() => {
     const fetchSalons = async () => {
       try {
-        const res = await API.get('/super-admin/salons');
+        const res = await ProtectedAPI.get('/super-admin/salons');
         setSalons(res.data);
       } catch (err) {
         console.error('Error fetching salons:', err);

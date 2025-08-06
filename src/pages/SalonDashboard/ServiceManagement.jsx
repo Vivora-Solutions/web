@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import API from '../../../utils/api';
-import LoadingSpinner from '../../../components/LoadingSpinner/LoadingSpinner';
+import { ProtectedAPI } from '../../utils/api';
+import LoadingSpinner from '../../components/LoadingSpinner';
 
 const ServiceManagement = () => {
   const [services, setServices] = useState([]);
@@ -26,7 +26,7 @@ const ServiceManagement = () => {
   const fetchServices = async () => {
     setLoading(true);
     try {
-      const response = await API.get('/salon-admin/services');
+      const response = await ProtectedAPI.get('/salon-admin/services');
       setServices(response.data);
     } catch (error) {
       console.error('Error fetching services:', error);
@@ -80,7 +80,7 @@ const ServiceManagement = () => {
         price: Number(formData.price),
         duration_minutes: Number(formData.duration_minutes)
       };
-      await API.post('/salon-admin/services', payload);
+      await ProtectedAPI.post('/salon-admin/services', payload);
       await fetchServices(); // <<< refetch to avoid missing fields
       setIsAdding(false);
       alert('Service added successfully!');
@@ -98,7 +98,7 @@ const ServiceManagement = () => {
         duration_minutes: Number(formData.duration_minutes)
       };
       console.log('Updating service with payload:', payload);
-      await API.put(`/salon-admin/services/${serviceId}`, payload);
+      await ProtectedAPI.put(`/salon-admin/services/${serviceId}`, payload);
       await fetchServices(); // <<< refresh the table after update too
       setEditingId(null);
       alert('Service updated successfully!');
@@ -113,7 +113,7 @@ const ServiceManagement = () => {
   return (
     <div className="max-w-6xl mx-auto p-4">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-semibold">Service Management</h2>
+        <h2 className="text-2xl font-semibold">Service Managementttttt</h2>
         <button
           className="bg-green-500 text-white px-4 py-2 rounded disabled:bg-gray-400"
           onClick={handleAddNewClick}

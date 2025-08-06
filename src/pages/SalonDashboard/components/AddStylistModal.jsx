@@ -1,5 +1,3 @@
-"use client"
-
 import { X } from "lucide-react"
 
 const AddStylistModal = ({ showAddForm, formData, setFormData, loading, onClose, onSubmit, onReset }) => {

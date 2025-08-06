@@ -6,6 +6,7 @@ import { resolve } from 'path'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  //base: process.env.VITE_BASE_PATH || "/Web-version",
   resolve: {
     alias: {
       '@': resolve(__dirname, './src'),

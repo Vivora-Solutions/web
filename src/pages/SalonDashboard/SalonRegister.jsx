@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { Mail, Lock, Store, Phone, MapPin, FileText, ImageIcon, Loader2, Scissors, Sparkles } from 'lucide-react';
-
+import { PublicAPI } from '../../utils/api';  
 // Fix icon not showing
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -63,7 +62,7 @@ const RegisterSalon = () => {
     setLoading(true);
 
     try {
-      const response = await axios.post(
+      const response = await PublicAPI.post(
         'http://localhost:3000/api/auth/register-salon',
         formData
       );

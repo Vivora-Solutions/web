@@ -1,15 +1,14 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { parseWKBHexToLatLng } from "../../utils/wkbToLatLng"
-import Header from "../../components/Header/Header"
+import Header from "../../components/Header"
 import HeroSection from "./components/HeroSection"
 import MapSection from "./components/MapSection"
 import SalonList from "./components/SalonList"
 import ReviewSection from "./components/ReviewSection"
 import Footer from "./components/Footer"
 import CTASection from "./components/CTASection"
-import axios from "axios"
-
+import { PublicAPI } from "../../utils/api"
 
 import { Search, MapPin, Star, Phone, Calendar, ChevronRight, Sparkles, Navigation } from "lucide-react"
 
@@ -27,7 +26,7 @@ const HomePage = () => {
     const fetchSalons = async () => {
       try {
         setIsLoading(true)
-        const res = await axios.get("http://localhost:3000/api/salons")
+        const res = await PublicAPI.get("/salons")
         const data = res.data
         const parsed = data
           .filter((s) => s.location)

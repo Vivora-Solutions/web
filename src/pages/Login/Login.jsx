@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useLocation } from 'react-router-dom';
+// Login.jsx
+import { PublicAPI } from '../../utils/api'; // Adjust the path as necessary
 
 const Login = () => {
   const location = useLocation(); 
@@ -20,11 +22,11 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const response = await axios.post(
-        'http://localhost:3000/api/auth/login',
-        { email, password },
-        { withCredentials: true }
-      );
+      const response = await PublicAPI.post('/auth/login', {
+        email,
+        password,
+      });
+
 
       const { access_token, customRole } = response.data;
       

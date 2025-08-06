@@ -1,14 +1,14 @@
 import { useState, useEffect } from "react"
 import { Plus } from "lucide-react"
-import API from "../../../utils/api"
-import ScheduleCalendar from "./ScheduleCalendar/ScheduleCalendar"
-import LoadingSpinner from "./LoadingSpinner"
-import EmptyState from "./EmptyState"
-import StylistCard from "./StylistCard"
-import AddStylistModal from "./AddStylistModal"
-import ServicesModal from "./ServicesModal"
-import ProfileModal from "./ProfileModal";
-import ScheduleModal from "./ScheduleModal"
+import {ProtectedAPI} from "../../utils/api"
+//import ScheduleCalendar from "./components/ScheduleCalendar/ScheduleCalendar"
+import LoadingSpinner from "./components/LoadingSpinner"
+import EmptyState from "./components/EmptyState"
+import StylistCard from "./components/StylistCard"
+import AddStylistModal from "./components/AddStylistModal"
+import ServicesModal from "./components/ServicesModal"
+import ProfileModal from "./components/ProfileModal";
+import ScheduleModal from "./components/ScheduleModal"
 
 const StylistManagement = ({ onOpenSchedule }) => {
   const [stylists, setStylists] = useState([])
@@ -25,7 +25,7 @@ const StylistManagement = ({ onOpenSchedule }) => {
     bio: "",
     is_active: true,
   })
-  const [showScheduleCalendar, setShowScheduleCalendar] = useState(false)
+  //const [showScheduleCalendar, setShowScheduleCalendar] = useState(false)
   const [selectedStylistForSchedule, setSelectedStylistForSchedule] = useState(null)
 
   const [showProfileModal, setShowProfileModal] = useState(false);
@@ -46,8 +46,8 @@ const StylistManagement = ({ onOpenSchedule }) => {
       setLoading(true)
       try {
         const [stylistsResponse, servicesResponse] = await Promise.all([
-          API.get("/salon-admin/stylists"),
-          API.get("/salon-admin/services"),
+          ProtectedAPI.get("/salon-admin/stylists"),
+          ProtectedAPI.get("/salon-admin/services"),
         ])
         setStylists(stylistsResponse.data)
         setServices(servicesResponse.data)
@@ -76,7 +76,7 @@ const StylistManagement = ({ onOpenSchedule }) => {
   const handleAddStylist = async () => {
     setLoading(true)
     try {
-      await API.post("/salon-admin/stylist", formData)
+      await ProtectedAPI.post("/salon-admin/stylist", formData)
       const newStylist = {
         stylist_id: Date.now(),
         ...formData,
@@ -94,7 +94,7 @@ const StylistManagement = ({ onOpenSchedule }) => {
   const handleDisableStylist = async (stylistId) => {
     if (window.confirm("Disable this stylist?")) {
       try {
-        await API.put(`/salon-admin/stylist/disable/${stylistId}`)
+        await ProtectedAPI.put(`/salon-admin/stylist/disable/${stylistId}`)
         setStylists((prev) => prev.map((s) => (s.stylist_id === stylistId ? { ...s, is_active: false } : s)))
       } catch (error) {
         console.error("Error disabling stylist:", error)
@@ -105,7 +105,7 @@ const StylistManagement = ({ onOpenSchedule }) => {
   const handleActivateStylist = async (stylistId) => {
     if (window.confirm("Activate this stylist?")) {
       try {
-        await API.put(`/salon-admin/stylist/activate/${stylistId}`)
+        await ProtectedAPI.put(`/salon-admin/stylist/activate/${stylistId}`)
         setStylists((prev) => prev.map((s) => (s.stylist_id === stylistId ? { ...s, is_active: true } : s)))
       } catch (error) {
         console.error("Error activating stylist:", error)
@@ -116,7 +116,7 @@ const StylistManagement = ({ onOpenSchedule }) => {
   const handleManageServices = async (stylist) => {
     setSelectedStylist(stylist)
     // Fetch existing services for this stylist
-    const response = await API.get(`/salon-admin/stylist/${stylist.stylist_id}/services`)
+    const response = await ProtectedAPI.get(`/salon-admin/stylist/${stylist.stylist_id}/services`)
     setStylistServices(response.data.map((service) => service.service_id))
     setShowServicesModal(true)
   }
@@ -126,7 +126,7 @@ const StylistManagement = ({ onOpenSchedule }) => {
     setLoading(true);
     try {
       // GET the existing stylist info
-      const response = await API.get(`/salon-admin/stylist/${stylist.stylist_id}`);
+      const response = await ProtectedAPI.get(`/salon-admin/stylist/${stylist.stylist_id}`);
       console.log("Stylist details:", response.data[0]);
       setSelectedStylist(stylist);
       setProfileFormData(response.data[0]);     // <-- prefill the form
@@ -141,7 +141,7 @@ const StylistManagement = ({ onOpenSchedule }) => {
   const handleUpdateStylistProfile = async () => {
     setLoading(true);
     try {
-      await API.put(`/salon-admin/stylist/${selectedStylist.stylist_id}`, profileFormData);
+      await ProtectedAPI.put(`/salon-admin/stylist/${selectedStylist.stylist_id}`, profileFormData);
       // update frontend state so card shows updated info
       setStylists(prev => prev.map(s => s.stylist_id === selectedStylist.stylist_id ? { ...s, ...profileFormData } : s));
       alert("Profile updated successfully!");
@@ -157,7 +157,7 @@ const StylistManagement = ({ onOpenSchedule }) => {
   const handleManageScheduleModal = async (stylist) => {
     console.log("Managing schedule for stylist:", stylist);
     try {
-      const response = await API.get(`/salon-admin/schedule/stylists/${stylist.stylist_id}`);
+      const response = await ProtectedAPI.get(`/salon-admin/schedule/stylists/${stylist.stylist_id}`);
       setScheduleStylistData({
         ...stylist,
         schedule: response.data.data.schedule,
@@ -170,10 +170,10 @@ const StylistManagement = ({ onOpenSchedule }) => {
   };
 
 
-  const handleManageSchedule = (stylist) => {
-    setSelectedStylistForSchedule(stylist)
-    setShowScheduleCalendar(true)
-  }
+  // const handleManageSchedule = (stylist) => {
+  //   setSelectedStylistForSchedule(stylist)
+  //   setShowScheduleCalendar(true)
+  // }
 
   const handleServiceToggle = (serviceId) => {
     setStylistServices((prev) =>
@@ -186,7 +186,7 @@ const StylistManagement = ({ onOpenSchedule }) => {
   const handleUpdateServices = async () => {
     setLoading(true)
     try {
-      await API.post("/salon-admin/stylist/services", {
+      await ProtectedAPI.post("/salon-admin/stylist/services", {
         stylist_id: selectedStylist.stylist_id,
         service_ids: stylistServices,
       })
@@ -299,7 +299,7 @@ const StylistManagement = ({ onOpenSchedule }) => {
 
 
 
-      {/* Schedule Calendar */}
+      {/* Schedule Calendar
       {showScheduleCalendar && selectedStylistForSchedule && (
         <ScheduleCalendar
           stylist={selectedStylistForSchedule}
@@ -308,7 +308,7 @@ const StylistManagement = ({ onOpenSchedule }) => {
             setSelectedStylistForSchedule(null)
           }}
         />
-      )}
+      )} */}
     </div>
   )
 }

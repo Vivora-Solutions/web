@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import API from '../../../utils/api';
+import { ProtectedAPI }  from '../../utils/api';
 
 const PhotoSection = () => {
   const [photos, setPhotos] = useState([]);
@@ -11,7 +11,7 @@ const PhotoSection = () => {
     const fetchImages = async () => {
       setIsLoading(true);
       try {
-        const response = await API.get('/salon-admin/images');
+        const response = await ProtectedAPI.get('/salon-admin/images');
         setPhotos(response.data.images);
       } catch (error) {
         console.error('Error fetching images:', error);
@@ -33,7 +33,7 @@ const PhotoSection = () => {
         if (file && file.type.startsWith('image/')) {
           const base64Image = await convertToBase64(file);
 
-          const response = await API.post('/salon-admin/images', {
+          const response = await ProtectedAPI.post('/salon-admin/images', {
             image_link: base64Image
           });
 
@@ -64,7 +64,7 @@ const PhotoSection = () => {
     if (!photos[index]?.image_id) return;
 
     try {
-      await API.delete(`/salon-admin/images/${photos[index].image_id}`);
+      await ProtectedAPI.delete(`/salon-admin/images/${photos[index].image_id}`);
 
       const updatedPhotos = photos.filter((_, i) => i !== index);
       setPhotos(updatedPhotos);
@@ -93,7 +93,7 @@ const PhotoSection = () => {
 
   return (
     <div className="p-6 bg-white rounded-xl shadow">
-      <h2 className="text-xl font-semibold mb-4">Photos</h2>
+      <h2 className="text-xl font-semibold mb-4">Photossss</h2>
 
       <div className="flex flex-col gap-6">
         <div className="flex overflow-x-auto gap-4 pb-4">

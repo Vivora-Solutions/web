@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { X, Save, PlusCircle } from "lucide-react";
-import API from "../../../utils/api";
+import { ProtectedAPI } from "../../../utils/api";
 
 const daysOfWeek = [
   "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"
@@ -48,10 +48,10 @@ const ScheduleModal = ({ stylist, onClose }) => {
       setSaving(true);
       //console.log("Saving schedule:", schedule);
       if (schedule.schedule_id) {
-        await API.put(`/salon-admin/schedule/stylists/${stylist.stylist_id}/${schedule.schedule_id}`, schedule);
+        await ProtectedAPI.put(`/salon-admin/schedule/stylists/${stylist.stylist_id}/${schedule.schedule_id}`, schedule);
       } else {
         console.log("Creating new schedule for stylist:", stylist.stylist_id);
-      //       await API.post(`/salon-admin/schedule/stylists/${stylist.stylist_id}`, {
+      //       await ProtectedAPI.post(`/salon-admin/schedule/stylists/${stylist.stylist_id}`, {
       // stylist_id: stylist.stylist_id,
       // day_of_week: daysOfWeek.indexOf(schedule.day_of_week), // convert string to index
       // start_time_daily: schedule.start_time_daily,
@@ -77,7 +77,7 @@ const ScheduleModal = ({ stylist, onClose }) => {
 
       const updates = schedules.map(async (s) => {
         if (!s.schedule_id) {
-          return API.post(`/salon-admin/schedule/stylists/${stylist.stylist_id}`, {
+          return ProtectedAPI.post(`/salon-admin/schedule/stylists/${stylist.stylist_id}`, {
             stylist_id: stylist.stylist_id,
             day_of_week: daysOfWeek.indexOf(s.day_of_week),
             start_time_daily: defaultStartTime,

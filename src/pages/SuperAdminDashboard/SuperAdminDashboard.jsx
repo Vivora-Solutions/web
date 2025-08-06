@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import API from '../../utils/api';
+import { ProtectedAPI } from '../../utils/api';
 import ChartCard from './components/ChartCard';
 import StatCard from './components/StatCard';
 import SalonVerifyModal from './components/SalonVerifyModal';
@@ -29,7 +29,7 @@ const SuperAdminDashboard = () => {
   useEffect(() => {
     const fetchChartData = async (endpoint, key) => {
       try {
-        const res = await API.get(endpoint);
+        const res = await ProtectedAPI.get(endpoint);
         const sortedData = res.data.sort((a, b) => new Date(a.date) - new Date(b.date));
         setChartData((prev) => ({ ...prev, [key]: sortedData }));
       } catch (err) {
@@ -40,9 +40,9 @@ const SuperAdminDashboard = () => {
     const fetchCounts = async () => {
       try {
         const [userRes, salonRes, bookingRes] = await Promise.all([
-          API.get('/super-admin/customer-count'),
-          API.get('/super-admin/salon-count'),
-          API.get('/super-admin/booking-count'),
+          ProtectedAPI.get('/super-admin/customer-count'),
+          ProtectedAPI.get('/super-admin/salon-count'),
+          ProtectedAPI.get('/super-admin/booking-count'),
         ]);
         setCounts({
           totalCustomers: userRes.data.total_customers,
@@ -56,7 +56,7 @@ const SuperAdminDashboard = () => {
 
     const fetchSalons = async () => {
       try {
-        const res = await API.get('/super-admin/salons-unapproved');
+        const res = await ProtectedAPI.get('/super-admin/salons-unapproved');
         setAllSalons(res.data);       
         setSalons(res.data);         
       } catch (err) {
@@ -81,7 +81,7 @@ const SuperAdminDashboard = () => {
 
   const handleSalonClick = async (salonId) => {
   try {
-    const res = await API.get(`/super-admin/salons/${salonId}`);
+    const res = await ProtectedAPI.get(`/super-admin/salons/${salonId}`);
     setSelectedSalon(res.data); // assuming res.data is salon object
   } catch (err) {
     console.error('Failed to load salon details', err);
@@ -90,7 +90,7 @@ const SuperAdminDashboard = () => {
 
 const handleModalAction = async (actionType, salonId) => {
   try {
-    await API.put(`/super-admin/salonsStatus/${salonId}`, {
+    await ProtectedAPI.put(`/super-admin/salonsStatus/${salonId}`, {
       is_approved: actionType === 'accept', 
     });
 
