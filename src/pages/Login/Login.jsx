@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import  { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-// Login.jsx
-import { PublicAPI } from '../../utils/api'; // Adjust the path as necessary
+
+import { PublicAPI } from '../../utils/api'; 
 
 const Login = () => {
   const location = useLocation(); 
@@ -37,13 +36,13 @@ const Login = () => {
 
       if (redirectPath) {
         localStorage.removeItem("redirectAfterLogin");
-        window.location.href = `/${redirectPath}`;
+        window.location.replace(`/${redirectPath}`);
       } else if (customRole === 'salon_admin') {
-        window.location.href = '/admin';
+        window.location.replace('/admin');
       } else if (customRole === 'super_admin') {
-        window.location.href = '/super-admin';
+        window.location.replace('/super-admin');
       } else if (customRole === 'customer') {
-        window.location.href = '/';
+        window.location.replace('/');
       } else {
         setError('Invalid user role. Please contact support.');
       }
@@ -93,6 +92,15 @@ const Login = () => {
           Not a member?{' '}
           <a href="/signup" className="text-gray-900 font-medium underline">
             Register Now
+          </a>          
+        </p>
+        <p>
+          Or
+        </p>
+
+        <p>
+          <a href="/salon-register" className="text-gray-900 font-medium underline">
+            Register As a Salon
           </a>
         </p>
       </div>

@@ -30,7 +30,9 @@ const Header = () => {
 
   const handleLogout = () => {
     localStorage.removeItem('access_token');
+    localStorage.removeItem('user_role');
     setUser(false);
+    navigate('/login');
   };
 
   return (
@@ -61,7 +63,6 @@ const Header = () => {
           {user && user.role === 'customer' && (
             <Link to="/my-bookings" className="text-gray-700 hover:text-blue-600 font-medium">My Bookings</Link>
           )}
-          <Link to="/about" className="text-gray-700 hover:text-blue-600 font-medium">About</Link>
           <Link to="/salon-register" className="text-gray-700 hover:text-blue-600 font-medium">Register as a Salon</Link>
         </div>
 

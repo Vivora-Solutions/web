@@ -22,7 +22,7 @@ const ReviewSection = () => {
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        const res = await PublicAPI.get("http://localhost:3000/api/review/review-for-home-page")
+        const res = await PublicAPI.get("/review/review-for-home-page")
         const fetched = res.data.data.map((item, index) => ({
           id: index,
           name: item.user?.customer?.first_name || "Anonymous",

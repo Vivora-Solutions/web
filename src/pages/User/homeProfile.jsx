@@ -94,9 +94,6 @@ const HomePage = () => {
 
         
       </div>
-
-      
-
       <ReviewSection />
       <CTASection />
       <Footer />
