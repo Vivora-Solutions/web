@@ -21,22 +21,49 @@ import StylistManagement from './pages/SalonDashboard/StylistManagement';
 import WorkStationManagement from './pages/SalonDashboard/WorkStationManagement';
 import SchedulingInterface from './pages/SalonDashboard/components/SchedulingInterface/SchedulingInterface';
 
-function App() {
 
+import ProtectedRoute from './components/ProtectedRoute';
+import PublicCustomerRoute from './components/PublicCustomerRoute';
+
+function App() {
   return (
     <div className="w-full min-h-screen">
       <Routes>
-        <Route path="/login" element={<Login/>} />
-        <Route path="/" element={<SalonProfile />} />
-        <Route path="/appointment/:salonId" element={<AppointmentPage />} />
-        <Route path="/schedule" element={<Schedule />} />
-        <Route path="/my-bookings" element={<MyBookingsPage />}  />
-        <Route path="/booking-confirm" element={<BookingConfirm />} />
-        <Route path="/signup" element={<RegisterCustomerForm/>} />
-        <Route path="/profile" element={<UserProfile />} />
- 
+        {/* Public Routes */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<RegisterCustomerForm />} />
         <Route path="/salon-register" element={<SalonRegister />} />
-        {/* -------- Salon Admin Dashboard -------- */}
+        
+        {/* PublicCustomerRoute Pages */}
+        <Route path="/" element={
+          <PublicCustomerRoute>
+            <SalonProfile />
+          </PublicCustomerRoute>
+        } />
+        <Route path="/appointment/:salonId" element={
+          <PublicCustomerRoute>
+            <AppointmentPage />
+          </PublicCustomerRoute>
+        } />
+        <Route path="/schedule" element={
+          <PublicCustomerRoute>
+            <Schedule />
+          </PublicCustomerRoute>
+        } />
+        <Route path="/my-bookings" element={
+          <PublicCustomerRoute>
+            <MyBookingsPage />
+          </PublicCustomerRoute>
+        } />
+
+        {/* Customer Only */}
+        <Route element={<ProtectedRoute allowedRoles={['customer']} />}>
+          <Route path="/profile" element={<UserProfile />} />
+          <Route path="/booking-confirm" element={<BookingConfirm />} />
+        </Route>
+
+        {/* Salon Admin Only */}
+        <Route element={<ProtectedRoute allowedRoles={['salon_admin']} />}>
           <Route path="/admin" element={<SalonDashboard />}>
             <Route path="salon-info" element={<SalonInfo />} />
             <Route path="opening-hours" element={<OpeningDays />} />
@@ -46,13 +73,17 @@ function App() {
             <Route path="workstations" element={<WorkStationManagement />} />
             <Route path="booking-schedules" element={<SchedulingInterface />} />
           </Route>
-        
-        <Route path="/super-admin" element={<SuperAdminDashboard />} />
-        <Route path="/all-salons" element={<AllSalonsPage />} />
-         <Route path="/super-admin/booking/:salonid" element={<SalonDetailsPage />} />
+        </Route>
+
+        {/* Super Admin Only */}
+        <Route element={<ProtectedRoute allowedRoles={['super_admin']} />}>
+          <Route path="/super-admin" element={<SuperAdminDashboard />} />
+          <Route path="/all-salons" element={<AllSalonsPage />} />
+          <Route path="/super-admin/booking/:salonid" element={<SalonDetailsPage />} />
+        </Route>
       </Routes>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
