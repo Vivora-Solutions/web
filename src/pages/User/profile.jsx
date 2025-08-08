@@ -4,7 +4,7 @@ import { parseWKBHexToLatLng } from "../../utils/wkbToLatLng";
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import { Terminal } from 'lucide-react';  // Icon for messages
-
+import Header from './components/Header';
 const UserProfile = () => {
   const [userData, setUserData] = useState({
     email: '',
@@ -86,6 +86,10 @@ const UserProfile = () => {
   );
 
   return (
+
+    <div>
+      <Header />
+    
     <div className="flex justify-center py-12 px-4 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 min-h-screen">
       <div className="w-full max-w-4xl rounded-3xl shadow-2xl backdrop-blur-xl bg-white/70 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700 p-8 space-y-6">
         <h2 className="text-3xl font-bold text-center text-gray-900 dark:text-gray-50">User Profile</h2>
@@ -230,6 +234,7 @@ const UserProfile = () => {
           </div>
         )}
       </div>
+    </div>
     </div>
   );
 };
