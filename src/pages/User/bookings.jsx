@@ -98,62 +98,67 @@ const MyBookingsPage = () => {
     </div>
   );
 
-  return (
-    <div className="min-h-screen bg-gray-50">
-      <Header />
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <h1 className="text-3xl font-bold text-center text-gray-800 mb-10">
-          <CalendarCheck2 className="inline-block w-7 h-7 text-blue-600 mr-2" />
-          My Bookings
-        </h1>
+return (
+  <div className="min-h-screen bg-gray-50">
+    <Header />
+    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+      <h1 className="text-2xl sm:text-3xl font-bold text-center text-gray-800 mb-8 sm:mb-10">
+        <CalendarCheck2 className="inline-block w-6 h-6 sm:w-7 sm:h-7 text-gray-900 mr-2 align-text-top" />
+        My Bookings
+      </h1>
 
-        {loading ? (
-          <div className="flex flex-col items-center justify-center py-20">
-            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-500 mb-4"></div>
-            <span className="text-gray-500 text-lg">Loading your bookings...</span>
-          </div>
-        ) : (
-          <>
-            <section className="mb-12">
-              <div className="flex items-center mb-4">
-                <Clock className="w-5 h-5 text-blue-500 mr-2" />
-                <h2 className="text-2xl font-semibold text-blue-800">Ongoing Bookings</h2>
-              </div>
-              {ongoingBookings.length > 0 ? (
-                ongoingBookings.map((booking) => (
+      {loading ? (
+        <div className="flex flex-col items-center justify-center py-16 sm:py-20">
+          <div className="animate-spin rounded-full h-8 w-8 sm:h-10 sm:w-10 border-b-2 border-blue-500 mb-4"></div>
+          <span className="text-gray-500 text-base sm:text-lg">Loading your bookings...</span>
+        </div>
+      ) : (
+        <>
+          <section className="mb-10 sm:mb-12">
+            <div className="flex items-center mb-3 sm:mb-4">
+              <Clock className="w-5 h-5 text-gray-500 mr-2" />
+              <h2 className="text-xl sm:text-2xl font-semibold text-gray-800">Ongoing Bookings</h2>
+            </div>
+            {ongoingBookings.length > 0 ? (
+              <div className="space-y-4">
+                {ongoingBookings.map((booking) => (
                   <BookingCard
                     key={booking.booking_id}
                     booking={booking}
                     showCancelButton={true}
                   />
-                ))
-              ) : (
-                <p className="text-gray-500">No ongoing bookings found.</p>
-              )}
-            </section>
-
-            <section>
-              <div className="flex items-center mb-4">
-                <CheckCircle className="w-5 h-5 text-green-500 mr-2" />
-                <h2 className="text-2xl font-semibold text-green-800">Booking History</h2>
+                ))}
               </div>
-              {bookingHistory.length > 0 ? (
-                bookingHistory.map((booking) => (
+            ) : (
+              <p className="text-gray-500 text-sm sm:text-base">No ongoing bookings found.</p>
+            )}
+          </section>
+
+          <section>
+            <div className="flex items-center mb-3 sm:mb-4">
+              <CheckCircle className="w-5 h-5 text-green-500 mr-2" />
+              <h2 className="text-xl sm:text-2xl font-semibold text-gray-800">Booking History</h2>
+            </div>
+            {bookingHistory.length > 0 ? (
+              <div className="space-y-4">
+                {bookingHistory.map((booking) => (
                   <BookingCard
                     key={booking.booking_id}
                     booking={booking}
                     showCancelButton={false}
                   />
-                ))
-              ) : (
-                <p className="text-gray-500">No booking history available.</p>
-              )}
-            </section>
-          </>
-        )}
-      </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-gray-500 text-sm sm:text-base">No booking history available.</p>
+            )}
+          </section>
+        </>
+      )}
     </div>
-  );
+  </div>
+);
+
 };
 
 export default MyBookingsPage;

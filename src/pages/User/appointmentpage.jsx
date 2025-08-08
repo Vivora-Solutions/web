@@ -85,18 +85,18 @@ const AppointmentPage = () => {
   const totalDuration = selectedServices.reduce((sum, s) => sum + (s.duration_minutes || 0), 0)
 
   return (
-    <div className="w-full min-h-screen bg-gradient-to-br from-purple-50 to-white flex flex-col">
+    <div className="w-full min-h-screen bg-gradient-to-br from-black-50 to-white flex flex-col">
       <Header />
       <div className="flex-1 flex flex-col items-center py-10 px-4 sm:px-6 lg:px-8">
         {salon && (
           <div className="w-full max-w-7xl space-y-10">
             {/* Salon Header Card */}
-            <div className="flex flex-col md:flex-row items-center gap-8 bg-white rounded-3xl shadow-2xl p-8 md:p-10 border border-purple-100 transform transition-all duration-300 hover:scale-[1.01]">
+            <div className="flex flex-col md:flex-row items-center gap-8 bg-white rounded-3xl shadow-2xl p-8 md:p-10 border border-black-100 transform transition-all duration-300 hover:scale-[1.01]">
               <div className="relative">
                 <img
                   src={salon.salon_logo_link || "/placeholder.svg"}
                   alt="Salon Logo"
-                  className="w-24 h-24 rounded-full object-cover border-4 border-purple-200 shadow-lg"
+                  className="w-24 h-24 rounded-full object-cover border-4 border-black-200 shadow-lg"
                 />
                 <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 border-3 border-white rounded-full"></div>
               </div>
@@ -115,7 +115,7 @@ const AppointmentPage = () => {
                 </div>
                 <p className="text-base text-gray-600 mt-2">{salon.salon_category || "Hair and Beauty"}</p>
                 <div className="flex items-center justify-center md:justify-start gap-2 mt-2 text-gray-700">
-                  <MapPin className="w-5 h-5 text-purple-400" />
+                  <MapPin className="w-5 h-5 text-black-400" />
                   <span className="text-base">{salon.salon_address || "Colombo"}</span>
                 </div>
               </div>
@@ -136,8 +136,8 @@ const AppointmentPage = () => {
                     className={`px-6 py-2 text-base rounded-full border-2 shadow-md transition-all duration-300
                       ${
                         activeCategory === tag
-                          ? "bg-purple-600 text-white border-purple-600 scale-105 font-semibold"
-                          : "bg-gray-50 text-gray-700 border-gray-200 hover:bg-purple-100 hover:text-purple-800"
+                          ? "bg-red-600 text-white border-red-600 scale-105 font-semibold"
+                          : "bg-gray-50 text-gray-700 border-gray-200 hover:gray-800-100 hover:text-black-800"
                       }`}
                   >
                     {tag}
@@ -150,7 +150,7 @@ const AppointmentPage = () => {
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder="Search Services..."
-                  className="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl text-lg shadow-inner focus:ring-4 focus:ring-purple-200 focus:border-purple-400 transition-all duration-200"
+                  className="w-full pl-12 pr-4 py-4 border-2 border-gray-200 rounded-xl text-lg shadow-inner focus:ring-4 focus:ring-black-200 focus:border-black-400 transition-all duration-200"
                 />
                 <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">🔍</span>
               </div>
@@ -170,7 +170,7 @@ const AppointmentPage = () => {
                           type="checkbox"
                           checked={selectedServices.some((s) => s.service_id === service.service_id)}
                           onChange={() => handleSelectService(service)}
-                          className="mt-1 accent-purple-600 scale-125 transform transition-transform duration-200"
+                          className="mt-1 accent-red-600 scale-125 transform transition-transform duration-200"
                         />
                         <div className="flex-grow">
                           <p className="font-bold text-xl text-gray-900">{service.service_name}</p>
@@ -179,12 +179,12 @@ const AppointmentPage = () => {
                       </div>
                       <div className="mt-4 flex justify-between items-center text-base text-gray-700">
                         <span className="flex items-center gap-2">
-                          <Clock className="w-5 h-5 text-purple-400" />
+                          <Clock className="w-5 h-5 text-black-400" />
                           {service.duration_minutes || 0} min
                         </span>
-                        <span className="font-extrabold text-xl text-purple-700">Rs {service.price}</span>
+                        <span className="font-extrabold text-xl text-black-700">Rs {service.price}</span>
                       </div>
-                      <span className="absolute top-4 right-4 bg-purple-600 text-white text-xs px-3 py-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <span className="absolute top-4 right-4 bg-red-600 text-white text-xs px-3 py-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                         Select
                       </span>
                     </label>
@@ -196,7 +196,7 @@ const AppointmentPage = () => {
 
               {/* Summary Panel */}
               <div className="w-full md:w-96 flex-shrink-0">
-                <div className="sticky top-28 bg-white rounded-3xl shadow-2xl border border-purple-100 p-8 space-y-6">
+                <div className="sticky top-28 bg-white rounded-3xl shadow-2xl border border-black-100 p-8 space-y-6">
                   <h3 className="text-2xl font-bold text-gray-800 border-b pb-4 mb-4">Summary</h3>
                   {/* Selected services list */}
                   <div className="space-y-4 max-h-72 overflow-y-auto pr-2">
@@ -221,9 +221,9 @@ const AppointmentPage = () => {
                     <span>Duration</span>
                     <span className="font-medium">{totalDuration} minutes</span>
                   </div>
-                  <div className="flex justify-between font-extrabold text-3xl">
+                  <div className="flex justify-between font-extrabold text-2xl">
                     <span>Total</span>
-                    <span className="text-purple-800">Rs {totalPrice.toLocaleString()}</span>
+                    <span className="text-black-800">Rs {totalPrice.toLocaleString()}</span>
                   </div>
 
                   <div className="flex flex-col gap-4 pt-2">
@@ -237,7 +237,7 @@ const AppointmentPage = () => {
                     <button
                       onClick={handleProceed}
                       disabled={selectedServices.length === 0}
-                      className="w-full py-4 text-lg bg-purple-600 text-white rounded-xl shadow-lg hover:bg-purple-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-full py-4 text-lg bg-black text-white rounded-xl shadow-lg hover:gray-800-700 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       Proceed
                     </button>

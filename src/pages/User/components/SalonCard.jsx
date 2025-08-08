@@ -79,12 +79,12 @@ const SalonCard = ({ salon, index, onSalonClick, onSalonHover }) => {
             </p>
 
             <div className="mt-4 flex flex-wrap gap-2">
-              <span className="bg-gradient-to-r from-purple-100 to-pink-100 text-purple-700 px-3 py-1 rounded-full text-xs font-medium">
+              <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-medium">
                 Available Today
               </span>
-              <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-medium">
+              {/* <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-medium">
                 Quick Booking
-              </span>
+              </span> */}
             </div>
           </div>
         </div>
