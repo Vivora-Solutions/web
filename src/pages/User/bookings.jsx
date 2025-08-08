@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ProtectedAPI } from '../../utils/api';
 
-import Header from '../../components/Header';
+import Header from './components/Header';
 import { CheckCircle, Clock, CalendarCheck2 } from 'lucide-react';
 
 const MyBookingsPage = () => {
