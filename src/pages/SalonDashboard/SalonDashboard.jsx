@@ -44,8 +44,21 @@ const SalonDashboard = () => {
   if (isAuthenticated === null) {
     return (
       <div className="min-h-screen flex flex-col justify-center items-center bg-gray-50">
-        <div className="w-10 h-10 border-4 border-gray-300 border-t-indigo-500 rounded-full animate-spin mb-4"></div>
-        <p className="text-gray-600 text-lg">Checking authentication...</p>
+        <div className="w-10 h-10 border-4 border-gray-300 border-t-black rounded-full animate-spin mb-4"></div>
+        <p className="text-black text-lg font-medium">Loading your salon dashboard...</p>
+        
+        {/* Optional: Themed loading buttons */}
+        <div className="mt-6 flex space-x-4">
+          <button className="px-4 py-2 border border-black text-black bg-white rounded">
+            Edit Booking
+          </button>
+          <button className="px-4 py-2 bg-red-600 text-white rounded">
+            Cancel Booking
+          </button>
+          <button className="px-4 py-2 bg-black text-white rounded">
+            Confirm
+          </button>
+        </div>
       </div>
     );
   }

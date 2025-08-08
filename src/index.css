@@ -207,3 +207,13 @@ body {
 .slide-in-from-top-2 {
   animation-name: slide-in-from-top;
 }
+
+
+:root {
+  --primary-red: #D72638;
+  --primary-black: #0B0B0B;
+  --primary-white: #FFFFFF;
+  --accent-gray: #D9D9D9;
+  --soft-red: #FBE3E4;
+  --dark-gray: #1F1F1F;
+}

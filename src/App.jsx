@@ -28,6 +28,7 @@ import PublicCustomerRoute from './components/PublicCustomerRoute';
 function App() {
   return (
     <div className="w-full min-h-screen">
+    
       <Routes>
         {/* Public Routes */}
         <Route path="/login" element={<Login />} />
