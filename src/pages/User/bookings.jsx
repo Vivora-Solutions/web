@@ -38,17 +38,22 @@ const MyBookingsPage = () => {
     if (!window.confirm('Are you sure you want to cancel this booking?')) return;
 
     try {
-      await ProtectedAPI.delete(`/bookings/${bookingId}`);
+      await ProtectedAPI.put(`/bookings/${bookingId}`);
       // Refresh bookings after deletion
       setOngoingBookings((prev) =>
         prev.filter((booking) => booking.booking_id !== bookingId)
       );
       alert('Booking cancelled successfully!');
     } catch (error) {
-      console.error('Error cancelling booking:', error);
+    console.error('Error cancelling booking:', error);
+
+    if (error.response?.data?.error) {
+      alert(error.response.data.error); // Show backend error message
+    } else {
       alert('Failed to cancel booking. Try again.');
     }
-  };
+  }
+};
 
   const formatDateTime = (datetime) => {
     const date = new Date(datetime);
