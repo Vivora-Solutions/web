@@ -220,8 +220,8 @@ const StylistManagement = ({ onOpenSchedule }) => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-500 via-indigo-600 to-purple-700 p-6">
-      <div className="bg-white/95 backdrop-blur rounded-xl p-6 mb-6 flex justify-between items-center shadow-lg">
+    <div className="min-h-screen bg-gray-100 p-1">
+      <div className="bg-white/95 backdrop-blur rounded-xl p-1 mb-6 flex justify-between items-center shadow-lg">
         <div>
           <h2 className="text-2xl font-bold text-gray-800 mb-1">Employee Management</h2>
           <p className="text-sm text-gray-500">Manage your salon staff and their schedules</p>
@@ -235,7 +235,7 @@ const StylistManagement = ({ onOpenSchedule }) => {
         </button>
       </div>
 
-      <div className="bg-white/95 backdrop-blur rounded-xl p-6 shadow-lg">
+      <div className="bg-white/95 backdrop-blur rounded-xl p-1 shadow-lg">
         {stylists.length === 0 ? (
           <EmptyState />
         ) : (
