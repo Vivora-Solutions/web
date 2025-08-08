@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
 import useBookingStore from "../../store/bookingStore"
-import Header from "../../components/Header"
+import Header from "./components/Header"
 import { ProtectedAPI , PublicAPI } from "../../utils/api"
 import { ChevronLeft, ChevronRight, MapPin, Star, CheckCircle } from "lucide-react"
 

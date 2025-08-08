@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { parseWKBHexToLatLng } from "../../utils/wkbToLatLng"
-import Header from "../../components/Header"
+import Header from "./components/Header"
 import HeroSection from "./components/HeroSection"
 import MapSection from "./components/MapSection"
 import SalonList from "./components/SalonList"
@@ -64,7 +64,7 @@ const HomePage = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50 to-pink-50">
       {/* <Header /> */}
-      
+
       <HeroSection searchTerm={searchTerm} setSearchTerm={setSearchTerm} salonCount={filteredSalons.length} />
 
 

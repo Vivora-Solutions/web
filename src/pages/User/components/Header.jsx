@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ProtectedAPI } from '../utils/api';
+import { ProtectedAPI } from '../../../utils/api';
 
 const Header = () => {
   const [user, setUser] = useState(null);

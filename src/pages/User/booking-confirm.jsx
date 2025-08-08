@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import useBookingStore from "../../store/bookingStore"
 import { ProtectedAPI } from "../../utils/api"
-import Header from "../../components/Header"
+import Header from "./components/Header"
 import { CheckCircle, Calendar, Clock, Tag } from "lucide-react" // Import Lucide icons
 
 const BookingConfirm = () => {
