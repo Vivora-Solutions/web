@@ -2,6 +2,8 @@ import  { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 
 import { PublicAPI } from '../../utils/api'; 
+import Header from '../User/components/Header'
+
 
 const Login = () => {
   const location = useLocation(); 
@@ -55,7 +57,9 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
+  <div className="min-h-screen flex flex-col">
+    <Header />
+    <div className="flex-grow flex items-center justify-center bg-gray-100">
       <div className="bg-white p-10 rounded-xl shadow-lg w-full max-w-md text-center">
         <h2 className="text-2xl font-semibold text-gray-800 mb-6">Login</h2>
         <form className="flex flex-col gap-4" onSubmit={handleLogin}>
@@ -104,6 +108,7 @@ const Login = () => {
           </a>
         </p>
       </div>
+    </div>
     </div>
   );
 };

@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import SalonCard from "./SalonCard";
 import LoadingSpinner from "./LoadingSpinner";
 import EmptyState from "./EmptyState";
@@ -6,18 +6,36 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 
 const SalonList = ({ filteredSalons, isLoading, onSalonClick, onSalonHover }) => {
   const scrollRef = useRef();
+  const [showAllMobile, setShowAllMobile] = useState(false);
+
+  // Initialize isDesktop with current window width (handle SSR)
+  const [isDesktop, setIsDesktop] = useState(
+    typeof window !== "undefined" ? window.innerWidth >= 768 : false
+  );
+
+  // Update isDesktop on resize
+  useEffect(() => {
+    const checkScreen = () => setIsDesktop(window.innerWidth >= 768);
+    window.addEventListener("resize", checkScreen);
+    return () => window.removeEventListener("resize", checkScreen);
+  }, []);
 
   const scrollLeft = () => {
-    if (scrollRef.current) {
+    if (scrollRef.current)
       scrollRef.current.scrollBy({ left: -300, behavior: "smooth" });
-    }
   };
 
   const scrollRight = () => {
-    if (scrollRef.current) {
+    if (scrollRef.current)
       scrollRef.current.scrollBy({ left: 300, behavior: "smooth" });
-    }
   };
+
+  // Determine salons to display based on screen and state
+  const salonsToShow = isDesktop
+    ? filteredSalons
+    : showAllMobile
+    ? filteredSalons
+    : filteredSalons.slice(0, 3);
 
   return (
     <section className="py-16 bg-white">
@@ -55,10 +73,10 @@ const SalonList = ({ filteredSalons, isLoading, onSalonClick, onSalonHover }) =>
           >
             {isLoading ? (
               <LoadingSpinner />
-            ) : filteredSalons.length === 0 ? (
+            ) : salonsToShow.length === 0 ? (
               <EmptyState />
             ) : (
-              filteredSalons.map((salon, index) => (
+              salonsToShow.map((salon, index) => (
                 <div
                   key={salon.salon_id}
                   className="flex-shrink-0 w-full md:w-80 max-w-[20rem] mx-auto transition-transform duration-300 hover:scale-100 md:hover:scale-[1.02]"
@@ -73,6 +91,18 @@ const SalonList = ({ filteredSalons, isLoading, onSalonClick, onSalonHover }) =>
               ))
             )}
           </div>
+
+          {/* View More Button (Mobile Only) */}
+          {!showAllMobile && !isDesktop && filteredSalons.length > 2 && (
+            <div className="mt-6 text-center md:hidden">
+              <button
+                onClick={() => setShowAllMobile(true)}
+                className="px-6 py-2 bg-red-600 text-white rounded-full font-semibold hover:bg-red-700 transition"
+              >
+                View More
+              </button>
+            </div>
+          )}
 
           {/* Right Scroll Button (Desktop Only) */}
           <button

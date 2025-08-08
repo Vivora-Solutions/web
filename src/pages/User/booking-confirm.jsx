@@ -108,74 +108,78 @@ const BookingConfirm = () => {
   const total = services.reduce((sum, s) => sum + s.price, 0)
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-purple-50 to-pink-50 flex flex-col">
+    <div className="min-h-screen w-full bg-gradient-to-br from-gray-100 to-red-50 flex flex-col">
       <Header />
-      <div className="flex-1 flex flex-col items-center justify-center py-10 px-4 md:px-8">
+     <div className="flex-1 flex flex-col items-center justify-center py-2 px-2 sm:py-4 sm:px-4 md:py-10 md:px-8">
         <div className="w-full max-w-2xl bg-white rounded-3xl shadow-2xl border border-gray-100 p-8 flex flex-col items-center space-y-6 transform transition-all duration-300 hover:scale-[1.01]">
           {!confirmed ? (
             <>
-              <div className="flex flex-col items-center text-center w-full">
-                <h1 className="text-3xl font-extrabold text-gray-900 mb-2">Confirm Your Booking</h1>
-                <p className="text-gray-600 text-lg">Please review your appointment details before confirming.</p>
-              </div>
+<div className="flex flex-col items-center text-center w-full px-4">
+  <h1 className="text-2xl sm:text-3xl font-extrabold text-gray-900 mb-1 sm:mb-2">
+    Confirm Your Booking
+  </h1>
+  <p className="text-gray-600 text-base sm:text-lg hidden sm:block">
+    Please review your appointment details before confirming.
+  </p>
+</div>
 
               {/* New container for side-by-side layout */}
-              <div className="flex flex-col md:flex-row w-full gap-8">
-                {/* Left Section: Salon Details */}
-                <div className="flex flex-col items-center text-center md:w-1/2 space-y-4 p-4 border border-gray-100 rounded-xl shadow-sm">
-                  <img
-                    src={salonDetails.salon_logo_link || "/placeholder.svg?height=96&width=96&query=salon%20logo"}
-                    alt="Salon Logo"
-                    className="w-24 h-24 rounded-full object-cover border-2 border-gray-200 shadow-md ring-4 ring-purple-200 ring-opacity-60"
-                  />
-                  <div>
-                    <h2 className="text-2xl font-bold text-gray-800">{salonDetails.salon_name}</h2>
-                    <p className="text-gray-600 text-md">{salonDetails.salon_location || "Colombo"}</p>
-                  </div>
-                </div>
+<div className="flex flex-col md:flex-row w-full gap-4 md:gap-8">
+  {/* Left Section: Salon Details - Compact on mobile */}
+  <div className="flex flex-col items-center text-center md:w-1/2 space-y-2 md:space-y-4 p-2 md:p-4 border border-gray-100 rounded-lg md:rounded-xl shadow-sm">
+    <img
+      src={salonDetails.salon_logo_link || "/placeholder.svg?height=96&width=96&query=salon%20logo"}
+      alt="Salon Logo"
+      className="w-16 h-16 md:w-24 md:h-24 rounded-full object-cover border-2 border-gray-200 shadow-md ring-2 md:ring-4 ring-gray-500 ring-opacity-60"
+    />
+    <div>
+      <h2 className="text-xl md:text-2xl font-bold text-gray-800">{salonDetails.salon_name}</h2>
+      <p className="text-gray-600 text-sm md:text-md">{salonDetails.salon_location || "Colombo"}</p>
+    </div>
+  </div>
 
-                {/* Right Section: Booking Details */}
-                <div className="w-full md:w-1/2 border border-gray-100 rounded-xl shadow-sm p-4 space-y-4 text-gray-700">
-                  <div className="flex justify-between items-center">
-                    <span className="font-medium flex items-center gap-2">
-                      <Calendar className="w-5 h-5 text-purple-500" /> Date
-                    </span>
-                    <span>{formatDate(date)}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="font-medium flex items-center gap-2">
-                      <Clock className="w-5 h-5 text-purple-500" /> Time Slot
-                    </span>
-                    <span>
-                      {formatTime(timeSlot.start)} - {formatTime(timeSlot.end)}
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="font-medium flex items-center gap-2">
-                      <Tag className="w-5 h-5 text-purple-500" /> Duration
-                    </span>
-                    <span>{services[0]?.duration_minutes || 45} min</span>
-                  </div>
-                  <div className="flex flex-col gap-2 pt-4 border-t border-gray-100">
-                    <h3 className="font-semibold text-gray-800 mb-1">Services:</h3>
-                    {services.map((service, idx) => (
-                      <div key={idx} className="flex justify-between text-sm text-gray-600">
-                        <span>{service.service_name}</span>
-                        <span>Rs {service.price}</span>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="flex justify-between text-xl font-extrabold pt-4 border-t border-gray-200 mt-4 text-gray-900">
-                    <span>Total</span>
-                    <span>Rs {total}</span>
-                  </div>
-                </div>
-              </div>
+  {/* Right Section: Booking Details - Compact on mobile */}
+  <div className="w-full md:w-1/2 border border-gray-100 rounded-lg md:rounded-xl shadow-sm p-2 md:p-4 space-y-2 md:space-y-4 text-sm md:text-base text-gray-700">
+    <div className="flex justify-between items-center">
+      <span className="font-medium flex items-center gap-1 md:gap-2">
+        <Calendar className="w-4 h-4 md:w-5 md:h-5 text-black" /> Date
+      </span>
+      <span>{formatDate(date)}</span>
+    </div>
+    <div className="flex justify-between items-center">
+      <span className="font-medium flex items-center gap-1 md:gap-2">
+        <Clock className="w-4 h-4 md:w-5 md:h-5 text-black" /> Time Slot
+      </span>
+      <span>
+        {formatTime(timeSlot.start)} - {formatTime(timeSlot.end)}
+      </span>
+    </div>
+    <div className="flex justify-between items-center">
+      <span className="font-medium flex items-center gap-1 md:gap-2">
+        <Tag className="w-4 h-4 md:w-5 md:h-5 text-black" /> Duration
+      </span>
+      <span>{services[0]?.duration_minutes || 45} min</span>
+    </div>
+    <div className="flex flex-col gap-1 md:gap-2 pt-2 md:pt-4 border-t border-gray-100">
+      <h3 className="font-semibold text-gray-800 mb-0 md:mb-1 text-sm md:text-base">Services:</h3>
+      {services.map((service, idx) => (
+        <div key={idx} className="flex justify-between text-xs md:text-sm text-gray-600">
+          <span>{service.service_name}</span>
+          <span>Rs {service.price}</span>
+        </div>
+      ))}
+    </div>
+    <div className="flex justify-between text-lg md:text-xl font-extrabold pt-2 md:pt-4 border-t border-gray-200 mt-2 md:mt-4 text-gray-900">
+      <span>Total</span>
+      <span>Rs {total}</span>
+    </div>
+  </div>
+</div>
 
               {/* Buttons remain below the side-by-side sections */}
               <button
                 onClick={handleConfirmBooking}
-                className="w-full py-3 text-base bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-xl shadow-lg hover:from-purple-700 hover:to-indigo-700 transition-all duration-300 transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full py-3 text-base bg-gradient-to-r from-gray-600 to-gray-900 text-white rounded-xl shadow-lg hover:from-gray-900 hover:to-blacktransition-all duration-300 transform hover:-translate-y-1 disabled:opacity-50 disabled:cursor-not-allowed"
                 disabled={loading}
               >
                 {loading ? "Confirming..." : "Confirm Booking"}

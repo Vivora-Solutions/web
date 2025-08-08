@@ -147,57 +147,56 @@ const Schedule = () => {
         <div className="flex-1">
           <h1 className="text-3xl md:text-4xl font-extrabold mb-8 text-gray-900">Choose Your Stylist & Time</h1>
 
-          <div className="mb-10 p-6 bg-white rounded-2xl shadow-lg border border-gray-100">
-            <label className="font-semibold text-lg text-gray-800 mb-4 block">Select a date:</label>
-            <div className="flex items-center justify-center gap-3 overflow-x-auto pb-2">
-              <button
-                type="button"
-                className="rounded-full bg-gray-200 hover:bg-gray-300 text-gray-600 p-2 transition w-10 h-10"
-                onClick={() => setCalendarOffset((prev) => Math.max(prev - 7, minOffset))}
-                disabled={calendarOffset <= minOffset}
-              >
-                <ChevronLeft className="w-5 h-5" />
-              </button>
-              <div className="flex gap-3">
-                {days.map((date) => {
-                  const iso = date.toISOString().slice(0, 10)
-                  const isSelected = selectedDate === iso
-                  const isToday = iso === todayISO
-                  return (
-                    <button
-                      key={iso}
-                      onClick={() => {
-                        setSelectedDate(iso);
-                        setSelectedStylistId(null);
-                        setTimeSlots([]);
-                      }}
-                      className={`w-16 h-16 rounded-full border-2 shadow-md transition-all duration-200 flex items-center justify-center text-center overflow-hidden
-                        ${isSelected ? "bg-emerald-600 border-emerald-700 text-white scale-105 shadow-lg" : "bg-white border-gray-200 text-gray-700 hover:bg-emerald-50 hover:border-emerald-200"}
-                        ${isToday && !isSelected ? "border-dashed border-emerald-400" : ""}
-                      `}
-                    >
-                      <div className="flex flex-col items-center justify-center leading-none text-[0.75rem]">
-                        <span className="font-bold text-sm">{formatDayCircle(date)}</span>
-                        <span className="text-[0.65rem]">{formatDayLabel(date)}</span>
-                      </div>
-                    </button>
-
-                  )
-                })}
-              </div>
-              <button
-                type="button"
-                className="rounded-full bg-gray-200 hover:bg-gray-300 text-gray-600 p-2 transition w-10 h-10"
-                onClick={() => setCalendarOffset((prev) => prev + 7)}
-              >
-                <ChevronRight className="w-5 h-5" />
-              </button>
+         <div className="mb-8 p-4 sm:p-6 bg-gray-50 rounded-2xl shadow-md border border-gray-200 w-full max-w-3xl mx-auto">
+  <label className="font-semibold text-base sm:text-lg text-gray-900 mb-3 sm:mb-4 block">Select a date:</label>
+  <div className="flex items-center justify-between gap-2 sm:gap-3 overflow-x-auto pb-2 touch-pan-x snap-x snap-mandatory">
+    <button
+      type="button"
+      className="rounded-full bg-gray-300 hover:bg-gray-400 disabled:bg-gray-200 text-gray-800 disabled:text-gray-400 p-2 sm:p-3 transition w-9 h-9 sm:w-10 sm:h-10 flex-shrink-0"
+      onClick={() => setCalendarOffset((prev) => Math.max(prev - 7, minOffset))}
+      disabled={calendarOffset <= minOffset}
+    >
+      <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
+    </button>
+    <div className="flex gap-2 sm:gap-3 flex-grow justify-start sm:justify-center">
+      {days.map((date) => {
+        const iso = date.toISOString().slice(0, 10);
+        const isSelected = selectedDate === iso;
+        const isToday = iso === todayISO;
+        return (
+          <button
+            key={iso}
+            onClick={() => {
+              setSelectedDate(iso);
+              setSelectedStylistId(null);
+              setTimeSlots([]);
+            }}
+            className={`w-14 h-14 sm:w-16 sm:h-16 rounded-full border-2 shadow-sm transition-all duration-200 flex items-center justify-center text-center snap-center
+              ${isSelected 
+                ? 'bg-gradient-to-br from-gray-800 via-gray-900 to-gray-600 border-red-500 text-white scale-110 shadow-lg' 
+                : 'bg-white border-gray-300 text-gray-800 hover:bg-gray-100 hover:border-gray-400'}
+              ${isToday && !isSelected ? 'border-dashed border-2 border-gray-800' : ''}`}
+          >
+            <div className="flex flex-col items-center justify-center leading-tight text-[0.65rem] sm:text-[0.75rem]">
+              <span className="font-bold text-xs sm:text-sm">{formatDayCircle(date)}</span>
+              <span className="text-[0.6rem] sm:text-[0.65rem]">{formatDayLabel(date)}</span>
             </div>
-          </div>
-
+          </button>
+        );
+      })}
+    </div>
+    <button
+      type="button"
+      className="rounded-full bg-gray-300 hover:bg-gray-400 text-gray-800 p-2 sm:p-3 transition w-9 h-9 sm:w-10 sm:h-10 flex-shrink-0"
+      onClick={() => setCalendarOffset((prev) => prev + 7)}
+    >
+      <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
+    </button>
+  </div>
+</div>
           {loading ? (
             <div className="flex justify-center items-center py-12">
-              <div className="animate-spin rounded-full h-10 w-10 border-b-4 border-emerald-500"></div>
+              <div className="animate-spin rounded-full h-10 w-10 border-b-4 border-gray-800"></div>
               <span className="ml-4 text-gray-600">Loading stylists...</span>
             </div>
           ) : (
@@ -208,13 +207,13 @@ const Schedule = () => {
                     key={stylist.stylist_id}
                     onClick={() => handleStylistClick(stylist.stylist_id)}
                     className={`group flex items-center gap-4 bg-white shadow-lg rounded-2xl p-5 hover:shadow-xl transition cursor-pointer hover:-translate-y-1 border-2
-                      ${selectedStylistId === stylist.stylist_id ? "border-emerald-500 ring-2 ring-emerald-200" : "border-gray-100 hover:border-emerald-200"}`}
+                      ${selectedStylistId === stylist.stylist_id ? "border-gray-800 ring-2 ring-gray-600" : "border-gray-100 hover:border-gray-600"}`}
                   >
                     <div className="relative">
                       <img
                         src={stylist.profile_pic_link || defaultProfilePic}
                         alt={stylist.stylist_name}
-                        className="w-16 h-16 rounded-full object-cover border-2 border-gray-200 shadow-sm group-hover:border-emerald-300 transition"
+                        className="w-16 h-16 rounded-full object-cover border-2 border-gray-200 shadow-sm group-hover:border-gray-700 transition"
                       />
                       <div className="absolute -bottom-1 -right-1 bg-green-500 border-2 border-white rounded-full p-1">
                         <CheckCircle className="w-3 h-3 text-white" />
@@ -241,7 +240,7 @@ const Schedule = () => {
               <h2 className="text-xl font-semibold mb-4 text-gray-800">Available Time Slots</h2>
               {loadingSlots ? (
                 <div className="flex justify-center items-center py-8">
-                  <div className="animate-spin rounded-full h-10 w-10 border-b-4 border-emerald-500"></div>
+                  <div className="animate-spin rounded-full h-10 w-10 border-b-4 border-gray-800"></div>
                   <span className="ml-3 text-gray-600">Loading slots...</span>
                 </div>
               ) : timeSlots.length > 0 ? (
@@ -250,7 +249,7 @@ const Schedule = () => {
                     <button
                       key={index}
                       onClick={() => handleTimeSlotClick(slot)}
-                      className="flex items-center justify-between border border-emerald-100 rounded-xl px-4 py-3 bg-emerald-50 hover:bg-blue-100 transition cursor-pointer shadow-sm w-full"
+                      className="flex items-center justify-between border border-emerald-900 rounded-xl px-4 py-3 bg-gray-50 hover:bg-blue-200 transition cursor-pointer shadow-sm w-full"
                     >
                       <span className="font-medium text-gray-700">{formatTime(slot.start)}</span>
                       <span className="mx-2 text-gray-400">to</span>
@@ -310,16 +309,16 @@ const Schedule = () => {
                 )}
               </ul>
               {Array.isArray(serviceDurations) && Array.isArray(servicePrices) && (
-                <div className="mt-6 p-4 rounded-xl bg-emerald-50 border border-emerald-200 flex flex-col gap-3">
-                  <div className="flex justify-between text-base text-gray-700">
+                <div className="mt-6 p-4 rounded-xl bg-gray-50 border border-gray-800 flex flex-col gap-3">
+                  <div className="flex justify-between text-base text-gray-900">
                     <span className="font-bold">Total Duration:</span>
-                    <span className="font-bold text-emerald-700">
+                    <span className="font-bold text-gray-900">
                       {serviceDurations.reduce((a, b) => a + (b || 0), 0)} min
                     </span>
                   </div>
                   <div className="flex justify-between text-lg text-gray-800">
                     <span className="font-bold">Total Price:</span>
-                    <span className="font-extrabold text-emerald-800">
+                    <span className="font-extrabold text-gray-800">
                       Rs {servicePrices.reduce((a, b) => a + (b || 0), 0).toLocaleString()}
                     </span>
                   </div>

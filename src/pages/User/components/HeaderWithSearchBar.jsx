@@ -2,7 +2,7 @@ import React from "react";
 
 const HeaderWithSearchBar = ({ searchTerm, setSearchTerm }) => {
   return (
-    <div className="relative">
+    <div className="relative border border-gray-900 rounded-2xl">
       <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
         <svg
           className="h-5 w-5 text-gray-400"
@@ -20,7 +20,7 @@ const HeaderWithSearchBar = ({ searchTerm, setSearchTerm }) => {
       </div>
       <input
         type="text"
-        placeholder="Search by salon name or address..."
+        placeholder="Search by salon name.."
         className="w-full pl-12 pr-4 py-1.5 text-gray-700 bg-white border border-gray-200 rounded-2xl shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-400 text-base"
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}

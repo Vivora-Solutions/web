@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { Menu, X } from 'lucide-react';
 import { ProtectedAPI } from '../../../utils/api';
 
 const Header = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -30,84 +32,160 @@ const Header = () => {
 
   const handleLogout = () => {
     localStorage.removeItem('access_token');
-    localStorage.removeItem('user_role');
     setUser(false);
-    navigate('/login');
+    navigate('/');
   };
 
   return (
-    <header className="bg-white shadow-md px-6 py-4 flex justify-between items-center w-full">
-      {/* Logo */}
-      <Link to="/" className="flex items-center">
-        <h1
-          className="font-bold text-[2.5rem] leading-none select-none"
-          style={{
-            fontFamily: '"Italiana", sans-serif',
-            background: 'linear-gradient(to right, #0e12e2, #19cef7, #487bff, #654dad, #08c37e)',
-            backgroundSize: '200%',
-            backgroundClip: 'text',
-            WebkitBackgroundClip: 'text',
-            color: 'transparent',
-            WebkitTextFillColor: 'transparent',
-            animation: 'animate-gradient 2.5s linear infinite'
-          }}
-        >
-          VIVORA
-        </h1>
-      </Link>
+   <header className="bg-gradient-to-r from-gray-800 via-gray-700 to-gray-600 shadow-md w-full z-50">
 
-      {/* Navigation */}
-      <nav className="flex-1 flex justify-end items-center">
-        <div className="space-x-6 flex items-center">
-          <Link to="/" className="text-gray-700 hover:text-blue-600 font-medium">Home</Link>
-          {user && user.role === 'customer' && (
-            <Link to="/my-bookings" className="text-gray-700 hover:text-blue-600 font-medium">My Bookings</Link>
+      <div className="px-4 sm:px-6 py-4 flex justify-between items-center">
+        {/* Logo */}
+        <Link to="/" className="flex items-center">
+          <h1
+            className="font-bold text-3xl sm:text-4xl leading-none select-none"
+            style={{
+              fontFamily: '"Italiana", sans-serif',
+              background: 'linear-gradient(to right, #ffffff, #cccccc)',
+              backgroundSize: '200%',
+              backgroundClip: 'text',
+              WebkitBackgroundClip: 'text',
+              color: 'transparent',
+              WebkitTextFillColor: 'transparent',
+              animation: 'animate-gradient 2.5s linear infinite',
+            }}
+          >
+            VIVORA
+          </h1>
+        </Link>
+
+        {/* Desktop Navigation */}
+        <nav className="hidden md:flex gap-6 items-center text-sm sm:text-base">
+          <Link to="/" className="text-white hover:text-gray-300 font-medium">Home</Link>
+          {user?.role === 'customer' && (
+            <Link to="/my-bookings" className="text-white hover:text-gray-300 font-medium">My Bookings</Link>
           )}
-          <Link to="/salon-register" className="text-gray-700 hover:text-blue-600 font-medium">Register as a Salon</Link>
-        </div>
-
-        {/* Right section: Auth and Profile */}
-        <div className="flex items-center space-x-4 ml-6">
-          {loading ? (
-            <div className="w-6 h-6 bg-gray-200 rounded-full animate-pulse"></div>
-          ) : user === false ? (
-            <div className="flex items-center space-x-2">
-              <Link to="/login" className="px-4 py-2 text-blue-600 hover:text-blue-800 font-medium">Login</Link>
-              <Link to="/signup" className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition font-medium">Sign Up</Link>
-            </div>
-          ) : user && user.email ? (
-            <div className="text-sm text-right flex items-center space-x-4">
-              {/* Profile Section */}
-              <div className="flex flex-col items-center cursor-pointer group" onClick={() => navigate('/profile')}>
+          <Link to="/about" className="text-white hover:text-gray-300 font-medium">About</Link>
+          <Link to="/salon-register" className="text-white hover:text-gray-300 font-medium">Register as a Salon</Link>
+          {!loading && user === false && (
+            <>
+              <Link
+                to="/login"
+                className="px-3 py-1 border border-white text-white rounded hover:bg-gray-800 transition"
+              >
+                Login
+              </Link>
+              <Link
+                to="/signup"
+                className="px-3 py-1 bg-white text-gray-900 rounded hover:opacity-90 transition"
+              >
+                Sign Up
+              </Link>
+            </>
+          )}
+          {user?.email && (
+            <div className="flex items-center space-x-4 text-sm">
+              <div
+                className="flex flex-col items-center cursor-pointer group"
+                onClick={() => navigate('/profile')}
+              >
                 <img
                   src="https://www.w3schools.com/howto/img_avatar.png"
                   alt="profile"
-                  className="w-10 h-10 rounded-full border-2 border-blue-500 group-hover:scale-105 transition"
+                  className="w-9 h-9 rounded-full border-2 border-white group-hover:scale-105 transition"
                 />
-                <p className="text-gray-600 text-xs mt-1 group-hover:underline">{user.email}</p>
+                <p className="text-gray-300 text-xs mt-1 group-hover:underline">{user.email}</p>
               </div>
-
-              {/* Logout */}
               <button
                 onClick={handleLogout}
-                className="text-sm text-red-500 hover:text-red-700"
+                className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 transition"
               >
                 Logout
               </button>
             </div>
-          ) : (
-            <div className="w-6 h-6 bg-gray-200 rounded-full animate-pulse"></div>
+          )}
+        </nav>
+
+        {/* Mobile Hamburger */}
+        <div className="md:hidden">
+          <button onClick={() => setMenuOpen(!menuOpen)} className="text-white">
+            {menuOpen ? <X size={28} /> : <Menu size={28} />}
+          </button>
+        </div>
+      </div>
+
+      {/* Mobile Dropdown Menu */}
+      {menuOpen && (
+        <div className="md:hidden px-4 pb-4 space-y-3 text-sm animate-slide-down bg-gray-900 text-white">
+          <Link to="/" className="block font-medium hover:text-gray-300" onClick={() => setMenuOpen(false)}>Home</Link>
+          {user?.role === 'customer' && (
+            <Link to="/my-bookings" className="block font-medium hover:text-gray-300" onClick={() => setMenuOpen(false)}>My Bookings</Link>
+          )}
+          <Link to="/about" className="block font-medium hover:text-gray-300" onClick={() => setMenuOpen(false)}>About</Link>
+          <Link to="/salon-register" className="block font-medium hover:text-gray-300" onClick={() => setMenuOpen(false)}>Register as a Salon</Link>
+
+          {!loading && user === false && (
+            <>
+              <Link
+                to="/login"
+                className="block px-3 py-2 border border-white text-white rounded hover:bg-gray-800 transition"
+                onClick={() => setMenuOpen(false)}
+              >
+                Login
+              </Link>
+              <Link
+                to="/signup"
+                className="block px-3 py-2 bg-white text-gray-900 rounded hover:opacity-90 transition"
+                onClick={() => setMenuOpen(false)}
+              >
+                Sign Up
+              </Link>
+            </>
+          )}
+          {user?.email && (
+            <>
+              <div className="flex items-center gap-3">
+                <img
+                  src="https://www.w3schools.com/howto/img_avatar.png"
+                  alt="profile"
+                  className="w-9 h-9 rounded-full border-2 border-white"
+                />
+                <p className="text-gray-300 text-sm">{user.email}</p>
+              </div>
+              <button
+                onClick={() => {
+                  handleLogout();
+                  setMenuOpen(false);
+                }}
+                className="block px-3 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition"
+              >
+                Logout
+              </button>
+            </>
           )}
         </div>
-      </nav>
+      )}
 
-      {/* Styles */}
+      {/* Fonts and animation */}
       <style>
         {`
           @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Italiana&family=Outfit:wght@100..900&display=swap');
           @keyframes animate-gradient {
             to {
               background-position: 200%;
+            }
+          }
+          .animate-slide-down {
+            animation: slideDown 0.3s ease-out forwards;
+          }
+          @keyframes slideDown {
+            from {
+              opacity: 0;
+              transform: translateY(-10px);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
             }
           }
         `}
