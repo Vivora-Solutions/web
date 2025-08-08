@@ -8,45 +8,50 @@ const SalonList = ({ filteredSalons, isLoading, onSalonClick, onSalonHover }) =>
   const scrollRef = useRef();
 
   const scrollLeft = () => {
-    scrollRef.current.scrollBy({ left: -300, behavior: "smooth" });
+    if (scrollRef.current) {
+      scrollRef.current.scrollBy({ left: -300, behavior: "smooth" });
+    }
   };
 
   const scrollRight = () => {
-    scrollRef.current.scrollBy({ left: 300, behavior: "smooth" });
+    if (scrollRef.current) {
+      scrollRef.current.scrollBy({ left: 300, behavior: "smooth" });
+    }
   };
 
   return (
-    <section className="py-16 bg-gradient-to-br from-purple-50 to-pink-50">
+    <section className="py-16 bg-white">
       <div className="max-w-7xl mx-auto px-6">
         {/* Header Section */}
         <div className="text-center mb-12">
-          <h2 className="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-4">
+          <h2 className="text-3xl lg:text-4xl font-bold mb-4 bg-gradient-to-r from-black via-gray-800 to-red-600 bg-clip-text text-transparent">
             Available Salons
           </h2>
-          <p className="text-gray-600 text-lg max-w-2xl mx-auto">
+          <p className="hidden sm:block text-gray-700 text-lg max-w-2xl mx-auto">
             Choose from our curated selection of top-rated salons near you.
           </p>
-          <div className="mt-4 bg-gradient-to-r from-purple-100 to-pink-100 inline-block rounded-full px-5 py-2">
-            <span className="text-sm font-semibold text-purple-700">
+
+          <div className="mt-4 border border-black rounded-full px-5 py-2 inline-block bg-white">
+            <span className="text-sm font-semibold text-black">
               {filteredSalons.length} results
             </span>
           </div>
         </div>
 
-        {/* Scrollable Salon Cards */}
+        {/* Salon Cards Container */}
         <div className="relative">
-          {/* Left Scroll Button */}
+          {/* Left Scroll Button (Desktop Only) */}
           <button
             onClick={scrollLeft}
-            className="absolute left-0 top-1/2 transform -translate-y-1/2 z-10 bg-white shadow-lg rounded-full p-3 hover:bg-gray-100"
+            className="hidden md:block absolute left-0 top-1/2 transform -translate-y-1/2 z-10 bg-white border border-black rounded-full p-3 shadow-md hover:bg-gray-100 transition"
           >
-            <ChevronLeft className="w-5 h-5 text-purple-600" />
+            <ChevronLeft className="w-5 h-5 text-black" />
           </button>
 
-          {/* Horizontal Scroll Container */}
+          {/* Salon Card List */}
           <div
             ref={scrollRef}
-            className="flex overflow-x-scroll gap-6 px-12 py-4 no-scrollbar scroll-smooth"
+            className="flex flex-col md:flex-row md:overflow-x-scroll gap-6 md:gap-6 md:px-12 py-4 no-scrollbar scroll-smooth"
           >
             {isLoading ? (
               <LoadingSpinner />
@@ -56,7 +61,7 @@ const SalonList = ({ filteredSalons, isLoading, onSalonClick, onSalonHover }) =>
               filteredSalons.map((salon, index) => (
                 <div
                   key={salon.salon_id}
-                  className="flex-shrink-0 w-80 max-w-[20rem] transition-transform duration-300 hover:scale-[1.02]"
+                  className="flex-shrink-0 w-full md:w-80 max-w-[20rem] mx-auto transition-transform duration-300 hover:scale-100 md:hover:scale-[1.02]"
                 >
                   <SalonCard
                     salon={salon}
@@ -69,12 +74,12 @@ const SalonList = ({ filteredSalons, isLoading, onSalonClick, onSalonHover }) =>
             )}
           </div>
 
-          {/* Right Scroll Button */}
+          {/* Right Scroll Button (Desktop Only) */}
           <button
             onClick={scrollRight}
-            className="absolute right-0 top-1/2 transform -translate-y-1/2 z-10 bg-white shadow-lg rounded-full p-3 hover:bg-gray-100"
+            className="hidden md:block absolute right-0 top-1/2 transform -translate-y-1/2 z-10 bg-white border border-black rounded-full p-3 shadow-md hover:bg-gray-100 transition"
           >
-            <ChevronRight className="w-5 h-5 text-purple-600" />
+            <ChevronRight className="w-5 h-5 text-black" />
           </button>
         </div>
       </div>
