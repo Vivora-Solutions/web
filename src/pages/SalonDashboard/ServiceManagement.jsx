@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { ProtectedAPI } from '../../utils/api';
 import LoadingSpinner from '../../components/LoadingSpinner';
 
@@ -81,7 +81,7 @@ const ServiceManagement = () => {
         duration_minutes: Number(formData.duration_minutes)
       };
       await ProtectedAPI.post('/salon-admin/services', payload);
-      await fetchServices(); // <<< refetch to avoid missing fields
+      await fetchServices(); 
       setIsAdding(false);
       alert('Service added successfully!');
     } catch (error) {

@@ -7,6 +7,7 @@ const daysOfWeek = [
 ];
 
 const ScheduleModal = ({ stylist, onClose }) => {
+  //console.log("Stylist data in ScheduleModal:", stylist);
   const existingScheduleList = Array.isArray(stylist.schedule) ? stylist.schedule : [];
 
   const schedulesMapped = daysOfWeek.map((day, index) => {
@@ -16,11 +17,12 @@ const ScheduleModal = ({ stylist, onClose }) => {
 
     return existing
       ? {
-          ...existing,                             // keeps _id, schedule_id, etc
-          day_of_week: index,                      // numeric value (0–6)
-          day_name: day,                           // readable value for UI only
+          ...existing,                             
+          day_of_week: index,                      
+          day_name: day,                           
           start_time_daily: existing.start_time_daily?.slice(0, 5),
           end_time_daily: existing.end_time_daily?.slice(0, 5),
+          schedule_id: existing.schedule_id, 
         }
       : {
           day_of_week: index,
@@ -43,20 +45,22 @@ const ScheduleModal = ({ stylist, onClose }) => {
   };
 
   const handleSave = async (schedule) => {
-    console.log("Saving schedule:", schedule);
+    //console.log("Saving schedule:", schedule);
+    //console.log("Schedule ID:", schedule.schedule_id);
     try {
       setSaving(true);
-      //console.log("Saving schedule:", schedule);
+      // console.log("Saving schedule:", schedule);
       if (schedule.schedule_id) {
         await ProtectedAPI.put(`/salon-admin/schedule/stylists/${stylist.stylist_id}/${schedule.schedule_id}`, schedule);
       } else {
-        console.log("Creating new schedule for stylist:", stylist.stylist_id);
-      //       await ProtectedAPI.post(`/salon-admin/schedule/stylists/${stylist.stylist_id}`, {
-      // stylist_id: stylist.stylist_id,
-      // day_of_week: daysOfWeek.indexOf(schedule.day_of_week), // convert string to index
-      // start_time_daily: schedule.start_time_daily,
-      // end_time_daily: schedule.end_time_daily,
-    //});
+        //console.log("Creating new schedule for stylist:", stylist.stylist_id);
+        //console.log("Saving schedule:", schedule);
+        await ProtectedAPI.post(`/salon-admin/schedule/stylists/${stylist.stylist_id}`, {
+        //stylist_id: stylist.stylist_id,
+        day_of_week: schedule.day_of_week,
+        start_time_daily: schedule.start_time_daily,
+        end_time_daily: schedule.end_time_daily,
+    });
 
       }
       alert(`Schedule for ${schedule.day_of_week} saved!`);
