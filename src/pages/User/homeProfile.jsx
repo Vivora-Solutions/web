@@ -64,37 +64,35 @@ const HomePage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-purple-50 to-pink-50">
-      <Header />
+      {/* <Header /> */}
 
       <HeroSection searchTerm={searchTerm} setSearchTerm={setSearchTerm} salonCount={filteredSalons.length} />
 
 
+<div className="max-w-7xl mx-auto px-4 py-8 flex flex-col">
+  {/* SalonList: order 1 on desktop, order 2 on mobile */}
+  <div className="order-2 lg:order-1 mb-8">
+    <SalonList
+      filteredSalons={filteredSalons}
+      isLoading={isLoading}
+      onSalonClick={handleSalonClick}
+      onSalonHover={handleSalonHover}
+    />
+  </div>
 
-      <div className="max-w-7xl mx-auto mt-8 px-4">
-        <SalonList
-          filteredSalons={filteredSalons}
-          isLoading={isLoading}
-          onSalonClick={handleSalonClick}
-          onSalonHover={handleSalonHover}
-        />
-      </div>
+  {/* MapSection: order 1 on mobile, order 2 on desktop */}
+  <div className="order-1 lg:order-2">
+<MapSection
+  center={center}
+  zoom={zoom}
+  filteredSalons={filteredSalons}
+  onSalonClick={handleSalonClick}
+  className="w-full h-[300px] md:h-[600px]"
+/>
 
-      {/* Main Content Container */}
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="bg-white rounded-3xl shadow-2xl overflow-hidden border border-gray-100">
-          <div className="flex min-h-[600px]"> {/* Remove flex-col and lg:flex-row */}
-            <MapSection
-              center={center}
-              zoom={zoom}
-              filteredSalons={filteredSalons}
-              onSalonClick={handleSalonClick}
-              className="flex-1 w-full h-[600px]" // Pass className for full width/height
-            />
-          </div>
-        </div>
+  </div>
+</div>
 
-        
-      </div>
 
       
 

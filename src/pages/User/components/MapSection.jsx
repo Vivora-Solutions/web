@@ -1,8 +1,15 @@
 "use client"
 
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet"
+import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents } from "react-leaflet"
 import L from "leaflet"
 import "leaflet/dist/leaflet.css"
+import { useEffect } from "react"
+
+// Define the geographical bounds for Sri Lanka
+const sriLankaBounds = L.latLngBounds([
+  [5.918, 79.529], // Southwest corner
+  [9.832, 81.879]  // Northeast corner
+])
 
 const defaultIcon = new L.Icon({
   iconUrl: "https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png",
@@ -10,32 +17,123 @@ const defaultIcon = new L.Icon({
   iconAnchor: [12, 41],
 })
 
+// Component to handle the "locate me" button logic
+const LocationButton = () => {
+  const map = useMap()
+
+  const locateUser = () => {
+    map.locate({ setView: false }) // Don't auto-set view; handle in event
+  }
+
+  useEffect(() => {
+    const onLocationFound = (e) => {
+      const userLatLng = e.latlng
+      // Check if user location is within Sri Lanka bounds
+      if (sriLankaBounds.contains(userLatLng)) {
+        // Calculate 5 km radius bounds (approximate: 0.045 degrees ~ 5 km)
+        const radius = 0.045
+        const userBounds = L.latLngBounds([
+          [userLatLng.lat - radius, userLatLng.lng - radius],
+          [userLatLng.lat + radius, userLatLng.lng + radius],
+        ])
+        map.fitBounds(userBounds, { maxZoom: 15 }) // Zoom to 5 km radius
+        L.marker(userLatLng).addTo(map).bindPopup("You are here!").openPopup()
+      } else {
+        console.warn("User location is outside Sri Lanka, defaulting to center")
+        map.fitBounds(sriLankaBounds) // Fallback to Sri Lanka bounds
+      }
+    }
+
+    const onLocationError = (e) => {
+      console.error("Location access denied or failed:", e.message)
+      map.fitBounds(sriLankaBounds) // Fallback to Sri Lanka bounds
+    }
+
+    map.on("locationfound", onLocationFound)
+    map.on("locationerror", onLocationError)
+
+    return () => {
+      map.off("locationfound", onLocationFound)
+      map.off("locationerror", onLocationError)
+    }
+  }, [map])
+
+  return (
+    <button
+      onClick={locateUser}
+      className="absolute top-6 right-6 z-[1000] bg-white/95 backdrop-blur-sm rounded-full p-3 shadow-lg border border-gray-100 hover:bg-white transition-all duration-200 group"
+    >
+      <svg
+        className="w-5 h-5 text-gray-600 group-hover:text-purple-600"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={2}
+          d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"
+        />
+      </svg>
+    </button>
+  )
+}
+
+// Component to automatically locate and zoom to the user
+const AutoZoomToUser = () => {
+  const map = useMap()
+
+  useMapEvents({
+    load: () => {
+      map.locate({ setView: false }) // Don't auto-set view; handle in locationfound
+    },
+    locationfound: (e) => {
+      const userLatLng = e.latlng
+      if (sriLankaBounds.contains(userLatLng)) {
+        // Calculate 5 km radius bounds (approximate: 0.045 degrees ~ 5 km)
+        const radius = 0.045
+        const userBounds = L.latLngBounds([
+          [userLatLng.lat - radius, userLatLng.lng - radius],
+          [userLatLng.lat + radius, userLatLng.lng + radius],
+        ])
+        map.fitBounds(userBounds, { maxZoom: 15 }) // Zoom to 5 km radius
+        L.marker(userLatLng).addTo(map).bindPopup("You are here!").openPopup()
+      } else {
+        console.warn("User location is outside Sri Lanka, defaulting to center")
+        map.fitBounds(sriLankaBounds)
+      }
+    },
+    locationerror: (e) => {
+      console.error("Location access denied or failed:", e.message)
+      map.fitBounds(sriLankaBounds) // Fallback to Sri Lanka bounds
+    },
+    dragend: () => {
+      // Ensure map stays within bounds after dragging
+      if (!sriLankaBounds.contains(map.getCenter())) {
+        map.panTo(sriLankaBounds.getCenter())
+      }
+    },
+    zoomend: () => {
+      // Ensure map stays within bounds after zooming
+      if (!sriLankaBounds.contains(map.getCenter())) {
+        map.panTo(sriLankaBounds.getCenter())
+      }
+    },
+  })
+
+  return null
+}
+
 const MapSection = ({ center, zoom, filteredSalons, onSalonClick, className }) => {
   return (
     <div className={className}>
-      
-
-      <div className="absolute top-6 right-6 z-10">
-        <button className="bg-white/95 backdrop-blur-sm rounded-full p-3 shadow-lg border border-gray-100 hover:bg-white transition-all duration-200 group">
-          <svg
-            className="w-5 h-5 text-gray-600 group-hover:text-purple-600"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"
-            />
-          </svg>
-        </button>
-      </div>
-
       <MapContainer
         center={center}
         zoom={zoom}
+        minZoom={7} // Prevent zooming out too far
+        maxBounds={sriLankaBounds}
+        maxBoundsViscosity={1.0}
         style={{ height: "100%", width: "100%" }}
         className="rounded-l-3xl lg:rounded-r-none"
       >
@@ -43,6 +141,10 @@ const MapSection = ({ center, zoom, filteredSalons, onSalonClick, className }) =
           url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
           attribution='&copy; <a href="https://carto.com/">CARTO</a>'
         />
+
+        <AutoZoomToUser />
+        <LocationButton />
+
         {filteredSalons.map((salon) => (
           <Marker key={salon.salon_id} position={[salon.coordinates.lat, salon.coordinates.lng]} icon={defaultIcon}>
             <Popup className="custom-popup">

@@ -13,11 +13,13 @@ import Schedule from './pages/User/schedule';
 import BookingConfirm from './pages/User/booking-confirm';
 import RegisterCustomerForm from './pages/User/signup';
 import UserProfile from './pages/User/profile';
+import Header from './components/Header/Header';
 
 function App() {
 
   return (
     <div className="w-full min-h-screen">
+      <Header />
       <Routes>
         <Route path="/login" element={<Login/>} />
         <Route path="/" element={<SalonProfile />} />

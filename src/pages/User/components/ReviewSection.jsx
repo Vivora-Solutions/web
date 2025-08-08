@@ -41,14 +41,15 @@ const ReviewSection = () => {
     fetchReviews()
   }, [])
 
-  return (
-    <section className="py-16 bg-gradient-to-br from-purple-50 to-pink-50">
+   return (
+    <section className="py-16 bg-white">
       <div className="max-w-7xl mx-auto px-6">
+        {/* Header */}
         <div className="text-center mb-12">
-          <h2 className="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-4">
+          <h2 className="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-black via-gray-800 to-red-600 bg-clip-text text-transparent mb-4">
             What Our Customers Say
           </h2>
-          <p className="text-gray-600 text-lg max-w-2xl mx-auto">
+          <p className="text-gray-700 text-lg max-w-2xl mx-auto">
             Don't just take our word for it. Here's what real customers have to say about their experiences.
           </p>
         </div>
@@ -58,12 +59,12 @@ const ReviewSection = () => {
           {reviews.slice(0, visibleReviewsCount).map((review) => (
             <div
               key={review.id}
-              className="bg-white rounded-3xl shadow-xl p-8 border border-gray-100 flex flex-col items-center text-center transform transition-transform duration-300 hover:scale-[1.02]"
+              className="bg-white rounded-3xl shadow-xl p-8 border border-gray-200 flex flex-col items-center text-center transform transition-transform duration-300 hover:scale-[1.02]"
             >
               <img
                 src={review.image}
                 alt={review.name}
-                className="w-20 h-20 rounded-full object-cover border-4 border-purple-100 shadow-lg mb-6"
+                className="w-20 h-20 rounded-full object-cover border-4 border-gray-100 shadow-md mb-6"
               />
               <div className="flex items-center justify-center gap-1 mb-4">
                 {Array.from({ length: 5 }).map((_, i) => (
@@ -81,19 +82,20 @@ const ReviewSection = () => {
                 "{review.comment}"
               </blockquote>
               <div className="mt-auto">
-                <h4 className="font-bold text-gray-800 text-lg">{review.name}</h4>
-                <p className="text-purple-600 font-medium text-sm">{review.service}</p>
+                <h4 className="font-bold text-black text-lg">{review.name}</h4>
+                <p className="text-orange-500 font-medium text-sm">{review.service}</p>
                 <p className="text-gray-500 text-xs mt-1">{review.date}</p>
               </div>
             </div>
           ))}
         </div>
 
+        {/* Show More Button */}
         {hasMoreReviews && (
           <div className="text-center mt-12">
             <button
               onClick={showMoreReviews}
-              className="inline-flex items-center px-8 py-4 border border-transparent text-base font-medium rounded-full shadow-lg text-white bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all duration-300 transform hover:-translate-y-1"
+              className="inline-flex items-center px-8 py-4 border border-black text-base font-medium rounded-full shadow-lg text-white bg-black hover:bg-red-600 transition-all duration-300 transform hover:-translate-y-1"
             >
               Show More Reviews
               <svg className="ml-3 -mr-1 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -103,11 +105,11 @@ const ReviewSection = () => {
           </div>
         )}
 
-        {/* Stats */}
+        {/* Stats Section */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-16 max-w-4xl mx-auto">
-          <div className="text-center bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
-            <div className="text-3xl font-bold text-purple-600 mb-2">4.9</div>
-            <div className="text-gray-600">Average Rating</div>
+          <div className="text-center bg-white rounded-2xl p-6 shadow-md border border-gray-200">
+            <div className="text-3xl font-bold text-black mb-2">4.9</div>
+            <div className="text-gray-700">Average Rating</div>
             <div className="flex justify-center mt-2">
               {Array.from({ length: 5 }).map((_, i) => (
                 <svg key={i} className="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
@@ -116,18 +118,18 @@ const ReviewSection = () => {
               ))}
             </div>
           </div>
-          <div className="text-center bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
-            <div className="text-3xl font-bold text-purple-600 mb-2">2,500+</div>
-            <div className="text-gray-600">Happy Customers</div>
+          <div className="text-center bg-white rounded-2xl p-6 shadow-md border border-gray-200">
+            <div className="text-3xl font-bold text-black mb-2">2,500+</div>
+            <div className="text-gray-700">Happy Customers</div>
           </div>
-          <div className="text-center bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
-            <div className="text-3xl font-bold text-purple-600 mb-2">98%</div>
-            <div className="text-gray-600">Satisfaction Rate</div>
+          <div className="text-center bg-white rounded-2xl p-6 shadow-md border border-gray-200">
+            <div className="text-3xl font-bold text-black mb-2">98%</div>
+            <div className="text-gray-700">Satisfaction Rate</div>
           </div>
         </div>
       </div>
     </section>
-  )
-}
+  );
+};
 
-export default ReviewSection
+export default ReviewSection;
