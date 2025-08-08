@@ -95,7 +95,7 @@ const SalonDashboard = () => {
       <Header />
       <div className="flex flex-1 h-[calc(100vh-60px)]">
         <Sidebar items={SECTIONS} activeIndex={activeIndex} />
-        <main className="flex-1 p-8 overflow-y-auto">
+        <main className="flex-1 p-1 overflow-y-auto">
           {isRootPath ? <SalonInfo /> : <Outlet />}
         </main>
       </div>

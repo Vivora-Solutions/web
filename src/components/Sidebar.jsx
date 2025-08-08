@@ -122,7 +122,7 @@
 //       {/* Mobile toggle button */}
 //       {isMobile && (
 //         <button
-//           className="fixed z-[60] top-4 left-4 bg-indigo-500 text-white px-3 py-2 rounded-md text-xl"
+//           className="fixed z-[60] top-4 left-4 bg-gray-700 text-white px-3 py-2 rounded-md text-xl"
 //           onClick={toggleMobileSidebar}
 //         >
 //           ☰
@@ -167,8 +167,8 @@
 //                 transition-colors group
 //                 ${
 //                   activeIndex === index
-//                     ? "bg-indigo-500 text-white"
-//                     : "text-gray-700 hover:bg-indigo-500 hover:text-white"
+//                     ? "bg-gray-700 text-white"
+//                     : "text-gray-700 hover:bg-gray-700 hover:text-white"
 //                 }
 //               `}
 //             >
@@ -210,7 +210,7 @@ const Sidebar = ({ items, activeIndex }) => {
       {/* Mobile toggle button */}
       {isMobile && (
         <button
-          className="fixed z-[60] top-4 left-4 bg-indigo-500 text-white px-3 py-2 rounded-md text-xl"
+          className="fixed z-[60] top-4 left-4 bg-gray-700 text-white px-3 py-2 rounded-md text-xl"
           onClick={() => setIsMobileOpen(!isMobileOpen)}
         >
           ☰
@@ -256,8 +256,8 @@ const Sidebar = ({ items, activeIndex }) => {
                 transition-colors group
                 ${
                   activeIndex === index
-                    ? "bg-indigo-500 text-white"
-                    : "text-gray-700 hover:bg-indigo-500 hover:text-white"
+                    ? "bg-gray-700 text-white"
+                    : "text-gray-700 hover:bg-gray-700 hover:text-white"
                 }
               `}
             >
