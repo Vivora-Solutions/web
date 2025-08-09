@@ -95,7 +95,7 @@ const WorkStationManagement = () => {
         <button
           onClick={handleAddNew}
           disabled={loading}
-          className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-indigo-500 text-white px-5 py-2.5 rounded-xl font-medium hover:shadow-lg hover:-translate-y-0.5 transition disabled:opacity-50"
+          className="flex items-center gap-2 bg-gradient-to-r from-green-500 to-green-600 text-white px-5 py-2.5 rounded-xl font-medium hover:shadow-lg hover:-translate-y-0.5 transition disabled:opacity-50"
         >
           <Plus size={20} />
           Add Workstation
@@ -177,7 +177,7 @@ const WorkStationManagement = () => {
               key={station.workstation_id}
               className="relative bg-white border border-slate-200 rounded-xl p-6 hover:shadow-lg transition"
             >
-              <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-t-xl"></div>
+              <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-gray-500 to-gray-700 rounded-t-xl"></div>
               <div className="flex justify-between items-start mb-4">
                 <h4 className="text-lg font-semibold text-slate-800">
                   {station.workstation_name}
