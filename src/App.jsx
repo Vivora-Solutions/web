@@ -1,40 +1,40 @@
-import { Route, Routes, BrowserRouter as Router } from 'react-router-dom';
+import { Route, Routes, BrowserRouter as Router } from "react-router-dom";
 
-import SuperAdminDashboard from './pages/SuperAdminDashboard/SuperAdminDashboard';
-import SalonDashboard from './pages/SalonDashboard/SalonDashboard';
-import SalonProfile from './pages/User/homeProfile';
-import AppointmentPage from './pages/User/appointmentpage';
-import Login from './pages/Login/Login';
-import AllSalonsPage from './pages/SuperAdminDashboard/AllSalonsPage';
-import SalonDetailsPage from './pages/SuperAdminDashboard/SalonDetailsPage';
-import MyBookingsPage from './pages/User/bookings';
-import SalonRegister from './pages/SalonDashboard/SalonRegister';
-import Schedule from './pages/User/schedule';
-import BookingConfirm from './pages/User/booking-confirm';
-import RegisterCustomerForm from './pages/User/signup';
-import UserProfile from './pages/User/profile';
-import SalonInfo from './pages/SalonDashboard/SalonInfo';
-import OpeningDays from './pages/SalonDashboard/OpeningDays';
-import PhotoSection from './pages/SalonDashboard/PhotoSection';
-import ServiceManagement from './pages/SalonDashboard/ServiceManagement';
-import StylistManagement from './pages/SalonDashboard/StylistManagement';
-import WorkStationManagement from './pages/SalonDashboard/WorkStationManagement';
-import SchedulingInterface from './pages/SalonDashboard/components/SchedulingInterface/SchedulingInterface';
+import SuperAdminDashboard from "./pages/SuperAdminDashboard/SuperAdminDashboard";
+import SalonDashboard from "./pages/SalonDashboard/SalonDashboard";
+import SalonProfile from "./pages/User/homeProfile";
+import AppointmentPage from "./pages/User/appointmentpage";
+import Login from "./pages/Login/Login";
+import AllSalonsPage from "./pages/SuperAdminDashboard/AllSalonsPage";
+import SalonDetailsPage from "./pages/SuperAdminDashboard/SalonDetailsPage";
+import MyBookingsPage from "./pages/User/bookings";
+import SalonRegister from "./pages/SalonDashboard/SalonRegister";
+import Schedule from "./pages/User/schedule";
+import BookingConfirm from "./pages/User/booking-confirm";
+import RegisterCustomerForm from "./pages/User/signup";
+import UserProfile from "./pages/User/profile";
+import SalonInfo from "./pages/SalonDashboard/SalonInfo";
+import OpeningDays from "./pages/SalonDashboard/OpeningDays";
+import PhotoSection from "./pages/SalonDashboard/PhotoSection";
+import ServiceManagement from "./pages/SalonDashboard/ServiceManagement";
+import StylistManagement from "./pages/SalonDashboard/StylistManagement";
+import WorkStationManagement from "./pages/SalonDashboard/WorkStationManagement";
+import SchedulingInterface from "./pages/SalonDashboard/components/SchedulingInterface/SchedulingInterface";
 
-
-import ProtectedRoute from './components/ProtectedRoute';
-import PublicCustomerRoute from './components/PublicCustomerRoute';
+import OAuthHandler from "./components/OAuthCallback";
+import ProtectedRoute from "./components/ProtectedRoute";
+import PublicCustomerRoute from "./components/PublicCustomerRoute";
 
 function App() {
   return (
     <div className="w-full min-h-screen">
-    
       <Routes>
         {/* Public Routes */}
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<RegisterCustomerForm />} />
         <Route path="/salon-register" element={<SalonRegister />} />
-        
+        <Route path="/oauth-callback" element={<OAuthHandler />} />
+
         {/* PublicCustomerRoute Pages */}
         <Route path="/" element={
           <PublicCustomerRoute>
@@ -53,14 +53,14 @@ function App() {
         } />
 
         {/* Customer Only */}
-        <Route element={<ProtectedRoute allowedRoles={['customer']} />}>
+        <Route element={<ProtectedRoute allowedRoles={["customer"]} />}>
           <Route path="/profile" element={<UserProfile />} />
           <Route path="/booking-confirm" element={<BookingConfirm />} />
           <Route path="/my-bookings" element={<MyBookingsPage />} />
         </Route>
 
         {/* Salon Admin Only */}
-        <Route element={<ProtectedRoute allowedRoles={['salon_admin']} />}>
+        <Route element={<ProtectedRoute allowedRoles={["salon_admin"]} />}>
           <Route path="/admin" element={<SalonDashboard />}>
             <Route path="salon-info" element={<SalonInfo />} />
             <Route path="opening-hours" element={<OpeningDays />} />
@@ -73,10 +73,13 @@ function App() {
         </Route>
 
         {/* Super Admin Only */}
-        <Route element={<ProtectedRoute allowedRoles={['super_admin']} />}>
+        <Route element={<ProtectedRoute allowedRoles={["super_admin"]} />}>
           <Route path="/super-admin" element={<SuperAdminDashboard />} />
           <Route path="/all-salons" element={<AllSalonsPage />} />
-          <Route path="/super-admin/booking/:salonid" element={<SalonDetailsPage />} />
+          <Route
+            path="/super-admin/booking/:salonid"
+            element={<SalonDetailsPage />}
+          />
         </Route>
       </Routes>
     </div>
