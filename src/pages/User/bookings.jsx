@@ -25,6 +25,7 @@ const MyBookingsPage = () => {
         const historyRes = await ProtectedAPI.get('/bookings/history');
         setOngoingBookings(ongoingRes.data || []);
         setBookingHistory(historyRes.data?.data || []);
+        console.log('History Bookings:', historyRes.data);
       } catch (error) {
         console.error('Error fetching bookings:', error);
       }

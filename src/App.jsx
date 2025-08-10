@@ -51,16 +51,12 @@ function App() {
             <Schedule />
           </PublicCustomerRoute>
         } />
-        <Route path="/my-bookings" element={
-          <PublicCustomerRoute>
-            <MyBookingsPage />
-          </PublicCustomerRoute>
-        } />
 
         {/* Customer Only */}
         <Route element={<ProtectedRoute allowedRoles={['customer']} />}>
           <Route path="/profile" element={<UserProfile />} />
           <Route path="/booking-confirm" element={<BookingConfirm />} />
+          <Route path="/my-bookings" element={<MyBookingsPage />} />
         </Route>
 
         {/* Salon Admin Only */}

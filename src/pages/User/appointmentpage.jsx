@@ -11,6 +11,7 @@ const AppointmentPage = () => {
   const navigate = useNavigate()
   const [salon, setSalon] = useState(null)
   const [services, setServices] = useState([])
+  const [reviews, setReviews] = useState([])
   const [filteredServices, setFilteredServices] = useState([])
   const [selectedServices, setSelectedServices] = useState([])
   const [searchTerm, setSearchTerm] = useState("")
@@ -30,6 +31,7 @@ const AppointmentPage = () => {
     const fetchSalonServices = async () => {
       try {
         const res = await PublicAPI.get(`/salons/${salonId}/services`)
+        console.log("Services:", res.data.data)
         if (res.data.success) {
           setServices(res.data.data)
           setFilteredServices(res.data.data)
@@ -40,8 +42,23 @@ const AppointmentPage = () => {
       }
     }
 
+    const fetchSalonReviews = async () => {
+      try {
+        const res = await PublicAPI.get(`/review/${salonId}`)
+        console.log("Reviews:", res.data.data)
+        console.log("Reviews length:", res.data.data.length)
+        if ( Array.isArray(res.data.data)) {
+          setReviews(res.data.data) // ✅ only the array
+        }
+      } catch (error) {
+        console.error("Error fetching salon reviews:", error)
+        // Handle error
+      }
+    }
+
     fetchSalonDetails()
     fetchSalonServices()
+    fetchSalonReviews()
   }, [salonId])
 
   useEffect(() => {
@@ -87,6 +104,7 @@ const AppointmentPage = () => {
   return (
     <div className="w-full min-h-screen bg-gradient-to-br from-black-50 to-white flex flex-col">
       <Header />
+
       <div className="flex-1 flex flex-col items-center py-10 px-4 sm:px-6 lg:px-8">
         {salon && (
           <div className="w-full max-w-7xl space-y-10">
@@ -125,6 +143,9 @@ const AppointmentPage = () => {
             <div className="w-full h-auto md:h-[36rem] rounded-3xl overflow-hidden shadow-xl">
               <SalonImageGallery banner_images={salon?.banner_images || []} />
             </div>
+
+
+            
 
             {/* Filters */}
             <div className="space-y-6">
@@ -194,6 +215,8 @@ const AppointmentPage = () => {
                 )}
               </div>
 
+
+
               {/* Summary Panel */}
               <div className="w-full md:w-96 flex-shrink-0">
                 <div className="sticky top-28 bg-white rounded-3xl shadow-2xl border border-black-100 p-8 space-y-6">
@@ -244,10 +267,67 @@ const AppointmentPage = () => {
                   </div>
                 </div>
               </div>
+
+
+              
+
             </div>
-          </div>
-        )}
-      </div>
+
+
+              {/* Salon Reviews Horizontal Cards */}
+              <div className="w-full">
+                <h3 className="text-2xl font-bold text-gray-800 mb-4">Customer Reviews</h3>
+
+                {reviews.length > 0 ? (
+                  <div className="flex overflow-x-auto gap-6 pb-4 scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-200">
+
+                    {reviews.map((review, index) => (
+                      <div
+                        key={review.review_id || index}
+                        className="flex-shrink-0 w-80 bg-white rounded-2xl shadow-md p-6 border border-gray-200"
+                      >
+                        <div className="flex items-center gap-3 mb-3">
+                          <img
+                            src={review.user_avatar || "https://freesvg.org/img/abstract-user-flat-4.png"}
+                            alt={review.user.customer.first_name || "User"}
+                            className="w-12 h-12 rounded-full object-cover"
+                          />
+                          <div>
+                            <p className="font-semibold text-gray-900">
+                              {review.user.customer.first_name || "Anonymous"}
+                            </p>
+                            <div className="flex text-yellow-500">
+                              {Array.from({ length: 5 }).map((_, i) => (
+                                <Star
+                                  key={i}
+                                  className={`w-4 h-4 ${
+                                    i < (review.star_rating || 0)
+                                      ? "fill-current"
+                                      : "text-gray-300"
+                                  }`}
+                                />
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                        <p className="text-gray-700 text-sm">
+                          {review.review_text || "No comment provided."}
+                        </p>
+                        <p className="text-gray-400 text-xs mt-2">
+                          {review.created_at
+                            ? new Date(review.created_at).toLocaleDateString()
+                            : ""}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-gray-500 text-lg py-6">No reviews yet.</p>
+                )}
+              </div>
+           </div>
+         )}
+      </div>      
     </div>
   )
 }
