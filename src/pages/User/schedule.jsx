@@ -120,9 +120,15 @@ const Schedule = () => {
   }
 
   const formatTime = (isoString) => {
-    const date = new Date(isoString)
-    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+    // Extract hours and minutes directly from the ISO string
+    const timePart = isoString.split('T')[1];
+    const hours = timePart.substring(0, 2);
+    const minutes = timePart.substring(3, 5);
+    
+    // Format as HH:MM
+    return `${hours}:${minutes}`;
   }
+  
 
   if (!salonId || !serviceIds) {
     return (
