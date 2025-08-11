@@ -47,7 +47,7 @@ const WorkStationManagement = () => {
         });
       } else {
         await ProtectedAPI.post("/salon-admin/working-stations", {
-          workstation_name: formData.workstation_name.trim(),
+          station_name: formData.workstation_name.trim(),
         });
       }
       await fetchWorkStations();
@@ -149,8 +149,8 @@ const WorkStationManagement = () => {
                 {loading
                   ? "Saving..."
                   : editingId
-                  ? "Update Workstation"
-                  : "Add Workstation"}
+                    ? "Update Workstation"
+                    : "Add Workstation"}
               </button>
             </div>
           </form>
