@@ -31,7 +31,7 @@ const AppointmentPage = () => {
     const fetchSalonServices = async () => {
       try {
         const res = await PublicAPI.get(`/salons/${salonId}/services`)
-        console.log("Services:", res.data.data)
+        //console.log("Services:", res.data.data)
         if (res.data.success) {
           setServices(res.data.data)
           setFilteredServices(res.data.data)
@@ -45,8 +45,8 @@ const AppointmentPage = () => {
     const fetchSalonReviews = async () => {
       try {
         const res = await PublicAPI.get(`/review/${salonId}`)
-        console.log("Reviews:", res.data.data)
-        console.log("Reviews length:", res.data.data.length)
+        //console.log("Reviews:", res.data.data)
+        //console.log("Reviews length:", res.data.data.length)
         if ( Array.isArray(res.data.data)) {
           setReviews(res.data.data) // ✅ only the array
         }
