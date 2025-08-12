@@ -24,7 +24,7 @@ import {
   CheckCircle2,
   XCircle,
 } from "lucide-react"
-import { ProtectedAPI }  from "../../../../utils/api"
+import { ProtectedAPI } from "../../../../utils/api"
 
 // Centralized color configuration
 const COLORS = {
@@ -86,7 +86,7 @@ const ApiService = {
       stylist_id: appointment.stylistId,
       booking_start_datetime: startDateTime,
       booking_end_datetime: endDateTime,
-      booked_mode: appointment.isWalkIn ? "walk_in" : "online",
+      booked_mode: appointment.isWalkIn ? "walking" : "online",
       service_ids: appointment.services, // Array of service IDs
       notes: appointment.notes || "",
       non_online_customer_name: appointment.clientName,
@@ -121,8 +121,14 @@ const ApiService = {
   },
 
   async deleteAppointment(appointmentId) {
-    const response = await ProtectedAPI.delete(`/salon-admin/booking/${appointmentId}`);
+    const response = await ProtectedAPI.delete(`/salon-admin/bookings/${appointmentId}`);
     console.log("Deleting appointment:", appointmentId)
+    return response.data;
+  },
+
+  async completeAppointment(appointmentId) {
+    const response = await ProtectedAPI.put(`/salon-admin/bookings/c/${appointmentId}`);
+    console.log("Completing appointment:", appointmentId)
     return response.data;
   },
 
@@ -757,6 +763,7 @@ const SchedulingInterface = () => {
         result = await ApiService.updateAppointment(newAppointment.id, newAppointment)
         showNotification("Appointment updated successfully!")
       } else {
+        newAppointment.isWalkIn = true;
         result = await ApiService.createAppointment(newAppointment)
         showNotification("Appointment created successfully!")
       }
@@ -801,6 +808,21 @@ const SchedulingInterface = () => {
       showNotification("Error deleting appointment. Please try again.", "error")
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleCompleteAppointment = async (appointmentId) => {
+    try {
+      await ApiService.completeAppointment(appointmentId)
+      setShowAppointmentDetailsPanel(false)
+      setSelectedAppointment(null)
+      showNotification("Appointment completed successfully!")
+
+      // Reload data to reflect changes
+      await loadData()
+    } catch (error) {
+      console.error("Error completing appointment:", error)
+      showNotification("Error completing appointment. Please try again.", "error")
     }
   }
 
@@ -2155,8 +2177,10 @@ const SchedulingInterface = () => {
                       <select
                         value={newAppointment.stylistId}
                         onChange={(e) => {
-                          setNewAppointment({ ...newAppointment, stylistId: e.target.value })
+                          // setNewAppointment({ ...newAppointment, stylistId: e.target.value })
+                          newAppointment.stylistId = e.target.value
                           setAvailableTimeSlots([]) // Reset available slots when stylist changes
+                          console.log(`Selected stylist: ${newAppointment.stylistId}`)
                         }}
                         style={{
                           width: "100%",
@@ -2735,11 +2759,12 @@ const SchedulingInterface = () => {
                 )}
 
                 {/* Action Buttons */}
-                <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-                  <button
-                    onClick={() => handleEditAppointment(selectedAppointment)}
-                    style={{
-                      width: "100%",
+                {selectedAppointment.status !== "completed" && (
+                  <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                    {/* <button
+                      onClick={() => handleEditAppointment(selectedAppointment)}
+                      style={{
+                        width: "100%",
                       padding: "14px 20px",
                       background: `linear-gradient(135deg, ${COLORS.info}, #3182ce)`,
                       color: "white",
@@ -2756,30 +2781,51 @@ const SchedulingInterface = () => {
                   >
                     <Edit size={16} />
                     Edit Appointment
-                  </button>
-                  <button
-                    onClick={() => handleDeleteAppointment(selectedAppointment.id)}
-                    disabled={loading}
-                    style={{
-                      width: "100%",
-                      padding: "14px 20px",
-                      background: loading ? COLORS.textLight : `linear-gradient(135deg, ${COLORS.danger}, #c53030)`,
-                      color: "white",
-                      border: "none",
-                      borderRadius: "8px",
-                      fontWeight: "700",
-                      cursor: loading ? "not-allowed" : "pointer",
-                      transition: "all 0.2s ease",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      gap: "8px",
-                    }}
-                  >
-                    <Trash2 size={16} />
-                    {loading ? "Deleting..." : "Delete Appointment"}
-                  </button>
-                </div>
+                  </button> */}
+                    <button
+                      onClick={() => handleCompleteAppointment(selectedAppointment.id)}
+                      style={{
+                        width: "100%",
+                        padding: "14px 20px",
+                        background: `#5ece31ff`,
+                        color: "white",
+                        border: "none",
+                        borderRadius: "8px",
+                        fontWeight: "700",
+                        cursor: "pointer",
+                        transition: "all 0.2s ease",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: "8px",
+                      }}
+                    >
+                      <Edit size={16} />
+                      Complete Appointment
+                    </button>
+                    <button
+                      onClick={() => handleDeleteAppointment(selectedAppointment.id)}
+                      disabled={loading}
+                      style={{
+                        width: "100%",
+                        padding: "14px 20px",
+                        background: loading ? COLORS.textLight : `linear-gradient(135deg, ${COLORS.danger}, #c53030)`,
+                        color: "white",
+                        border: "none",
+                        borderRadius: "8px",
+                        fontWeight: "700",
+                        cursor: loading ? "not-allowed" : "pointer",
+                        transition: "all 0.2s ease",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: "8px",
+                      }}
+                    >
+                      <Trash2 size={16} />
+                      {loading ? "Cancelling..." : "Cancel Appointment"}
+                    </button>
+                  </div>)}
               </div>
             </div>
           </>
