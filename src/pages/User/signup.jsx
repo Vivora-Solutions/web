@@ -1,11 +1,12 @@
-import  { useState } from 'react';
+
+
+import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Mail, Lock, User, Phone, Calendar, MapPin, Loader2, UserPlus, Sparkles } from 'lucide-react';
 import Header from './components/Header';
-import { PublicAPI } from "../../utils/api";
 
 const LocationSelector = ({ setFormData }) => {
   useMapEvents({
@@ -42,26 +43,16 @@ const RegisterCustomerForm = () => {
   const validate = () => {
     const newErrors = {};
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(formData.email)) {
-      newErrors.email = 'Invalid email format.';
-    }
 
+    if (!emailRegex.test(formData.email)) newErrors.email = 'Invalid email format.';
     if (formData.password.length < 6) newErrors.password = 'Password must be at least 6 characters.';
     if (formData.password !== formData.confirm_password) newErrors.confirm_password = 'Passwords do not match.';
     if (!formData.first_name.trim()) newErrors.first_name = 'First name is required.';
     if (!formData.last_name.trim()) newErrors.last_name = 'Last name is required.';
-    if (!formData.date_of_birth) {
-      newErrors.date_of_birth = 'Date of birth is required.';
-    } else {
-      const today = new Date().toISOString().split("T")[0];
-      if (formData.date_of_birth > today) {
-        newErrors.date_of_birth = 'Date of birth cannot be in the future.';
-      }
-    }
-    const phoneRegex = /^\+?\d{7,15}$/; 
-      if (!phoneRegex.test(formData.contact_number)) {
-        newErrors.contact_number = 'Enter a valid phone number (7–15 digits, optional +).';
-      }
+    if (!formData.date_of_birth) newErrors.date_of_birth = 'Date of birth is required.';
+    if (!formData.latitude || !formData.longitude) newErrors.location = 'Select a location from the map.';
+    if (!formData.contact_number.trim()) newErrors.contact_number = 'Contact number is required.';
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -87,11 +78,15 @@ const RegisterCustomerForm = () => {
       first_name: formData.first_name,
       last_name: formData.last_name,
       date_of_birth: formData.date_of_birth,
+      location: {
+        latitude: parseFloat(formData.latitude),
+        longitude: parseFloat(formData.longitude),
+      },
       contact_number: formData.contact_number,
     };
 
     try {
-      await PublicAPI.post('/auth/register-customer', payload);
+      await axios.post('http://localhost:3000/api/auth/register-customer', payload);
       setResponseMessage('✅ Registration successful!');
       setTimeout(() => {
         navigate('/login', {
@@ -109,6 +104,21 @@ const RegisterCustomerForm = () => {
       <div>
         <Header />
     <div className="min-h-screen bg-gray-50 py-6 sm:py-12 px-4">
+      {/* Header */}
+      {/* <div className="max-w-4xl mx-auto mb-6 sm:mb-8">
+        <div className="text-center mb-6 sm:mb-8">
+          <div className="flex justify-center items-center gap-2 sm:gap-3 mb-2 sm:mb-4">
+           
+            <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
+              Register as a Customer
+            </h1>
+           
+          </div>
+          <p className="text-gray-600 text-base sm:text-lg max-w-2xl mx-auto">
+            Join our community and start booking appointments at your favorite salons.
+          </p>
+        </div>
+      </div> */}
 
       {/* Form Card */}
       <div className="max-w-4xl mx-auto">
@@ -219,16 +229,37 @@ const RegisterCustomerForm = () => {
                     value={formData.date_of_birth}
                     onChange={handleChange}
                     required
-                    max={new Date().toISOString().split("T")[0]} // restrict to today or earlier
                     className="h-10 sm:h-12 w-full rounded-md border border-gray-300 px-4 focus:outline-none focus:ring-2 focus:ring-red-400"
                   />
-                  {errors.date_of_birth && (
-                    <p className="text-red-500 text-sm mt-1">{errors.date_of_birth}</p>
-                  )}
+                  {errors.date_of_birth && <p className="text-red-500 text-sm mt-1">{errors.date_of_birth}</p>}
                 </div>
-
               </div>
 
+              {/* Location Picker */}
+              <div className="space-y-4">
+                <h3 className="text-base sm:text-lg font-semibold text-gray-800 flex items-center gap-2">
+              <div className="w-5 h-5 sm:w-6 sm:h-6 bg-gradient-to-r from-black to-black rounded-full flex items-center justify-center">
+
+                    <span className="text-white text-xs font-bold">3</span>
+                  </div>
+                  Location
+                </h3>
+                <div className="h-64 rounded-xl overflow-hidden border-2 border-gray-200 shadow-lg">
+                  <MapContainer
+                    center={[7.8731, 80.7718]}
+                    zoom={7}
+                    scrollWheelZoom={false}
+                    className="h-full w-full"
+                  >
+                    <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                    <LocationSelector setFormData={setFormData} />
+                    {formData.latitude && formData.longitude && (
+                      <Marker position={[formData.latitude, formData.longitude]} />
+                    )}
+                  </MapContainer>
+                </div>
+                {errors.location && <p className="text-red-500 text-sm mt-1">{errors.location}</p>}
+              </div>
 
               {/* Contact Number */}
               <div className="space-y-1">
@@ -248,11 +279,11 @@ const RegisterCustomerForm = () => {
               </div>
 
               {/* Submit Button */}
-             <button
-                type="submit"
-                disabled={loading}
-                className="w-full h-12 bg-gray-900 hover:bg-gray-800 text-white font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-200 rounded-md flex justify-center items-center"
-              >
+     <button
+  type="submit"
+  disabled={loading}
+  className="w-full h-12 bg-gray-900 hover:bg-gray-800 text-white font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-200 rounded-md flex justify-center items-center"
+>
                 {loading ? (
                   <>
                     <Loader2 className="mr-2 h-5 w-5 animate-spin" />
