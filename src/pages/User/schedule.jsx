@@ -154,60 +154,52 @@ const Schedule = () => {
           <h1 className="text-3xl md:text-4xl font-extrabold mb-8 text-gray-900">Choose Your Stylist & Time</h1>
 
          <div className="mb-8 p-4 sm:p-6 bg-gray-50 rounded-2xl shadow-md border border-gray-200 w-full max-w-3xl mx-auto">
-          <label className="font-semibold text-base sm:text-lg text-gray-900 mb-3 sm:mb-4 block">Select a date:</label>
-            <div className="flex items-center justify-between gap-2 sm:gap-3 overflow-x-auto pb-2 touch-pan-x snap-x snap-mandatory">
-              <button
-                type="button"
-                className="rounded-full bg-gray-300 hover:bg-gray-400 disabled:bg-gray-200 text-gray-800 disabled:text-gray-400 p-2 sm:p-3 transition w-9 h-9 sm:w-10 sm:h-10 flex-shrink-0"
-                onClick={() => setCalendarOffset((prev) => Math.max(prev - 7, 0))}
-                disabled={calendarOffset <= 0}
-              >
-                <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
-              </button>
-                <div className="flex gap-2 sm:gap-3 flex-grow justify-start sm:justify-center">
-                  {days
-                  .filter((date) => {
-                    const today = new Date();
-                    const maxDate = new Date();
-                    maxDate.setDate(today.getDate() + 6); // only show today + next 6 days
-                    return date >= today && date <= maxDate;
-                  })
-                  .map((date) => {
-                    const iso = date.toISOString().slice(0, 10);
-                    const isSelected = selectedDate === iso;
-                    const isToday = iso === todayISO;
-                    return (
-                      <button
-                        key={iso}
-                        onClick={() => {
-                          setSelectedDate(iso);
-                          setSelectedStylistId(null);
-                          setTimeSlots([]);
-                        }}
-                        className={`w-14 h-14 sm:w-16 sm:h-16 rounded-full border-2 shadow-sm transition-all duration-200 flex items-center justify-center text-center snap-center
-                          ${isSelected 
-                            ? 'bg-gradient-to-br from-gray-800 via-gray-900 to-gray-600 border-red-500 text-white scale-110 shadow-lg' 
-                            : 'bg-white border-gray-300 text-gray-800 hover:bg-gray-100 hover:border-gray-400'}
-                          ${isToday && !isSelected ? 'border-dashed border-2 border-gray-800' : ''}`}
-                      >
-                        <div className="flex flex-col items-center justify-center leading-tight text-[0.65rem] sm:text-[0.75rem]">
-                          <span className="font-bold text-xs sm:text-sm">{formatDayCircle(date)}</span>
-                          <span className="text-[0.6rem] sm:text-[0.65rem]">{formatDayLabel(date)}</span>
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-                <button
-                  type="button"
-                  className="rounded-full bg-gray-300 hover:bg-gray-400 disabled:bg-gray-200 text-gray-800 disabled:text-gray-400 p-2 sm:p-3 transition w-9 h-9 sm:w-10 sm:h-10 flex-shrink-0"
-                  onClick={() => setCalendarOffset((prev) => prev + 7)}
-                  disabled={calendarOffset >= 0} // no moving forward past 7 days
-                >
-                  <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
-                </button>
+  <label className="font-semibold text-base sm:text-lg text-gray-900 mb-3 sm:mb-4 block">Select a date:</label>
+  <div className="flex items-center justify-between gap-2 sm:gap-3 overflow-x-auto pb-2 touch-pan-x snap-x snap-mandatory">
+    <button
+      type="button"
+      className="rounded-full bg-gray-300 hover:bg-gray-400 disabled:bg-gray-200 text-gray-800 disabled:text-gray-400 p-2 sm:p-3 transition w-9 h-9 sm:w-10 sm:h-10 flex-shrink-0"
+      onClick={() => setCalendarOffset((prev) => Math.max(prev - 7, minOffset))}
+      disabled={calendarOffset <= minOffset}
+    >
+      <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
+    </button>
+    <div className="flex gap-2 sm:gap-3 flex-grow justify-start sm:justify-center">
+      {days.map((date) => {
+        const iso = date.toISOString().slice(0, 10);
+        const isSelected = selectedDate === iso;
+        const isToday = iso === todayISO;
+        return (
+          <button
+            key={iso}
+            onClick={() => {
+              setSelectedDate(iso);
+              setSelectedStylistId(null);
+              setTimeSlots([]);
+            }}
+            className={`w-14 h-14 sm:w-16 sm:h-16 rounded-full border-2 shadow-sm transition-all duration-200 flex items-center justify-center text-center snap-center
+              ${isSelected 
+                ? 'bg-gradient-to-br from-gray-800 via-gray-900 to-gray-600 border-red-500 text-white scale-110 shadow-lg' 
+                : 'bg-white border-gray-300 text-gray-800 hover:bg-gray-100 hover:border-gray-400'}
+              ${isToday && !isSelected ? 'border-dashed border-2 border-gray-800' : ''}`}
+          >
+            <div className="flex flex-col items-center justify-center leading-tight text-[0.65rem] sm:text-[0.75rem]">
+              <span className="font-bold text-xs sm:text-sm">{formatDayCircle(date)}</span>
+              <span className="text-[0.6rem] sm:text-[0.65rem]">{formatDayLabel(date)}</span>
             </div>
-          </div>
+          </button>
+        );
+      })}
+    </div>
+    <button
+      type="button"
+      className="rounded-full bg-gray-300 hover:bg-gray-400 text-gray-800 p-2 sm:p-3 transition w-9 h-9 sm:w-10 sm:h-10 flex-shrink-0"
+      onClick={() => setCalendarOffset((prev) => prev + 7)}
+    >
+      <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
+    </button>
+  </div>
+</div>
           {loading ? (
             <div className="flex justify-center items-center py-12">
               <div className="animate-spin rounded-full h-10 w-10 border-b-4 border-gray-800"></div>

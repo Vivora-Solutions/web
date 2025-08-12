@@ -20,7 +20,6 @@ const BookingConfirm = () => {
   const [loading, setLoading] = useState(false);
   const [customerProfile, setCustomerProfile] = useState(null);
   const [showPhoneModal, setShowPhoneModal] = useState(false);
-  const [notes, setNotes] = useState("");
 
   // Restore from localStorage on mount
   useEffect(() => {
@@ -33,7 +32,7 @@ const BookingConfirm = () => {
       try {
         const response = await ProtectedAPI.get("/auth/customer-profile");
         setCustomerProfile(response.data);
-        //console.log("Customer profile:", response.data);
+        console.log("Customer profile:", response.data);
       } catch (error) {
         console.error("Failed to load customer profile:", error);
       }
@@ -44,52 +43,39 @@ const BookingConfirm = () => {
     }
   }, [hydrated, bookingDetails]);
 
-useEffect(() => {
-  restoreBookingDetails();
-}, []);
+  useEffect(() => {
+    if (!hydrated) return;
 
-useEffect(() => {
-  if (!hydrated) return; 
-
-  // Redirect check
-  const invalidBooking =
-    !bookingDetails ||
-    !bookingDetails.serviceIds?.length ||
-    !bookingDetails.stylistId ||
-    !bookingDetails.date ||
-    !bookingDetails.timeSlot;
-
-  if (!confirmed && invalidBooking) {
-    navigate("/");
-    return;
-  }
-}, [hydrated, bookingDetails, confirmed, navigate]);
-
-useEffect(() => {
-  if (!hydrated || !bookingDetails?.serviceIds?.length) return;
-
-  const fetchSalonAndServices = async () => {
-    try {
-      setLoading(true);
-      const serviceDetailsPromises = bookingDetails.serviceIds.map((id) =>
-        ProtectedAPI.get(`/salons/service-details?id=${id}`)
-      );
-      const responses = await Promise.all(serviceDetailsPromises);
-      const serviceData = responses.map((res) => res.data);
-      setServices(serviceData);
-      if (serviceData.length > 0) {
-        setSalonDetails(serviceData[0].salon);
-      }
-    } catch (error) {
-      console.error("Failed to load service details:", error);
-    } finally {
-      setLoading(false);
+    if (
+      !confirmed &&
+      (!bookingDetails ||
+        !bookingDetails.serviceIds?.length ||
+        !bookingDetails.stylistId ||
+        !bookingDetails.date ||
+        !bookingDetails.timeSlot)
+    ) {
+      navigate("/");
+      return;
     }
-  };
 
-  fetchSalonAndServices();
-}, [hydrated, bookingDetails]);
+    const fetchSalonAndServices = async () => {
+      try {
+        const serviceDetailsPromises = bookingDetails.serviceIds.map((id) =>
+          ProtectedAPI.get(`/salons/service-details?id=${id}`)
+        );
+        const responses = await Promise.all(serviceDetailsPromises);
+        const serviceData = responses.map((res) => res.data);
+        setServices(serviceData);
+        if (serviceData.length > 0) {
+          setSalonDetails(serviceData[0].salon);
+        }
+      } catch (error) {
+        console.error("Failed to load service details:", error);
+      }
+    };
 
+    fetchSalonAndServices();
+  }, [hydrated, bookingDetails, navigate, confirmed]);
 
   const handleConfirmBooking = async () => {
     if (!bookingDetails) {
@@ -114,13 +100,11 @@ useEffect(() => {
       stylist_id: stylistId,
       service_ids: serviceIds,
       booking_start_datetime: timeSlot.start,
-      notes: notes || "", // optional field
+      notes: "Fasterrrrrrrrrrrr",
     };
 
     try {
-      console.log("Booking payload:", payload)
       const response = await ProtectedAPI.post("/bookings", payload);
-      console.log("Booking response:", response.data);
       if (response.data.booking_id) {
         clearBookingDetails();
         setConfirmed(true);
@@ -151,16 +135,13 @@ useEffect(() => {
     }, 500);
   };
 
-  if (loading || !bookingDetails || !salonDetails) {
-    return <div className="flex justify-center items-center h-screen">Loading...</div>;
-  }
-
+  if (!bookingDetails || !salonDetails) return null;
 
   const { date, timeSlot } = bookingDetails;
 
   const formatTime = (isoString) => {
     const d = new Date(isoString);
-    return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", timeZone: "UTC" });
+    return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   };
 
   const formatDate = (isoString) => {
@@ -259,19 +240,6 @@ useEffect(() => {
                       </div>
                     ))}
                   </div>
-                  <div className="flex flex-col gap-2">
-                    <span className="font-medium flex items-center gap-1 md:gap-2">
-                      <Tag className="w-4 h-4 md:w-5 md:h-5 text-black" /> Notes
-                    </span>
-                    <textarea
-                      value={notes}
-                      onChange={(e) => setNotes(e.target.value)}
-                      placeholder="Add any special instructions or notes..."
-                      className="w-full border border-gray-300 rounded-lg p-2 text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-gray-400"
-                      rows={3}
-                    />
-                  </div>
-
                   <div className="flex justify-between text-lg md:text-xl font-extrabold pt-2 md:pt-4 border-t border-gray-200 mt-2 md:mt-4 text-gray-900">
                     <span>Total</span>
                     <span>Rs {total}</span>

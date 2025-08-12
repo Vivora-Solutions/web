@@ -51,12 +51,12 @@ const PhoneNumberModal = ({ isOpen, onClose, onSuccess }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
         <div className="flex items-center justify-between p-6 border-b border-gray-100">
           <div className="flex items-center gap-3">
             <div className="bg-blue-100 p-2 rounded-full">
-              <Phone className="w-5 h-5 text-black-600" />
+              <Phone className="w-5 h-5 text-blue-600" />
             </div>
             <h2 className="text-xl font-semibold text-gray-900">
               Add Phone Number
@@ -109,7 +109,7 @@ const PhoneNumberModal = ({ isOpen, onClose, onSuccess }) => {
             <button
               type="submit"
               disabled={loading || !phoneNumber.trim()}
-              className="flex-1 py-3 px-4 bg-black text-white rounded-xl hover:bg-gray-700 transition-colors disabled:opacity-90 disabled:cursor-not-allowed"
+              className="flex-1 py-3 px-4 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? "Saving..." : "Save Phone Number"}
             </button>

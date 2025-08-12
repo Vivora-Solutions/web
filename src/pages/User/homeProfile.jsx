@@ -10,6 +10,8 @@ import Footer from "./components/Footer"
 import CTASection from "./components/CTASection"
 import { PublicAPI } from "../../utils/api"
 
+import { Search, MapPin, Star, Phone, Calendar, ChevronRight, Sparkles, Navigation } from "lucide-react"
+
 const HomePage = () => {
   const [salons, setSalons] = useState([])
   const [filteredSalons, setFilteredSalons] = useState([])
@@ -26,7 +28,6 @@ const HomePage = () => {
         setIsLoading(true)
         const res = await PublicAPI.get("/salons")
         const data = res.data
-        console.log("Fetched salons:", data)
         const parsed = data
           .filter((s) => s.location)
           .map((s) => ({
@@ -80,15 +81,20 @@ const HomePage = () => {
 
   {/* MapSection: order 1 on mobile, order 2 on desktop */}
   <div className="order-1 lg:order-2">
-          <MapSection
-            center={center}
-            zoom={zoom}
-            filteredSalons={filteredSalons}
-            onSalonClick={handleSalonClick}
-            className="w-full h-[300px] md:h-[600px]"
-          />
-            </div>
-          </div>
+<MapSection
+  center={center}
+  zoom={zoom}
+  filteredSalons={filteredSalons}
+  onSalonClick={handleSalonClick}
+  className="w-full h-[300px] md:h-[600px]"
+/>
+
+  </div>
+</div>
+
+
+      
+
       <ReviewSection />
       <CTASection />
       <Footer />

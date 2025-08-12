@@ -6,7 +6,6 @@ import L from 'leaflet';
 import { Mail, Lock, Store, Phone, MapPin, Loader2, Scissors, Sparkles } from 'lucide-react';
 import { PublicAPI } from '../../utils/api';
 
-
 // Fix Leaflet icon issue
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -65,7 +64,7 @@ const RegisterSalon = () => {
 
     try {
       await PublicAPI.post(
-        '/auth/register-salon',
+        'http://localhost:3000/api/auth/register-salon',
         formData
       );
 

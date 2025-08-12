@@ -9,27 +9,6 @@ const SalonCard = ({ salon, index, onSalonClick, onSalonHover }) => {
     salon.banner_image ||
     (salon.banner_images && salon.banner_images.length > 0 && salon.banner_images[0].image_link);
 
-  // Get today's day of week (0 = Sunday, 6 = Saturday)
-  const today = new Date().getDay();
-  const todayHours = salon.salon_opening_hours?.find(h => h.day_of_week === today);
-
-  const formatTime = (timeStr) => {
-    if (!timeStr) return "";
-    const [hours, minutes] = timeStr.split(":");
-    const date = new Date();
-    date.setHours(hours, minutes);
-    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-  };
-
-  let openingStatus = "Not Available Today";
-  if (todayHours) {
-    if (todayHours.is_open) {
-      openingStatus = `${formatTime(todayHours.opening_time)} – ${formatTime(todayHours.closing_time)}`;
-    } else {
-      openingStatus = "Closed Today";
-    }
-  }
-
   return (
     <div
       onClick={() => onSalonClick(salon.salon_id)}
@@ -37,7 +16,7 @@ const SalonCard = ({ salon, index, onSalonClick, onSalonHover }) => {
       className="group relative bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer border border-gray-100 hover:border-purple-200 transform hover:-translate-y-1"
       style={{ animationDelay: `${index * 100}ms` }}
     >
-      {/* Banner Image */}
+      {/* Banner Image (if exists) */}
       {bannerImage && (
         <div className="w-full h-48 overflow-hidden">
           <img
@@ -58,6 +37,7 @@ const SalonCard = ({ salon, index, onSalonClick, onSalonHover }) => {
               alt="Salon Logo"
               className="w-14 h-14 md:w-16 md:h-16 lg:w-20 lg:h-20 rounded-xl object-cover border border-gray-200 group-hover:border-purple-300 transition-all shadow-sm"
             />
+            {/* Online indicator */}
             <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-gradient-to-r from-green-400 to-emerald-500 border-2 border-white rounded-full flex items-center justify-center">
               <div className="w-2 h-2 bg-white rounded-full"></div>
             </div>
@@ -74,7 +54,6 @@ const SalonCard = ({ salon, index, onSalonClick, onSalonHover }) => {
               </div>
             </div>
 
-            {/* Rating & Open/Closed */}
             <div className="flex items-center gap-3 mb-3 text-sm">
               <div className="flex items-center gap-1 text-yellow-400">
                 {Array.from({ length: 5 }).map((_, i) => (
@@ -83,38 +62,29 @@ const SalonCard = ({ salon, index, onSalonClick, onSalonHover }) => {
                 <span className="text-gray-600 ml-1">({salon.average_rating || 0})</span>
               </div>
               <div className="w-1 h-1 bg-gray-300 rounded-full" />
-              <span
-                className={`font-medium flex items-center gap-1 ${
-                  todayHours?.is_open ? "text-green-600" : "text-red-600"
-                }`}
-              >
-                <div
-                  className={`w-2 h-2 rounded-full animate-pulse ${
-                    todayHours?.is_open ? "bg-green-500" : "bg-red-500"
-                  }`}
-                />
-                {todayHours?.is_open ? "Open" : "Closed"}
+              <span className="text-green-600 font-medium flex items-center gap-1">
+                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                Open
               </span>
             </div>
 
-            {/* Address */}
             <p className="text-sm text-gray-600 flex items-center gap-2 truncate">
               <MapPinIcon />
               {salon.salon_address}
             </p>
 
-            {/* Opening Time */}
             <p className="text-sm text-gray-500 flex items-center gap-2 mt-1">
               <ClockIcon />
-              {openingStatus}
+              8:00 AM - 10:00 PM
             </p>
 
             <div className="mt-4 flex flex-wrap gap-2">
-              {todayHours?.is_open && (
-                <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-medium">
-                  Available Today
-                </span>
-              )}
+              <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-medium">
+                Available Today
+              </span>
+              {/* <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-medium">
+                Quick Booking
+              </span> */}
             </div>
           </div>
         </div>
