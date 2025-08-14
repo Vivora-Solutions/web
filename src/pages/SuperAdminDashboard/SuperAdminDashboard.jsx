@@ -4,6 +4,7 @@ import { ProtectedAPI } from '../../utils/api';
 import ChartCard from './components/ChartCard';
 import StatCard from './components/StatCard';
 import SalonVerifyModal from './components/SalonVerifyModal';
+import Header from "./components/Header"
 
 const SuperAdminDashboard = () => {
   const navigate = useNavigate();
@@ -108,7 +109,9 @@ const handleModalAction = async (actionType, salonId) => {
 
   return (
   <div className="p-6 bg-gray-50 min-h-screen">
+    <Header />
     <h2 className="text-2xl font-semibold mb-6 text-gray-800">Super Admin Dashboard</h2>
+    
 
     {/* Charts */}
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">

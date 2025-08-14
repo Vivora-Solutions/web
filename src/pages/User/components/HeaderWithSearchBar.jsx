@@ -1,5 +1,3 @@
-import React from "react";
-
 const HeaderWithSearchBar = ({ searchTerm, setSearchTerm }) => {
   return (
     <div className="relative border border-gray-900 rounded-2xl">

@@ -1,4 +1,3 @@
-"use client";
 import HeaderWithSearchBar from "./HeaderWithSearchBar";
 import { Star } from "lucide-react";
 
@@ -37,9 +36,9 @@ const HeroSection = ({ searchTerm, setSearchTerm, salonCount }) => {
           </div>
 
           {/* CTA */}
-          {/* <button className="mt-8 px-8 py-3 bg-gradient-to-r from-red-500 via-pink-500 to-orange-400 text-white rounded-full font-semibold shadow-lg hover:scale-105 transition-transform duration-200">
+          <button className="mt-8 px-8 py-3 bg-gradient-to-r from-red-500 via-pink-500 to-orange-400 text-white rounded-full font-semibold shadow-lg hover:scale-105 transition-transform duration-200">
             Explore Salons
-          </button> */}
+          </button>
 
                {/* Status Badge */}
           <div className="inline-flex items-center gap-2 bg-black/5 backdrop-blur-sm rounded-full px-5 py-2 shadow-md m-6 border border-gray-200">

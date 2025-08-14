@@ -1,5 +1,3 @@
-"use client"
-
 const SalonSummaryCard = ({
   salon_logo_link,
   salon_name,

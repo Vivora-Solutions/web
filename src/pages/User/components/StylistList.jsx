@@ -1,5 +1,3 @@
-"use client"
-
 const StylistList = ({ stylists, selectedStylistId, onStylistClick, defaultProfilePic }) => {
   return (
     <div className="mb-10 p-4 bg-white rounded-2xl shadow-md border border-gray-100">
