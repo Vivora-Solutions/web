@@ -66,7 +66,7 @@ const Header = () => {
           {user?.role === 'customer' && (
             <Link to="/my-bookings" className="text-white hover:text-gray-300 font-medium">My Bookings</Link>
           )}
-          <Link to="/about" className="text-white hover:text-gray-300 font-medium">About</Link>
+          {/* <Link to="/about" className="text-white hover:text-gray-300 font-medium">About</Link> */}
           <Link to="/salon-register" className="text-white hover:text-gray-300 font-medium">Register as a Salon</Link>
           {!loading && user === false && (
             <>
@@ -122,7 +122,7 @@ const Header = () => {
           {user?.role === 'customer' && (
             <Link to="/my-bookings" className="block font-medium hover:text-gray-300" onClick={() => setMenuOpen(false)}>My Bookings</Link>
           )}
-          <Link to="/about" className="block font-medium hover:text-gray-300" onClick={() => setMenuOpen(false)}>About</Link>
+          {/* <Link to="/about" className="block font-medium hover:text-gray-300" onClick={() => setMenuOpen(false)}>About</Link> */}
           <Link to="/salon-register" className="block font-medium hover:text-gray-300" onClick={() => setMenuOpen(false)}>Register as a Salon</Link>
 
           {!loading && user === false && (
