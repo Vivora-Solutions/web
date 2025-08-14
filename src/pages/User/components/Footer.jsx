@@ -21,7 +21,6 @@ const Footer = () => {
             <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
             <ul className="space-y-2 text-gray-400">
               <li><a href="#" className="hover:text-white transition-colors">Find Salons</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Services</a></li>
               <li><a href="#" className="hover:text-white transition-colors">About Us</a></li>
               <li><a href="#" className="hover:text-white transition-colors">Contact</a></li>
             </ul>
@@ -42,16 +41,21 @@ const Footer = () => {
           <div>
             <h3 className="text-lg font-semibold mb-4">Contact Info</h3>
             <div className="space-y-2 text-gray-400">
-              <div className="flex items-center">
-                <Phone className="h-4 w-4 mr-2" />
-                <span>+94 77 123 4567</span>
+              <div className="flex items-start">
+                <Phone className="h-4 w-4 mr-2 mt-1" />
+                <div className="flex flex-col space-y-1">
+                  <span>+94 71 572 9105</span>
+                  <span>+94 76 678 7578</span>
+                  <span>+94 70 244 3978</span>
+                </div>
               </div>
               <div className="flex items-center">
                 <MapPin className="h-4 w-4 mr-2" />
-                <span>Colombo, Sri Lanka</span>
+                <span>No 251/A, Molpe Road, Katubedda, Moratuwa</span>
               </div>
             </div>
           </div>
+
         </div>
 
         {/* Mobile Version */}

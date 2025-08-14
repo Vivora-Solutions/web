@@ -23,14 +23,6 @@ const CTASection = () => {
             <Calendar className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
             Book Appointment
           </button>
-          
-          {/* Call Us Button */}
-          {/* <button 
-            className="px-5 py-3 sm:px-6 sm:py-3 md:px-7 bg-red-600 text-white font-medium rounded-full hover:bg-white hover:text-red-600 border border-white transition-colors flex items-center justify-center shadow-md w-full sm:w-auto"
-          >
-            <Phone className="h-4 w-4 sm:h-5 sm:w-5 mr-2" />
-            Call Us Now
-          </button> */}
         </div>
       </div>
     </section>

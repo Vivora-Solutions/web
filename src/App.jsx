@@ -24,7 +24,7 @@ import SchedulingInterface from "./pages/SalonDashboard/components/SchedulingInt
 import OAuthHandler from "./components/OAuthCallback";
 import ProtectedRoute from "./components/ProtectedRoute";
 import PublicCustomerRoute from "./components/PublicCustomerRoute";
-
+//
 function App() {
   return (
     <div className="w-full min-h-screen">
