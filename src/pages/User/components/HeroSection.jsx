@@ -11,13 +11,7 @@ const HeroSection = ({ searchTerm, setSearchTerm, salonCount }) => {
       <div className="relative z-10 px-4 sm:px-6 lg:px-8 py-4 md:py-16">
         {/* Desktop/Tablet Hero */}
         <div className="hidden md:flex flex-col items-center text-center max-w-5xl mx-auto">
-          {/* Status Badge */}
-          <div className="inline-flex items-center gap-2 bg-black/5 backdrop-blur-sm rounded-full px-5 py-2 shadow-md mb-6 border border-gray-200">
-            <div className="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse"></div>
-            <span className="text-gray-700 text-sm font-medium">
-              {salonCount} salons available now
-            </span>
-          </div>
+     
 
           {/* Main Headline */}
           <h1 className="text-4xl lg:text-6xl font-extrabold text-gray-900 leading-tight">
@@ -33,7 +27,7 @@ const HeroSection = ({ searchTerm, setSearchTerm, salonCount }) => {
           </p>
 
           {/* Customer Trust */}
-          <div className="flex items-center gap-2 mt-6">
+          <div className="flex items-center gap-2 mt-6 pb-6">
             <div className="flex text-yellow-400">
               {[...Array(5)].map((_, i) => (
                 <Star key={i} className="w-5 h-5 fill-current" />
@@ -43,9 +37,17 @@ const HeroSection = ({ searchTerm, setSearchTerm, salonCount }) => {
           </div>
 
           {/* CTA */}
-          <button className="mt-8 px-8 py-3 bg-gradient-to-r from-red-500 via-pink-500 to-orange-400 text-white rounded-full font-semibold shadow-lg hover:scale-105 transition-transform duration-200">
+          {/* <button className="mt-8 px-8 py-3 bg-gradient-to-r from-red-500 via-pink-500 to-orange-400 text-white rounded-full font-semibold shadow-lg hover:scale-105 transition-transform duration-200">
             Explore Salons
-          </button>
+          </button> */}
+
+               {/* Status Badge */}
+          <div className="inline-flex items-center gap-2 bg-black/5 backdrop-blur-sm rounded-full px-5 py-2 shadow-md m-6 border border-gray-200">
+            <div className="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse"></div>
+            <span className="text-gray-700 text-sm font-medium">
+              {salonCount} salons available now
+            </span>
+          </div>
         </div>
 
         {/* Search Bar - Always Visible */}

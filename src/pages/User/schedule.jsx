@@ -164,7 +164,7 @@ const Schedule = () => {
               >
                 <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>
-                <div className="flex gap-2 sm:gap-3 flex-grow justify-start sm:justify-center">
+                <div className="flex p-4 gap-2 sm:gap-3 flex-grow justify-start sm:justify-center">
                   {days
                   .filter((date) => {
                     const today = new Date();
