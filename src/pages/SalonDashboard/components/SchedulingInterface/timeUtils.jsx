@@ -17,3 +17,16 @@ export const formatDateTime = (date, totalMinutes) => {
     const dateStr = formatDateToString(date)
     return selectedLeaveDays.includes(dateStr)
   }
+
+
+ export   const formatTime = (hour, minute = 0) => {
+    return `${hour.toString().padStart(2, "0")}:${minute.toString().padStart(2, "0")}`
+  }
+
+ export const formatDate = (date) => {
+    return date.toLocaleDateString("en-US", {
+      weekday: "short",
+      month: "short",
+      day: "numeric",
+    })
+  }
