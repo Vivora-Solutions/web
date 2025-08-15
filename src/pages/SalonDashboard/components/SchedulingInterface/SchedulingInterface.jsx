@@ -1,6 +1,10 @@
 "use client"
-
+import { COLORS } from "./colours"
+import { ApiService } from "./ApiService"
 import { useState, useEffect, useRef } from "react"
+import { ProtectedAPI } from "../../../../utils/api"
+import { parseTimeToMinutes, formatDateToString, formatDateTime } from "./timeUtils"
+import { DaySelectionView } from "./DaySelectionView"
 import {
   X,
   ChevronLeft,
@@ -24,140 +28,7 @@ import {
   CheckCircle2,
   XCircle,
 } from "lucide-react"
-import { ProtectedAPI } from "../../../../utils/api"
 
-// Centralized color configuration
-const COLORS = {
-  primary: "#667eea",
-  secondary: "#764ba2",
-  success: "#10b981",
-  warning: "#f59e0b",
-  danger: "#ef4444",
-  info: "#4299e1",
-  // Schedule types
-  available: "#10b981",
-  break: "#f59e0b",
-  leave: "#ef4444",
-  selection: "#4299e1",
-  // Stylist colors
-  stylists: ["#ff6b6b", "#4ecdc4", "#45b7d1", "#96ceb4", "#feca57", "#ff9ff3", "#a8e6cf", "#ffd93d"],
-  // UI colors
-  background: "rgba(255, 255, 255, 0.95)",
-  overlay: "rgba(0, 0, 0, 0.5)",
-  border: "#e2e8f0",
-  text: "#2d3748",
-  textLight: "#718096",
-  hover: "rgba(66, 153, 225, 0.05)",
-  cardBg: "#ffffff",
-  sidebarBg: "#f8fafc",
-}
-
-
-// API Service - Placeholder for real backend integration
-const ApiService = {
-  // Stylists
-  async getStylists() {
-    const stylists = await ProtectedAPI.get('/salon-admin/schedule/stylists');
-    console.log("Fetching stylists:", stylists.data.data)
-    return stylists.data.data
-  },
-
-  async updateStylistSchedule(stylistId, schedule) {
-    // TODO: Replace with actual API call
-    const response = await ProtectedAPI.put(`/salon-admin/schedule/stylists/${stylistId}/${schedule.id}`, schedule);
-    console.log("Updating stylist schedule:", stylistId, schedule)
-    return { success: true }
-  },
-
-  // Appointments
-  async getAppointments(startDate, endDate) {
-    // TODO: Replace with actual API call
-    const response = await ProtectedAPI.get(`/salon-admin/booking`);
-    console.log("Fetching appointments:", response.data)
-    return response.data;
-  },
-
-  async createAppointment(appointment) {
-    // Use direct string concatenation instead of Date conversion to avoid "Invalid time value"
-    const startDateTime = appointment.startTime;
-    const endDateTime = appointment.endTime;
-
-    const apiData = {
-      stylist_id: appointment.stylistId,
-      booking_start_datetime: startDateTime,
-      booking_end_datetime: endDateTime,
-      booked_mode: appointment.isWalkIn ? "walking" : "online",
-      service_ids: appointment.services, // Array of service IDs
-      notes: appointment.notes || "",
-      non_online_customer_name: appointment.clientName,
-      non_online_customer_mobile_number: appointment.clientPhone,
-    };
-
-    console.log("Creating appointment with data:", apiData);
-
-    const response = await ProtectedAPI.post('/salon-admin/booking', apiData);
-    console.log("Appointment creation response:", response.data);
-
-    return response.data;
-  },
-
-  async updateAppointment(appointmentId, appointment) {
-    const startDateTime = appointment.startTime;
-    const endDateTime = appointment.endTime;
-
-    const apiData = {
-      stylist_id: appointment.stylistId,
-      booking_start_datetime: startDateTime,
-      booking_end_datetime: endDateTime,
-      notes: appointment.notes || "",
-    };
-
-    console.log("Updating appointment with data:", appointmentId, apiData);
-
-    const response = await ProtectedAPI.put(`/salon-admin/booking/${appointmentId}`, apiData);
-    console.log("Appointment update response:", response.data);
-
-    return response.data;
-  },
-
-  async deleteAppointment(appointmentId) {
-    const response = await ProtectedAPI.delete(`/salon-admin/bookings/${appointmentId}`);
-    console.log("Deleting appointment:", appointmentId)
-    return response.data;
-  },
-
-  async completeAppointment(appointmentId) {
-    const response = await ProtectedAPI.put(`/salon-admin/bookings/c/${appointmentId}`);
-    console.log("Completing appointment:", appointmentId)
-    return response.data;
-  },
-
-  // Services
-  async getServices() {
-    const response = await ProtectedAPI.get('/salon-admin/services');
-    console.log("Fetching services:", response.data)
-    return response.data;
-  },
-
-  // Leaves
-  async getLeaves(startDate, endDate) {
-    const response = await ProtectedAPI.get(`/salon-admin/schedule/leaves`);
-    console.log("Fetching leaves:", response.data.data)
-    return response.data.data;
-  },
-
-  async createLeave(leave) {
-    const response = await ProtectedAPI.post(`/salon-admin/schedule/stylists/${leave.stylist_id}/leave`, leave);
-    console.log("Creating leave:", response.data);
-    return response.data;
-  },
-
-  async deleteLeave(leaveData) {
-    const response = await ProtectedAPI.delete(`/salon-admin/schedule/stylists/${leaveData.stylist_id}/leave/${leaveData.leave_id}`);
-    console.log("Leave deletion response:", response.data);
-    return response.data;
-  },
-}
 
 const SchedulingInterface = () => {
   // State management
@@ -318,12 +189,12 @@ const SchedulingInterface = () => {
   }
 
   // Helper function to format date consistently without timezone issues
-  const formatDateToString = (date) => {
-    const year = date.getFullYear()
-    const month = String(date.getMonth() + 1).padStart(2, '0')
-    const day = String(date.getDate()).padStart(2, '0')
-    return `${year}-${month}-${day}`
-  }
+  // const formatDateToString = (date) => {
+  //   const year = date.getFullYear()
+  //   const month = String(date.getMonth() + 1).padStart(2, '0')
+  //   const day = String(date.getDate()).padStart(2, '0')
+  //   return `${year}-${month}-${day}`
+  // }
 
   const formatTime = (hour, minute = 0) => {
     return `${hour.toString().padStart(2, "0")}:${minute.toString().padStart(2, "0")}`
@@ -337,10 +208,10 @@ const SchedulingInterface = () => {
     })
   }
 
-  const parseTimeToMinutes = (timeStr) => {
-    const [hours, minutes] = timeStr.split(":").map(Number)
-    return hours * 60 + minutes
-  }
+  // const parseTimeToMinutes = (timeStr) => {
+  //   const [hours, minutes] = timeStr.split(":").map(Number)
+  //   return hours * 60 + minutes
+  // }
 
   const calculateSlotPosition = (startTime, endTime) => {
     const startMinutes = parseTimeToMinutes(startTime)
@@ -432,11 +303,11 @@ const SchedulingInterface = () => {
     const maxTime = Math.max(start.hourIndex * 60 + start.minute, end.hourIndex * 60 + end.minute)
 
     // Helper function to format time consistently
-    const formatDateTime = (date, totalMinutes) => {
-      const hour = Math.floor(totalMinutes / 60)
-      const minute = totalMinutes % 60
-      return `${date}T${hour.toString().padStart(2, "0")}:${minute.toString().padStart(2, "0")}:00Z`
-    }
+    // const formatDateTime = (date, totalMinutes) => {
+    //   const hour = Math.floor(totalMinutes / 60)
+    //   const minute = totalMinutes % 60
+    //   return `${date}T${hour.toString().padStart(2, "0")}:${minute.toString().padStart(2, "0")}:00Z`
+    // }
 
     // Group time slots by stylist and date for break slot creation
     const groupedSlots = new Map()
@@ -558,10 +429,7 @@ const SchedulingInterface = () => {
     })
   }
 
-  const isDaySelected = (date) => {
-    const dateStr = formatDateToString(date)
-    return selectedLeaveDays.includes(dateStr)
-  }
+
 
   // Check if stylist has leave on a specific date
   const hasLeaveOnDate = (stylistId, date) => {
@@ -996,126 +864,133 @@ const SchedulingInterface = () => {
 
   const selectedStylistsData = stylists.filter((s) => selectedStylists.includes(s.id))
 
-  // Render day selection view for leaves
-  const renderDaySelectionView = () => {
-    return (
-      <div style={{ padding: "24px" }}>
-        <div
-          style={{
-            background: COLORS.cardBg,
-            borderRadius: "20px",
-            boxShadow: "0 10px 40px rgba(0, 0, 0, 0.1)",
-            overflow: "hidden",
-          }}
-        >
-          {/* Header */}
-          <div
-            style={{
-              background: `linear-gradient(135deg, ${COLORS.leave}, #c53030)`,
-              color: "white",
-              padding: "24px 32px",
-              textAlign: "center",
-            }}
-          >
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: "12px",
-                marginBottom: "8px",
-              }}
-            >
-              <Plane size={24} />
-              <h2 style={{ fontSize: "24px", fontWeight: "700", margin: 0 }}>Select Leave Days</h2>
-            </div>
-            <p style={{ fontSize: "16px", opacity: 0.9, margin: 0 }}>Click on days to mark them for leave</p>
-          </div>
+  // // Render day selection view for leaves
+  // const renderDaySelectionView = () => {
+  //   return (
+  //     <div style={{ padding: "24px" }}>
+  //       <div
+  //         style={{
+  //           background: COLORS.cardBg,
+  //           borderRadius: "20px",
+  //           boxShadow: "0 10px 40px rgba(0, 0, 0, 0.1)",
+  //           overflow: "hidden",
+  //         }}
+  //       >
+  //         {/* Header */}
+  //         <div
+  //           style={{
+  //             background: `linear-gradient(135deg, ${COLORS.leave}, #c53030)`,
+  //             color: "white",
+  //             padding: "24px 32px",
+  //             textAlign: "center",
+  //           }}
+  //         >
+  //           <div
+  //             style={{
+  //               display: "flex",
+  //               alignItems: "center",
+  //               justifyContent: "center",
+  //               gap: "12px",
+  //               marginBottom: "8px",
+  //             }}
+  //           >
+  //             <Plane size={24} />
+  //             <h2 style={{ fontSize: "24px", fontWeight: "700", margin: 0 }}>Select Leave Days</h2>
+  //           </div>
+  //           <p style={{ fontSize: "16px", opacity: 0.9, margin: 0 }}>Click on days to mark them for leave</p>
+  //         </div>
 
-          {/* Calendar Grid */}
-          <div style={{ padding: "32px" }}>
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: `repeat(${Math.min(weekDates.length, 4)}, 1fr)`,
-                gap: "16px",
-                maxWidth: "800px",
-                margin: "0 auto",
-              }}
-            >
-              {weekDates.map((date, index) => {
-                const isSelected = isDaySelected(date)
-                const isToday = date.toDateString() === new Date().toDateString()
-                return (
-                  <div
-                    key={index}
-                    onClick={() => handleDayClick(date)}
-                    style={{
-                      background: isSelected
-                        ? `linear-gradient(135deg, ${COLORS.leave}, #c53030)`
-                        : isToday
-                          ? `linear-gradient(135deg, ${COLORS.info}, #3182ce)`
-                          : "white",
-                      border: `3px solid ${isSelected ? COLORS.leave : isToday ? COLORS.info : COLORS.border}`,
-                      borderRadius: "16px",
-                      padding: "24px 16px",
-                      textAlign: "center",
-                      cursor: "pointer",
-                      transition: "all 0.3s ease",
-                      boxShadow: isSelected
-                        ? "0 8px 25px rgba(239, 68, 68, 0.3)"
-                        : isToday
-                          ? "0 8px 25px rgba(66, 153, 225, 0.3)"
-                          : "0 4px 15px rgba(0, 0, 0, 0.1)",
-                      transform: isSelected ? "translateY(-4px)" : "none",
-                      color: isSelected || isToday ? "white" : COLORS.text,
-                    }}
-                  >
-                    <div style={{ fontSize: "14px", fontWeight: "600", marginBottom: "8px", opacity: 0.8 }}>
-                      {date.toLocaleDateString("en-US", { weekday: "short" }).toUpperCase()}
-                    </div>
-                    <div style={{ fontSize: "32px", fontWeight: "700", marginBottom: "4px" }}>{date.getDate()}</div>
-                    <div style={{ fontSize: "12px", fontWeight: "500", opacity: 0.8 }}>
-                      {date.toLocaleDateString("en-US", { month: "short" })}
-                    </div>
-                    {isSelected && (
-                      <div style={{ marginTop: "12px" }}>
-                        <CheckCircle size={20} />
-                      </div>
-                    )}
-                  </div>
-                )
-              })}
-            </div>
+  //         {/* Calendar Grid */}
+  //         <div style={{ padding: "32px" }}>
+  //           <div
+  //             style={{
+  //               display: "grid",
+  //               gridTemplateColumns: `repeat(${Math.min(weekDates.length, 4)}, 1fr)`,
+  //               gap: "16px",
+  //               maxWidth: "800px",
+  //               margin: "0 auto",
+  //             }}
+  //           >
+  //             {weekDates.map((date, index) => {
+  //               const isSelected = isDaySelected(date)
+  //               const isToday = date.toDateString() === new Date().toDateString()
+  //               return (
+  //                 <div
+  //                   key={index}
+  //                   onClick={() => handleDayClick(date)}
+  //                   style={{
+  //                     background: isSelected
+  //                       ? `linear-gradient(135deg, ${COLORS.leave}, #c53030)`
+  //                       : isToday
+  //                         ? `linear-gradient(135deg, ${COLORS.info}, #3182ce)`
+  //                         : "white",
+  //                     border: `3px solid ${isSelected ? COLORS.leave : isToday ? COLORS.info : COLORS.border}`,
+  //                     borderRadius: "16px",
+  //                     padding: "24px 16px",
+  //                     textAlign: "center",
+  //                     cursor: "pointer",
+  //                     transition: "all 0.3s ease",
+  //                     boxShadow: isSelected
+  //                       ? "0 8px 25px rgba(239, 68, 68, 0.3)"
+  //                       : isToday
+  //                         ? "0 8px 25px rgba(66, 153, 225, 0.3)"
+  //                         : "0 4px 15px rgba(0, 0, 0, 0.1)",
+  //                     transform: isSelected ? "translateY(-4px)" : "none",
+  //                     color: isSelected || isToday ? "white" : COLORS.text,
+  //                   }}
+  //                 >
+  //                   <div style={{ fontSize: "14px", fontWeight: "600", marginBottom: "8px", opacity: 0.8 }}>
+  //                     {date.toLocaleDateString("en-US", { weekday: "short" }).toUpperCase()}
+  //                   </div>
+  //                   <div style={{ fontSize: "32px", fontWeight: "700", marginBottom: "4px" }}>{date.getDate()}</div>
+  //                   <div style={{ fontSize: "12px", fontWeight: "500", opacity: 0.8 }}>
+  //                     {date.toLocaleDateString("en-US", { month: "short" })}
+  //                   </div>
+  //                   {isSelected && (
+  //                     <div style={{ marginTop: "12px" }}>
+  //                       <CheckCircle size={20} />
+  //                     </div>
+  //                   )}
+  //                 </div>
+  //               )
+  //             })}
+  //           </div>
 
-            {/* Selection Summary */}
-            {selectedLeaveDays.length > 0 && (
-              <div
-                style={{
-                  marginTop: "32px",
-                  padding: "20px",
-                  background: "rgba(239, 68, 68, 0.1)",
-                  border: "2px solid rgba(239, 68, 68, 0.2)",
-                  borderRadius: "12px",
-                  textAlign: "center",
-                  maxWidth: "400px",
-                  margin: "32px auto 0",
-                }}
-              >
-                <h3 style={{ color: COLORS.leave, fontSize: "18px", fontWeight: "600", marginBottom: "8px" }}>
-                  {selectedLeaveDays.length} Day{selectedLeaveDays.length !== 1 ? "s" : ""} Selected
-                </h3>
-                <p style={{ color: "#c53030", fontSize: "14px", margin: 0 }}>
-                  These days will be marked as leave for all selected staff members
-                </p>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    )
-  }
+  //           {/* Selection Summary */}
+  //           {selectedLeaveDays.length > 0 && (
+  //             <div
+  //               style={{
+  //                 marginTop: "32px",
+  //                 padding: "20px",
+  //                 background: "rgba(239, 68, 68, 0.1)",
+  //                 border: "2px solid rgba(239, 68, 68, 0.2)",
+  //                 borderRadius: "12px",
+  //                 textAlign: "center",
+  //                 maxWidth: "400px",
+  //                 margin: "32px auto 0",
+  //               }}
+  //             >
+  //               <h3 style={{ color: COLORS.leave, fontSize: "18px", fontWeight: "600", marginBottom: "8px" }}>
+  //                 {selectedLeaveDays.length} Day{selectedLeaveDays.length !== 1 ? "s" : ""} Selected
+  //               </h3>
+  //               <p style={{ color: "#c53030", fontSize: "14px", margin: 0 }}>
+  //                 These days will be marked as leave for all selected staff members
+  //               </p>
+  //             </div>
+  //           )}
+  //         </div>
+  //       </div>
+  //     </div>
+  //   )
+  // }
 
+  const renderDaySelectionView = () => (
+  <DaySelectionView
+    weekDates={weekDates}
+    selectedLeaveDays={selectedLeaveDays}
+    handleDayClick={handleDayClick}
+  />
+);
   // Render calendar view
   const renderCalendarView = () => {
     if (selectedStylists.length === 0) {
