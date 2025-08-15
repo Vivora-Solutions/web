@@ -173,6 +173,8 @@ useEffect(() => {
   };
 
   const total = services.reduce((sum, s) => sum + s.price, 0);
+  const duration_minutes = services.reduce((sum, s) => sum + s.duration_minutes, 0);
+  
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-gray-100 to-red-50 flex flex-col">
@@ -243,7 +245,7 @@ useEffect(() => {
                       <Tag className="w-4 h-4 md:w-5 md:h-5 text-black" />{" "}
                       Duration
                     </span>
-                    <span>{services[0]?.duration_minutes || 45} min</span>
+                    <span>{duration_minutes} min</span>
                   </div>
                   <div className="flex flex-col gap-1 md:gap-2 pt-2 md:pt-4 border-t border-gray-100">
                     <h3 className="font-semibold text-gray-800 mb-0 md:mb-1 text-sm md:text-base">
