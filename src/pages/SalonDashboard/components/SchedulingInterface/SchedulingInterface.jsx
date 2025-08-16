@@ -73,7 +73,7 @@ const SchedulingInterface = () => {
   // Refs and constants
   const gridRef = useRef(null)
   const hours = Array.from({ length: 24 }, (_, i) => i)
-  const dayFilters = [1, 2, 3, 4]
+  const dayFilters = [1, 2, 3, 5]
   const scheduleTypes = [
     { value: "available", label: "Available", icon: CheckCircle, color: COLORS.available },
     { value: "break", label: "Break", icon: Coffee, color: COLORS.break },
@@ -118,6 +118,14 @@ const SchedulingInterface = () => {
         schedule: stylist.schedule,
       }))
 
+      // Find the first active stylist
+      const firstActiveStylist = transformedStylists.find(stylist => stylist.isActive)
+      
+      // Set the first active stylist as selected if one exists
+      if (firstActiveStylist) {
+        setSelectedStylists([firstActiveStylist.id])
+      }
+
       const transformedAppointments = appointmentsData.map((appointment) => ({
         id: appointment.booking_id,
         clientName: appointment.customer
@@ -153,7 +161,6 @@ const SchedulingInterface = () => {
       setAppointments(transformedAppointments)
       setServices(transformedServices)
       setLeaves(leavesData)
-      setSelectedStylists([]) // Keep stylists deselected by default
       generateWeekDates()
     } catch (error) {
       console.error("Error loading data:", error)
@@ -831,58 +838,34 @@ const SchedulingInterface = () => {
   
 
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        height: "100vh",
-        fontFamily: '"Inter", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif',
-        background: `linear-gradient(135deg, ${COLORS.primary} 0%, ${COLORS.secondary} 100%)`,
-      }}
-    >
-      {/* Notification */}
-      <Notification 
-        message={notification?.message} 
-        type={notification?.type} 
-        COLORS={COLORS} 
-      />
+  <div className="flex flex-col h-screen font-sans bg-gradient-to-br from-[${COLORS.primary}] to-[${COLORS.secondary}]">
+    {/* Notification */}
+    <Notification 
+      message={notification?.message} 
+      type={notification?.type} 
+      COLORS={COLORS} 
+    />
 
-      {/* Main Container */}
-      <div
-        style={{
-          flex: 1,
-          display: "flex",
-          flexDirection: "column",
-          background: COLORS.background,
-          zIndex: 1,
-        }}
-      >
-        {/* Enhanced Header with Filters */}
-        <div
-          style={{
-            padding: "24px 32px",
-            background: "rgba(255, 255, 255, 0.95)",
-            backdropFilter: "blur(20px)",
-            borderBottom: `1px solid ${COLORS.border}`,
-            boxShadow: "0 4px 20px rgba(0, 0, 0, 0.08)",
-            flexShrink: 0,
-          }}
-        >
-          {/* Title Section */}
-          <Header 
-            title="Salon Scheduler"
-            subtitle="Unified scheduling system for appointments and staff schedules"
-            COLORS={COLORS}
-            navigateDateRange={navigateDateRange}
-            weekDates={weekDates}
-            maxDays={maxDays}
-            formatDate={formatDate}
-            setShowScheduleManagementPanel={setShowScheduleManagementPanel}
-            setSelectedLeavesToDelete={setSelectedLeavesToDelete}
-            handleAddAppointment={handleAddAppointment}
-          />
+    {/* Main Container */}
+    <div className="flex-1 flex flex-col bg-[${COLORS.background}] z-10">
+      {/* Enhanced Header with Filters */}
+      <div className="p-6 md:p-8 bg-white/95 backdrop-blur-lg border-b border-[${COLORS.border}] shadow-sm shrink-0">
+        {/* Title Section */}
+        <Header 
+          title="Salon Scheduler"
+          subtitle="Unified scheduling system for appointments and staff schedules"
+          COLORS={COLORS}
+          navigateDateRange={navigateDateRange}
+          weekDates={weekDates}
+          maxDays={maxDays}
+          formatDate={formatDate}
+          setShowScheduleManagementPanel={setShowScheduleManagementPanel}
+          setSelectedLeavesToDelete={setSelectedLeavesToDelete}
+          handleAddAppointment={handleAddAppointment}
+        />
 
-          {/* Filters Row */}
+        {/* Filters Row */}
+        <div className="flex flex-col md:flex-row gap-4 md:gap-8 mt-6">
           <FiltersRow
             maxDays={maxDays}
             setMaxDays={setMaxDays}
@@ -898,165 +881,113 @@ const SchedulingInterface = () => {
             handleStylistToggle={handleStylistToggle}
             COLORS={COLORS}
           />
-
         </div>
-
-        {/* Main Content - Fixed Layout */}
-        <div
-          style={{
-            flex: 1,
-            display: "flex",
-            flexDirection: "column",
-            background: COLORS.background,
-            zIndex: 1,
-          }}
-        >
-          
-          {/* Enhanced Calendar Controls */}
-          <div
-            style={{
-              background: "#f8fafc",
-              borderBottom: `1px solid ${COLORS.border}`,
-              padding: "20px 32px",
-              flexShrink: 0,
-            }}
-          >
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-              }}
-            >
-
-              {/* Selection Info */}
-              <SelectionInfo
-                selectedTimeSlots={selectedTimeSlots}
-                selectedLeaveDays={selectedLeaveDays}
-                scheduleType={scheduleType}
-                COLORS={COLORS}
-              />
-            </div>
-          </div>
-
-          {/* Content Area - Embedded Calendar */}
-          <div style={{ flex: 1, overflow: "auto" }}>
-            {loading ? (
-              <LoadingSpinner COLORS={COLORS} />
-            ) : scheduleType === "leave" ? (
-              <DaySelectionView
-                weekDates={weekDates}
-                isDaySelected={isDaySelected}
-                handleDayClick={handleDayClick}
-                COLORS={COLORS}
-              />
-            ) : (
-              <CalendarView
-                selectedStylists={selectedStylists}
-                selectedStylistsData={selectedStylistsData}
-                weekDates={weekDates}
-                stylists={stylists}
-                appointments={appointments}
-                isDragging={isDragging}
-                gridRef={gridRef}
-                handleMouseDown={handleMouseDown}
-                isSlotSelected={isSlotSelected}
-                hasLeaveOnDate={hasLeaveOnDate}
-                hasLeaveAtTimeSlot={hasLeaveAtTimeSlot}
-                isTimeSlotAvailable={isTimeSlotAvailable}
-                getAppointmentsForDate={getAppointmentsForDate}
-                calculateSlotPosition={calculateSlotPosition}
-                handleAppointmentClick={handleAppointmentClick}
-                COLORS={COLORS}
-                formatTime={formatTime}
-                formatDateToString={formatDateToString}
-              />
-            )}
-          </div>
-        </div>
-
-        {/* Enhanced Add/Edit Appointment Panel */}
-        <AppointmentPanel
-          showAddAppointmentPanel={showAddAppointmentPanel}
-          setShowAddAppointmentPanel={setShowAddAppointmentPanel}
-          isEditingAppointment={isEditingAppointment}
-          newAppointment={newAppointment}
-          setNewAppointment={setNewAppointment}
-          availableTimeSlots={availableTimeSlots}
-          setAvailableTimeSlots={setAvailableTimeSlots}
-          loading={loading}
-          stylists={stylists}
-          services={services}
-          handleCheckAvailability={handleCheckAvailability}
-          handleSaveAppointment={handleSaveAppointment}
-          COLORS={COLORS}
-        />
-
-        {/* Enhanced Appointment Details Panel */}
-        <AppointmentDetailsPanel
-          show={showAppointmentDetailsPanel}
-          onClose={() => setShowAppointmentDetailsPanel(false)}
-          appointment={selectedAppointment}
-          COLORS={COLORS}
-          getStylistById={getStylistById}
-          getServiceById={getServiceById}
-          handleDeleteAppointment={handleDeleteAppointment}
-          handleCompleteAppointment={handleCompleteAppointment}
-          loading={loading}
-        />
-
-        {/* Enhanced Schedule Management Panel */}
-        <ScheduleManagementPanel
-          showScheduleManagementPanel={showScheduleManagementPanel}
-          setShowScheduleManagementPanel={setShowScheduleManagementPanel}
-          scheduleType={scheduleType}
-          setScheduleType={setScheduleType}
-          scheduleTypes={scheduleTypes}
-          selectedTimeSlots={selectedTimeSlots}
-          selectedLeaveDays={selectedLeaveDays}
-          selectedBreakSlots={selectedBreakSlots}
-          selectedLeavesToDelete={selectedLeavesToDelete}
-          setSelectedLeavesToDelete={setSelectedLeavesToDelete}
-          selectedStylists={selectedStylists}
-          handleSaveSchedule={handleSaveSchedule}
-          handleDeleteSelectedLeaves={handleDeleteSelectedLeaves}
-          handleLeaveSelection={handleLeaveSelection}
-          getStylistById={getStylistById}
-          getUpcomingLeaves={getUpcomingLeaves}
-          loading={loading}
-        />
-
-
-        {/* Global Styles */}
-        <style jsx>{`
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-        
-        /* Smooth scrollbar */
-        ::-webkit-scrollbar {
-          width: 8px;
-          height: 8px;
-        }
-        
-        ::-webkit-scrollbar-track {
-          background: #f1f5f9;
-          border-radius: 4px;
-        }
-        
-        ::-webkit-scrollbar-thumb {
-          background: #cbd5e0;
-          border-radius: 4px;
-        }
-        
-        ::-webkit-scrollbar-thumb:hover {
-          background: #a0aec0;
-        }
-      `}</style>
       </div>
+
+      {/* Main Content - Fixed Layout */}
+      <div className="flex-1 flex flex-col bg-[${COLORS.background}] z-10">
+        {/* Enhanced Calendar Controls */}
+        <div className="bg-gray-50 border-b border-[${COLORS.border}] p-5 md:p-8 shrink-0">
+          <div className="flex justify-between items-center">
+            {/* Selection Info */}
+            <SelectionInfo
+              selectedTimeSlots={selectedTimeSlots}
+              selectedLeaveDays={selectedLeaveDays}
+              scheduleType={scheduleType}
+              COLORS={COLORS}
+            />
+          </div>
+        </div>
+
+        {/* Content Area - Embedded Calendar */}
+        <div className="flex-1 overflow-auto">
+          {loading ? (
+            <LoadingSpinner COLORS={COLORS} />
+          ) : scheduleType === "leave" ? (
+            <DaySelectionView
+              weekDates={weekDates}
+              isDaySelected={isDaySelected}
+              handleDayClick={handleDayClick}
+              COLORS={COLORS}
+            />
+          ) : (
+            <CalendarView
+              selectedStylists={selectedStylists}
+              selectedStylistsData={selectedStylistsData}
+              weekDates={weekDates}
+              stylists={stylists}
+              appointments={appointments}
+              isDragging={isDragging}
+              gridRef={gridRef}
+              handleMouseDown={handleMouseDown}
+              isSlotSelected={isSlotSelected}
+              hasLeaveOnDate={hasLeaveOnDate}
+              hasLeaveAtTimeSlot={hasLeaveAtTimeSlot}
+              isTimeSlotAvailable={isTimeSlotAvailable}
+              getAppointmentsForDate={getAppointmentsForDate}
+              calculateSlotPosition={calculateSlotPosition}
+              handleAppointmentClick={handleAppointmentClick}
+              COLORS={COLORS}
+              formatTime={formatTime}
+              formatDateToString={formatDateToString}
+            />
+          )}
+        </div>
+      </div>
+
+      {/* Enhanced Add/Edit Appointment Panel */}
+      <AppointmentPanel
+        showAddAppointmentPanel={showAddAppointmentPanel}
+        setShowAddAppointmentPanel={setShowAddAppointmentPanel}
+        isEditingAppointment={isEditingAppointment}
+        newAppointment={newAppointment}
+        setNewAppointment={setNewAppointment}
+        availableTimeSlots={availableTimeSlots}
+        setAvailableTimeSlots={setAvailableTimeSlots}
+        loading={loading}
+        stylists={stylists}
+        services={services}
+        handleCheckAvailability={handleCheckAvailability}
+        handleSaveAppointment={handleSaveAppointment}
+        COLORS={COLORS}
+      />
+
+      {/* Enhanced Appointment Details Panel */}
+      <AppointmentDetailsPanel
+        show={showAppointmentDetailsPanel}
+        onClose={() => setShowAppointmentDetailsPanel(false)}
+        appointment={selectedAppointment}
+        COLORS={COLORS}
+        getStylistById={getStylistById}
+        getServiceById={getServiceById}
+        handleDeleteAppointment={handleDeleteAppointment}
+        handleCompleteAppointment={handleCompleteAppointment}
+        loading={loading}
+      />
+
+      {/* Enhanced Schedule Management Panel */}
+      <ScheduleManagementPanel
+        showScheduleManagementPanel={showScheduleManagementPanel}
+        setShowScheduleManagementPanel={setShowScheduleManagementPanel}
+        scheduleType={scheduleType}
+        setScheduleType={setScheduleType}
+        scheduleTypes={scheduleTypes}
+        selectedTimeSlots={selectedTimeSlots}
+        selectedLeaveDays={selectedLeaveDays}
+        selectedBreakSlots={selectedBreakSlots}
+        selectedLeavesToDelete={selectedLeavesToDelete}
+        setSelectedLeavesToDelete={setSelectedLeavesToDelete}
+        selectedStylists={selectedStylists}
+        handleSaveSchedule={handleSaveSchedule}
+        handleDeleteSelectedLeaves={handleDeleteSelectedLeaves}
+        handleLeaveSelection={handleLeaveSelection}
+        getStylistById={getStylistById}
+        getUpcomingLeaves={getUpcomingLeaves}
+        loading={loading}
+      />
     </div>
-  )
+  </div>
+)
 }
 
 export default SchedulingInterface
