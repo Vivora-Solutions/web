@@ -20,7 +20,7 @@ import ServiceManagement from "./pages/SalonDashboard/ServiceManagement";
 import StylistManagement from "./pages/SalonDashboard/StylistManagement";
 import WorkStationManagement from "./pages/SalonDashboard/WorkStationManagement";
 import SchedulingInterface from "./pages/SalonDashboard/components/SchedulingInterface/SchedulingInterface";
-
+//import Page from "./pages/SalonDashboard/components/SchedulingInterface/app/page";
 import OAuthHandler from "./components/OAuthCallback";
 import ProtectedRoute from "./components/ProtectedRoute";
 import PublicCustomerRoute from "./components/PublicCustomerRoute";
@@ -69,6 +69,7 @@ function App() {
             <Route path="stylists" element={<StylistManagement />} />
             <Route path="workstations" element={<WorkStationManagement />} />
             <Route path="booking-schedules" element={<SchedulingInterface />} />
+            {/* <Route path="booking-schedules" element={<Page />} /> */}
           </Route>
         </Route>
 
