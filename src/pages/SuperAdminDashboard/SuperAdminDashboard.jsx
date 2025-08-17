@@ -12,7 +12,7 @@ const SuperAdminDashboard = () => {
 
   const [searchTerm, setSearchTerm] = useState('');
   const [chartData, setChartData] = useState({
-    customers: [],
+    users: [],
     salons: [],
     bookings: [],
   });
@@ -26,48 +26,66 @@ const SuperAdminDashboard = () => {
   const [salons, setSalons] = useState([]);
   const [selectedSalon, setSelectedSalon] = useState(null);
 
-  // ---- Fetch data ----
+  // ---- Fetch all chart data together ----
+  const fetchAllCharts = async () => {
+    try {
+      const [userRes, salonRes, bookingRes] = await Promise.all([
+        ProtectedAPI.get('/super-admin/customersPerDay'),
+        ProtectedAPI.get('/super-admin/salonsPerDay'),
+        ProtectedAPI.get('/super-admin/bookingsPerDay'),
+      ]);
+
+      const normalize = (data) =>
+        data
+          .filter((item) => item.booking_date !== null)
+          .map((item) => ({
+            date: item.date || item.booking_date,
+            count: item.count,
+          }))
+          .sort((a, b) => new Date(a.date) - new Date(b.date));
+
+      setChartData({
+        users: normalize(userRes.data),
+        salons: normalize(salonRes.data),
+        bookings: normalize(bookingRes.data),
+      });
+    } catch (err) {
+      console.error('Error fetching chart data:', err);
+    }
+  };
+
+  // ---- Fetch counts ----
+  const fetchCounts = async () => {
+    try {
+      const [userRes, salonRes, bookingRes] = await Promise.all([
+        ProtectedAPI.get('/super-admin/customer-count'),
+        ProtectedAPI.get('/super-admin/salon-count'),
+        ProtectedAPI.get('/super-admin/booking-count'),
+      ]);
+      setCounts({
+        totalCustomers: userRes.data.total_customers,
+        totalSalons: salonRes.data.total_salons,
+        totalBookings: bookingRes.data.total_bookings,
+      });
+    } catch (err) {
+      console.error('Error fetching dashboard counts:', err);
+    }
+  };
+
+  // ---- Fetch salons ----
+  const fetchSalons = async () => {
+    try {
+      const res = await ProtectedAPI.get('/super-admin/salons-unapproved');
+      setAllSalons(res.data);
+      setSalons(res.data);
+    } catch (err) {
+      console.error('Error fetching salons:', err);
+    }
+  };
+
+  // ---- Initial fetch ----
   useEffect(() => {
-    const fetchChartData = async (endpoint, key) => {
-      try {
-        const res = await ProtectedAPI.get(endpoint);
-        const sortedData = res.data.sort((a, b) => new Date(a.date) - new Date(b.date));
-        setChartData((prev) => ({ ...prev, [key]: sortedData }));
-      } catch (err) {
-        console.error(`Error fetching ${key} chart data:`, err);
-      }
-    };
-
-    const fetchCounts = async () => {
-      try {
-        const [userRes, salonRes, bookingRes] = await Promise.all([
-          ProtectedAPI.get('/super-admin/customer-count'),
-          ProtectedAPI.get('/super-admin/salon-count'),
-          ProtectedAPI.get('/super-admin/booking-count'),
-        ]);
-        setCounts({
-          totalCustomers: userRes.data.total_customers,
-          totalSalons: salonRes.data.total_salons,
-          totalBookings: bookingRes.data.total_bookings,
-        });
-      } catch (err) {
-        console.error('Error fetching dashboard counts:', err);
-      }
-    };
-
-    const fetchSalons = async () => {
-      try {
-        const res = await ProtectedAPI.get('/super-admin/salons-unapproved');
-        setAllSalons(res.data);
-        setSalons(res.data);
-      } catch (err) {
-        console.error('Error fetching salons:', err);
-      }
-    };
-
-    fetchChartData('/super-admin/customersPerDay', 'users');
-    fetchChartData('/super-admin/salonsPerDay', 'salons');
-    fetchChartData('/super-admin/customersPerDay', 'bookings');
+    fetchAllCharts();
     fetchCounts();
     fetchSalons();
   }, []);
@@ -90,6 +108,7 @@ const SuperAdminDashboard = () => {
     }
   };
 
+  // ---- Approve/Reject salon ----
   const handleModalAction = async (actionType, salonId) => {
     try {
       await ProtectedAPI.put(`/super-admin/salonsStatus/${salonId}`, {
@@ -112,29 +131,46 @@ const SuperAdminDashboard = () => {
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
       <Header />
-      <h2 className="text-2xl font-semibold mb-6 text-gray-800">Super Admin Dashboard</h2>
+      <h2 className="text-3xl font-bold mb-8 text-gray-800 tracking-tight">
+        Super Admin Dashboard
+      </h2>
 
       {isBaseRoute ? (
         <>
           {/* Charts */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <ChartCard title="User Analysis" data={chartData.users} />
-            <ChartCard title="Company Analysis" data={chartData.salons} />
-            <ChartCard title="Bookings" data={chartData.bookings} />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+            <ChartCard
+              title="User Growth"
+              data={chartData.users}
+              type="line"
+              color="#3b82f6"
+            />
+            <ChartCard
+              title="Salon Registrations"
+              data={chartData.salons}
+              type="bar"
+              color="#10b981"
+            />
+            <ChartCard
+              title="Bookings Trend"
+              data={chartData.bookings}
+              type="area"
+              color="#f59e0b"
+            />
           </div>
 
           {/* Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-            <StatCard label="Total Users" value={counts.totalCustomers} />
-            <StatCard label="Total Salons" value={counts.totalSalons} />
-            <StatCard label="Total Bookings" value={counts.totalBookings} />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+            <StatCard label="Total Users" value={counts.totalCustomers} icon="users" />
+            <StatCard label="Total Salons" value={counts.totalSalons} icon="store" />
+            <StatCard label="Total Bookings" value={counts.totalBookings} icon="calendar-check" />
           </div>
 
           {/* Verify Salons */}
-          <div className="flex flex-col md:flex-row md:items-center justify-between mb-4">
+          <div className="flex flex-col md:flex-row md:items-center justify-between mb-6">
             <h3 className="text-lg font-semibold text-gray-700">Verify Salons</h3>
             <button
-              className="text-sm bg-black text-white px-4 py-2 rounded hover:bg-gray-800 transition"
+              className="text-sm bg-black text-white px-5 py-2 rounded-lg shadow hover:bg-gray-800 transition"
               onClick={() => navigate('/super-admin/all-salons')}
             >
               View All Registered Salons
@@ -144,40 +180,40 @@ const SuperAdminDashboard = () => {
           <input
             type="text"
             placeholder="Search salons..."
-            className="w-full md:w-1/3 p-2 border border-gray-300 rounded mb-6 focus:outline-none focus:ring-2 focus:ring-gray-500"
+            className="w-full md:w-1/3 p-2 border border-gray-300 rounded-lg mb-6 focus:outline-none focus:ring-2 focus:ring-black"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
 
           {/* Scrollable Salon Cards */}
           <div className="relative">
-            <button className="absolute left-0 top-1/2 transform -translate-y-1/2 z-10 bg-white shadow-md p-2 rounded-full">
+            <button className="absolute left-0 top-1/2 transform -translate-y-1/2 z-10 bg-white shadow-md p-3 rounded-full hover:bg-gray-100">
               ◀
             </button>
 
-            <div className="overflow-x-auto whitespace-nowrap px-8">
-              <div className="inline-flex gap-4">
+            <div className="overflow-x-auto whitespace-nowrap px-10 py-2 scrollbar-hide">
+              <div className="inline-flex gap-5">
                 {salons.map((salon) => (
                   <div
                     key={salon.salon_id}
-                    className="bg-white shadow-md rounded-lg w-60 shrink-0 cursor-pointer hover:shadow-xl transition duration-300"
+                    className="bg-white shadow-lg rounded-xl w-64 shrink-0 cursor-pointer hover:shadow-2xl transition-transform hover:-translate-y-1"
                     onClick={() => handleSalonClick(salon.salon_id)}
                   >
                     <img
                       src={salon.salon_logo_link}
                       alt={salon.salon_name}
-                      className="h-36 w-full object-cover rounded-t-lg"
+                      className="h-40 w-full object-cover rounded-t-xl"
                     />
-                    <div className="p-3">
+                    <div className="p-4">
                       <h4 className="text-md font-semibold text-gray-700">{salon.salon_name}</h4>
-                      <p className="text-sm text-gray-500">{salon.salon_address}</p>
+                      <p className="text-sm text-gray-500 truncate">{salon.salon_address}</p>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
 
-            <button className="absolute right-0 top-1/2 transform -translate-y-1/2 z-10 bg-white shadow-md p-2 rounded-full">
+            <button className="absolute right-0 top-1/2 transform -translate-y-1/2 z-10 bg-white shadow-md p-3 rounded-full hover:bg-gray-100">
               ▶
             </button>
           </div>
@@ -190,7 +226,7 @@ const SuperAdminDashboard = () => {
           />
         </>
       ) : (
-        <Outlet />   
+        <Outlet />
       )}
     </div>
   );
