@@ -16,7 +16,9 @@ const StylistManagement = ({ onOpenSchedule }) => {
   const [showServicesModal, setShowServicesModal] = useState(false);
   const [selectedStylist, setSelectedStylist] = useState(null);
   const [stylistServices, setStylistServices] = useState([]);
-  const [stylistServicesBeforeEdit, setStylistServicesBeforeEdit] = useState([]);
+  const [stylistServicesBeforeEdit, setStylistServicesBeforeEdit] = useState(
+    []
+  );
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     stylist_name: "",
@@ -70,11 +72,11 @@ const StylistManagement = ({ onOpenSchedule }) => {
   const handleAddStylist = async () => {
     setLoading(true);
     try {
-      await ProtectedAPI.post("/salon-admin/stylist", formData);
-      const newStylist = {
-        stylist_id: Date.now(),
-        ...formData,
-      };
+      const response = await ProtectedAPI.post(
+        "/salon-admin/stylist",
+        formData
+      );
+      const newStylist = response.data.data[0];
       setStylists((prev) => [...prev, newStylist]);
       setShowAddForm(false);
       resetForm();
@@ -90,7 +92,9 @@ const StylistManagement = ({ onOpenSchedule }) => {
       try {
         await ProtectedAPI.put(`/salon-admin/stylist/disable/${stylistId}`);
         setStylists((prev) =>
-          prev.map((s) => (s.stylist_id === stylistId ? { ...s, is_active: false } : s))
+          prev.map((s) =>
+            s.stylist_id === stylistId ? { ...s, is_active: false } : s
+          )
         );
       } catch (error) {
         console.error("Error disabling stylist:", error);
@@ -103,7 +107,9 @@ const StylistManagement = ({ onOpenSchedule }) => {
       try {
         await ProtectedAPI.put(`/salon-admin/stylist/activate/${stylistId}`);
         setStylists((prev) =>
-          prev.map((s) => (s.stylist_id === stylistId ? { ...s, is_active: true } : s))
+          prev.map((s) =>
+            s.stylist_id === stylistId ? { ...s, is_active: true } : s
+          )
         );
       } catch (error) {
         console.error("Error activating stylist:", error);
@@ -113,7 +119,9 @@ const StylistManagement = ({ onOpenSchedule }) => {
 
   const handleManageServices = async (stylist) => {
     setSelectedStylist(stylist);
-    const response = await ProtectedAPI.get(`/salon-admin/stylist/${stylist.stylist_id}/services`);
+    const response = await ProtectedAPI.get(
+      `/salon-admin/stylist/${stylist.stylist_id}/services`
+    );
     const ids = response.data.map((service) => service.service_id);
     setStylistServices(ids);
     setStylistServicesBeforeEdit(ids); // Save for diffing
@@ -123,7 +131,9 @@ const StylistManagement = ({ onOpenSchedule }) => {
   const handleManageProfile = async (stylist) => {
     setLoading(true);
     try {
-      const response = await ProtectedAPI.get(`/salon-admin/stylist/${stylist.stylist_id}`);
+      const response = await ProtectedAPI.get(
+        `/salon-admin/stylist/${stylist.stylist_id}`
+      );
       setSelectedStylist(stylist);
       setProfileFormData(response.data[0]);
       setShowProfileModal(true);
@@ -137,10 +147,15 @@ const StylistManagement = ({ onOpenSchedule }) => {
   const handleUpdateStylistProfile = async () => {
     setLoading(true);
     try {
-      await ProtectedAPI.put(`/salon-admin/stylist/${selectedStylist.stylist_id}`, profileFormData);
+      await ProtectedAPI.put(
+        `/salon-admin/stylist/${selectedStylist.stylist_id}`,
+        profileFormData
+      );
       setStylists((prev) =>
         prev.map((s) =>
-          s.stylist_id === selectedStylist.stylist_id ? { ...s, ...profileFormData } : s
+          s.stylist_id === selectedStylist.stylist_id
+            ? { ...s, ...profileFormData }
+            : s
         )
       );
       alert("Profile updated successfully!");
@@ -155,7 +170,9 @@ const StylistManagement = ({ onOpenSchedule }) => {
 
   const handleManageScheduleModal = async (stylist) => {
     try {
-      const response = await ProtectedAPI.get(`/salon-admin/schedule/stylists/${stylist.stylist_id}`);
+      const response = await ProtectedAPI.get(
+        `/salon-admin/schedule/stylists/${stylist.stylist_id}`
+      );
       setScheduleStylistData({
         ...stylist,
         schedule: response.data.data.schedule,
@@ -168,7 +185,9 @@ const StylistManagement = ({ onOpenSchedule }) => {
 
   const handleServiceToggle = (serviceId) => {
     setStylistServices((prev) =>
-      prev.includes(serviceId) ? prev.filter((id) => id !== serviceId) : [...prev, serviceId]
+      prev.includes(serviceId)
+        ? prev.filter((id) => id !== serviceId)
+        : [...prev, serviceId]
     );
   };
 
@@ -191,9 +210,12 @@ const StylistManagement = ({ onOpenSchedule }) => {
 
       if (removedServices.length > 0) {
         console.log("Removing services:", removedServices);
-        await ProtectedAPI.put(`/salon-admin/stylist/${selectedStylist.stylist_id}/disable-services`, {
-          service_ids: removedServices,
-        });
+        await ProtectedAPI.put(
+          `/salon-admin/stylist/${selectedStylist.stylist_id}/disable-services`,
+          {
+            service_ids: removedServices,
+          }
+        );
       }
 
       alert("Services updated successfully!");
@@ -223,8 +245,12 @@ const StylistManagement = ({ onOpenSchedule }) => {
     <div className="min-h-screen bg-gray-100 p-1">
       <div className="bg-white/95 backdrop-blur rounded-xl p-1 mb-6 flex justify-between items-center shadow-lg">
         <div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-1">Employee Management</h2>
-          <p className="text-sm text-gray-500">Manage your salon staff and their schedules</p>
+          <h2 className="text-2xl font-bold text-gray-800 mb-1">
+            Employee Management
+          </h2>
+          <p className="text-sm text-gray-500">
+            Manage your salon staff and their schedules
+          </p>
         </div>
         <button
           onClick={() => setShowAddForm(true)}
