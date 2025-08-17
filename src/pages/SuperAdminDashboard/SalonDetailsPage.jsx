@@ -6,7 +6,8 @@ const SalonDetailsPage = () => {
   const { salonid } = useParams();
   const [bookings, setBookings] = useState([]);
   const [salonInfo, setSalonInfo] = useState(null);
-  const [selectedGender, setSelectedGender] = useState('Male');
+  const [filterType, setFilterType] = useState("all"); 
+  const [filterValue, setFilterValue] = useState(""); 
 
   useEffect(() => {
     const fetchSalonInfo = async () => {
@@ -22,6 +23,7 @@ const SalonDetailsPage = () => {
       try {
         const res = await ProtectedAPI.get(`/super-admin/booking/${salonid}`);
         setBookings(res.data || []);
+        console.log('Bookings:', res.data);
       } catch (err) {
         console.error('Error fetching bookings:', err);
       }
@@ -31,11 +33,32 @@ const SalonDetailsPage = () => {
     fetchBookings();
   }, [salonid]);
 
-  const filterByGender = (gender) => {
-    setSelectedGender(gender);
-  };
 
-  const filteredBookings = bookings.filter(b => b.gender === selectedGender);
+  const filteredBookings = bookings.filter((b) => {
+  const bookingDate = new Date(b.booking_start_datetime);
+
+  if (filterType === "month" && filterValue) {
+    const [year, month] = filterValue.split("-");
+    return (
+      bookingDate.getFullYear().toString() === year &&
+      (bookingDate.getMonth() + 1).toString().padStart(2, "0") === month
+    );
+  }
+
+  if (filterType === "day" && filterValue) {
+    const selectedDate = new Date(filterValue);
+    return (
+      bookingDate.getFullYear() === selectedDate.getFullYear() &&
+      bookingDate.getMonth() === selectedDate.getMonth() &&
+      bookingDate.getDate() === selectedDate.getDate()
+    );
+  }
+
+  return true; 
+});
+
+
+
 
 
   return (
@@ -58,83 +81,146 @@ const SalonDetailsPage = () => {
         </div>
       </header>
 
-      {/* Filter Section */}
-      <section className="mb-6 flex flex-wrap gap-4 items-center justify-between">
-        {/* Gender Filter */}
-        <div className="flex gap-2">
-          {['Male', 'Female', 'Children', 'Unisex'].map((gender) => (
-            <button
-              key={gender}
-              onClick={() => filterByGender(gender)}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition ${
-                selectedGender === gender
-                  ? 'bg-indigo-600 text-white'
-                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-              }`}
-            >
-              {gender}
-            </button>
-          ))}
-        </div>
+      <div className="flex gap-4 items-center mb-6">
+        <select
+          value={filterType}
+          onChange={(e) => {
+            setFilterType(e.target.value);
+            setFilterValue(""); // reset when changing type
+          }}
+          className="border rounded-lg px-3 py-2"
+        >
+          <option value="all">All</option>
+          <option value="month">By Month</option>
+          <option value="day">By Day</option>
+        </select>
 
-        {/* Time Range Filter (inactive logic but styled) */}
-        <div className="flex gap-2">
-          {['1 Day', '3 Days', '1 Week', '1 Month'].map((range) => (
-            <button
-              key={range}
-              className="px-4 py-2 rounded-full text-sm bg-gray-100 text-gray-600 hover:bg-gray-200"
-            >
-              {range}
-            </button>
-          ))}
-        </div>
-      </section>
+        {filterType === "month" && (
+          <input
+            type="month"
+            value={filterValue}
+            onChange={(e) => setFilterValue(e.target.value)}
+            className="border rounded-lg px-3 py-2"
+          />
+        )}
+
+        {filterType === "day" && (
+          <input
+            type="date"
+            value={filterValue}
+            onChange={(e) => setFilterValue(e.target.value)}
+            className="border rounded-lg px-3 py-2"
+          />
+        )}
+      </div>
+
+
+      
 
       <section className="booking-table">
-  <table>
-    <thead>
-      <tr>
-        <th>Date</th>
-        <th>Service</th>
-        <th>Stylist</th>
-        <th>Duration</th>
-        <th>Time</th>
-        <th>Price</th>
-        <th>Mode</th>
-      </tr>
-    </thead>
-    <tbody>
-      {bookings.length > 0 ? (
-        bookings.map((booking) => {
-          const start = new Date(booking.booking_start_datetime);
-          const end = new Date(booking.booking_end_datetime);
-          const formattedDate = start.toLocaleDateString();
-          const formattedTime = `${start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - ${end.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
-          const serviceName = booking.booking_services?.[0]?.service?.service_name || 'N/A';
-          const stylistName = booking.stylist?.stylist_name || 'N/A';
+        <table className="w-full border-collapse border">
+          <thead className="bg-gray-100">
+            <tr>
+              <th className="border px-4 py-2">Date</th>
+              <th className="border px-4 py-2">Service</th>
+              <th className="border px-4 py-2">Stylist</th>
+              <th className="border px-4 py-2">Duration</th>
+              <th className="border px-4 py-2">Time</th>
+              <th className="border px-4 py-2">Price</th>
+              <th className="border px-4 py-2">Mode</th>
+              <th className="border px-4 py-2">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            {bookings.length > 0 ? (
+              filteredBookings.map((booking) => {
+                const start = new Date(booking.booking_start_datetime);
+                const end = new Date(booking.booking_end_datetime);
+                const formattedDate = start.toLocaleDateString();
+                const formattedTime = `${start.toLocaleTimeString([], {
+                  hour: '2-digit',
+                  minute: '2-digit',
+                })} - ${end.toLocaleTimeString([], {
+                  hour: '2-digit',
+                  minute: '2-digit',
+                })}`;
 
-          return (
-            <tr key={booking.booking_id}>
-              <td>{formattedDate}</td>
-              <td>{serviceName}</td>
-              <td>{stylistName}</td>
-              <td>{booking.total_duration_minutes} mins</td>
-              <td>{formattedTime}</td>
-              <td>Rs. {booking.total_price}</td>
-              <td>{booking.booked_mode}</td>
-                    </tr>
-                    );
-                    })
-                ) : (
-                    <tr>
-                    <td colSpan="7" style={{ textAlign: 'center' }}>
-                        No bookings found.
-                    </td>
-                    </tr>
-                )}
-                </tbody>
-            </table>
-        </section>
+                const services = booking.booking_services || [];
+
+                return (
+                  <React.Fragment key={booking.booking_id}>
+                    {services.map((s, idx) => (
+                      <tr key={s.booking_service_id}>
+                        {/* Show date only for first row */}
+                        {idx === 0 && (
+                          <td
+                            rowSpan={services.length}
+                            className="border px-4 py-2 align-top"
+                          >
+                            {formattedDate}
+                          </td>
+                        )}
+                        <td className="border px-4 py-2">
+                          {s.service?.service_name || 'N/A'}
+                        </td>
+                        <td className="border px-4 py-2">
+                          {booking.stylist?.stylist_name || 'N/A'}
+                        </td>
+                        <td className="border px-4 py-2">
+                          {s.service_duration_at_booking} mins
+                        </td>
+                        <td className="border px-4 py-2">{formattedTime}</td>
+                        <td className="border px-4 py-2">
+                          Rs. {s.service_price_at_booking}
+                        </td>
+
+                        {/* Show mode only for first row */}
+                        {idx === 0 && (
+                          <td
+                            rowSpan={services.length}
+                            className="border px-4 py-2 align-top"
+                          >
+                            {booking.booked_mode}
+                          </td>
+                        )}
+
+                        {/* Show total only for the last row */}
+                        {idx === services.length - 1 ? (
+                          <td className="border px-4 py-2 font-semibold text-indigo-700">
+                            {booking.total_duration_minutes} mins / Rs. {booking.total_price}
+                          </td>
+                        ) : (
+                          <td className="border px-4 py-2"></td>
+                        )}
+                      </tr>
+                    ))}
+                  </React.Fragment>
+                );
+              })
+            ) : (
+              <tr>
+                <td colSpan="8" className="text-center py-4">
+                  No bookings found.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </section>
+
+
+      <div className="mt-6 bg-green-50 border border-green-200 p-4 rounded-lg shadow-sm">
+        <p className="text-lg font-semibold text-green-800">
+          Total Profit (10%): Rs.{" "}
+          {filteredBookings
+            .filter((b) => b.booked_mode?.toLowerCase() === "online")
+            .reduce((acc, b) => acc + (b.total_price * 0.1), 0)
+            .toFixed(2)}
+        </p>
+      </div>
+
+
+
     </div>
   );
 };

@@ -69,19 +69,19 @@ function App() {
             <Route path="stylists" element={<StylistManagement />} />
             <Route path="workstations" element={<WorkStationManagement />} />
             <Route path="booking-schedules" element={<SchedulingInterface />} />
-            {/* <Route path="booking-schedules" element={<Page />} /> */}
           </Route>
         </Route>
 
-        {/* Super Admin Only */}
+
+
         <Route element={<ProtectedRoute allowedRoles={["super_admin"]} />}>
-          <Route path="/super-admin" element={<SuperAdminDashboard />} />
-          <Route path="/all-salons" element={<AllSalonsPage />} />
-          <Route
-            path="/super-admin/booking/:salonid"
-            element={<SalonDetailsPage />}
-          />
+          <Route path="/super-admin" element={<SuperAdminDashboard />}>
+            <Route path="all-salons" element={<AllSalonsPage />} />
+            <Route path="booking/:salonid" element={<SalonDetailsPage />} />
+          </Route>
         </Route>
+     
+        
       </Routes>
     </div>
   );
