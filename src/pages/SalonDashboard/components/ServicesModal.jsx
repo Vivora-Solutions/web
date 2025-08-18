@@ -18,16 +18,27 @@ const ServicesModal = ({
 
   return (
     <>
-      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40" onClick={handleClose} />
-      <div className="fixed right-0 top-0 h-screen w-[400px] bg-white shadow-2xl z-50 overflow-y-auto animate-slide-in">
+      <div
+        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
+        onClick={handleClose}
+      />
+      <div className="fixed right-0 top-0 h-screen w-[400px] bg-white shadow-2xl z-50 animate-slide-in flex flex-col">
+        {/* Header */}
         <div className="p-6 border-b-2 border-gray-200 bg-gradient-to-r from-indigo-500 to-purple-600 text-white flex justify-between items-center">
-          <h2 className="text-xl font-bold">Services for {selectedStylist.stylist_name}</h2>
-          <button onClick={handleClose} className="p-2 rounded-full bg-white/20 hover:bg-white/30 transition-all">
+          <h2 className="text-xl font-bold">
+            Services for {selectedStylist.stylist_name}
+          </h2>
+          <button
+            onClick={handleClose}
+            className="p-2 rounded-full bg-white/20 hover:bg-white/30 transition-all"
+          >
             <X size={20} />
           </button>
         </div>
-        <div className="p-6">
-          <div className="min-h-[700px] mb-6 overflow-y-auto border-2 border-gray-200 rounded-lg">
+
+        {/* Scrollable services list */}
+        <div className="flex-1 overflow-y-auto p-6">
+          <div className="border-2 border-gray-200 rounded-lg">
             {services.map((service) => (
               <div
                 key={service.service_id}
@@ -41,15 +52,28 @@ const ServicesModal = ({
                     onChange={() => onServiceToggle(service.service_id)}
                     className="w-4.5 h-4.5 accent-blue-500"
                   />
-                  <label htmlFor={`service-${service.service_id}`} className="flex flex-col gap-1 cursor-pointer m-0">
-                    <span className="font-medium text-gray-800">{service.service_name}</span>
-                    <span className="text-xs text-gray-500">{service.duration_minutes} min</span>
+                  <label
+                    htmlFor={`service-${service.service_id}`}
+                    className="flex flex-col gap-1 cursor-pointer m-0"
+                  >
+                    <span className="font-medium text-gray-800">
+                      {service.service_name}
+                    </span>
+                    <span className="text-xs text-gray-500">
+                      {service.duration_minutes} min
+                    </span>
                   </label>
                 </div>
-                <span className="font-semibold text-green-600 text-sm">${service.price}</span>
+                <span className="font-semibold text-green-600 text-sm">
+                  ${service.price}
+                </span>
               </div>
             ))}
           </div>
+        </div>
+
+        {/* Fixed footer with update button */}
+        <div className="p-6 border-t border-gray-200 bg-white">
           <button
             onClick={onUpdateServices}
             disabled={loading}
