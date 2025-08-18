@@ -7,6 +7,7 @@ const ServiceManagement = () => {
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState(null);
   const [isAdding, setIsAdding] = useState(false);
+  const DURATION_OPTIONS = Array.from({ length: 16 }, (_, i) => (i + 1) * 15); // 15..240
 
   const [formData, setFormData] = useState({
     service_name: '',
@@ -240,17 +241,23 @@ const ServiceManagement = () => {
                 </td>
                 <td className="px-4 py-2">
                   {editingId === service.service_id ? (
-                    <input
-                      type="number"
+                    <select
                       name="duration_minutes"
-                      value={formData.duration_minutes}
+                      value={String(formData.duration_minutes)}
                       onChange={handleInputChange}
                       className="w-full border rounded p-2"
-                    />
+                    >
+                      {DURATION_OPTIONS.map((min) => (
+                        <option key={min} value={String(min)}>
+                          {min} mins
+                        </option>
+                      ))}
+                    </select>
                   ) : (
                     `${service.duration_minutes ?? 0} mins`
                   )}
                 </td>
+
                 <td className="px-4 py-2">{editingId === service.service_id ? (
                   <select
                     name="service_category"

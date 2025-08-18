@@ -7,7 +7,7 @@ import { PublicAPI } from "../../../utils/api"
 
 dayjs.extend(relativeTime)
 
-const DEFAULT_PROFILE_PIC = "https://i.pravatar.cc/100?img=1"
+const DEFAULT_PROFILE_PIC = "https://freesvg.org/img/abstract-user-flat-4.png"
 
 const ReviewSection = () => {
   const [reviews, setReviews] = useState([])

@@ -8,18 +8,20 @@ const PhotoSection = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
 
+  // central fetch function (can be reused)
+  const fetchImages = async () => {
+    setIsLoading(true);
+    try {
+      const response = await ProtectedAPI.get("/salon-admin/images");
+      setPhotos(response.data.images);
+    } catch (error) {
+      console.error("Error fetching images:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchImages = async () => {
-      setIsLoading(true);
-      try {
-        const response = await ProtectedAPI.get("/salon-admin/images");
-        setPhotos(response.data.images);
-      } catch (error) {
-        console.error("Error fetching images:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
     fetchImages();
   }, []);
 
@@ -35,8 +37,8 @@ const PhotoSection = () => {
           const fileName = `${Date.now()}-${file.name}`;
 
           // Upload to Supabase bucket
-          const { data, error } = await supabase.storage
-            .from("salon-images") // 👈 your bucket name
+          const { error } = await supabase.storage
+            .from("salon-images")
             .upload(fileName, file);
 
           if (error) throw error;
@@ -48,20 +50,15 @@ const PhotoSection = () => {
 
           const imageUrl = urlData.publicUrl;
 
-          // Save to your backend DB (so you can delete/manage later)
-          const response = await ProtectedAPI.post("/salon-admin/images", {
+          // Save to your backend DB
+          await ProtectedAPI.post("/salon-admin/images", {
             image_link: imageUrl,
           });
-
-          setPhotos((prev) => [
-            ...prev,
-            {
-              image_link: response.data.image_link,
-              image_id: response.data.image_id,
-            },
-          ]);
         }
       }
+
+      // ✅ reload gallery from backend after upload
+      await fetchImages();
     } catch (error) {
       console.error("Error uploading image:", error);
       alert("Failed to upload image");
@@ -70,51 +67,15 @@ const PhotoSection = () => {
     }
   };
 
-  // const handleAddPhoto = async (e) => {
-  //   const files = Array.from(e.target.files);
-  //   if (files.length === 0) return;
-
-  //   setUploading(true);
-
-  //   try {
-  //     for (const file of files) {
-  //       if (file && file.type.startsWith('image/')) {
-  //         const base64Image = await convertToBase64(file);
-
-  //         const response = await ProtectedAPI.post('/salon-admin/images', {
-  //           image_link: base64Image
-  //         });
-
-  //         setPhotos(prev => [...prev, {
-  //           image_link: response.data.image_link,
-  //           image_id: response.data.image_id
-  //         }]);
-  //       }
-  //     }
-  //   } catch (error) {
-  //     console.error('Error uploading image:', error);
-  //     alert('Failed to upload image');
-  //   } finally {
-  //     setUploading(false);
-  //   }
-  // };
-
-  const convertToBase64 = (file) => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = (error) => reject(error);
-    });
-  };
-
   const handleRemovePhoto = async (index) => {
     if (!photos[index]?.image_id) return;
 
+    // ✅ confirmation popup
+    const confirmDelete = window.confirm("Are you sure you want to delete this photo?");
+    if (!confirmDelete) return;
+
     try {
-      await ProtectedAPI.delete(
-        `/salon-admin/images/${photos[index].image_id}`
-      );
+      await ProtectedAPI.delete(`/salon-admin/images/${photos[index].image_id}`);
 
       const updatedPhotos = photos.filter((_, i) => i !== index);
       setPhotos(updatedPhotos);
@@ -127,28 +88,22 @@ const PhotoSection = () => {
     }
   };
 
-  const goToSlide = (index) => {
-    setCurrentIndex(index);
-  };
+  const goToSlide = (index) => setCurrentIndex(index);
+  const nextSlide = () => setCurrentIndex((currentIndex + 1) % photos.length);
+  const prevSlide = () => setCurrentIndex((currentIndex - 1 + photos.length) % photos.length);
 
-  const nextSlide = () => {
-    setCurrentIndex((currentIndex + 1) % photos.length);
-  };
-
-  const prevSlide = () => {
-    setCurrentIndex((currentIndex - 1 + photos.length) % photos.length);
-  };
-
-  if (isLoading)
+  if (isLoading) {
     return (
       <div className="p-6 bg-white rounded-xl shadow">Loading photos...</div>
     );
+  }
 
   return (
     <div className="p-6 bg-white rounded-xl shadow">
       <h2 className="text-xl font-semibold mb-4">Photossss</h2>
 
       <div className="flex flex-col gap-6">
+        {/* Upload */}
         <div className="flex overflow-x-auto gap-4 pb-4">
           <div className="w-28 h-28 border-2 border-dashed rounded-lg flex items-center justify-center text-gray-500 flex-shrink-0 relative hover:border-blue-500 hover:text-blue-500 transition">
             <input
@@ -175,8 +130,9 @@ const PhotoSection = () => {
             </label>
           </div>
 
+          {/* Thumbnails */}
           {photos.map((photo, index) => (
-            <div key={photo.image_id} className="relative flex-shrink-0">
+            <div key={photo.image_id} className="relative flex-shrink-0 p-1">
               <img
                 src={photo.image_link}
                 alt={`Salon ${index}`}
@@ -188,7 +144,7 @@ const PhotoSection = () => {
                 onClick={() => goToSlide(index)}
               />
               <button
-                className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold shadow"
+                className="absolute top-1 right-1 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold shadow"
                 onClick={() => handleRemovePhoto(index)}
                 disabled={uploading}
               >
@@ -198,6 +154,7 @@ const PhotoSection = () => {
           ))}
         </div>
 
+        {/* Main preview */}
         {photos.length > 0 && (
           <div className="relative flex items-center bg-gray-100 rounded-lg p-4">
             <button
@@ -224,6 +181,7 @@ const PhotoSection = () => {
           </div>
         )}
 
+        {/* Dots */}
         {photos.length > 1 && (
           <div className="flex justify-center gap-2">
             {photos.map((_, idx) => (

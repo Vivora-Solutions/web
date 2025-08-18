@@ -223,22 +223,30 @@ const Schedule = () => {
                     className={`group flex items-center gap-4 bg-white shadow-lg rounded-2xl p-5 hover:shadow-xl transition cursor-pointer hover:-translate-y-1 border-2
                       ${selectedStylistId === stylist.stylist_id ? "border-gray-800 ring-2 ring-gray-600" : "border-gray-100 hover:border-gray-600"}`}
                   >
-                    <div className="relative">
+                    <div className="relative shrink-0">
+                    {/* Circular crop wrapper */}
+                    <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-gray-200 shadow-sm group-hover:border-gray-700 transition">
                       <img
                         src={stylist.profile_pic_link || defaultProfilePic}
                         alt={stylist.stylist_name}
-                        className="w-16 h-16 rounded-full object-cover border-2 border-gray-200 shadow-sm group-hover:border-gray-700 transition"
+                        className="w-full h-full object-cover block"
                       />
-                      <div className="absolute -bottom-1 -right-1 bg-green-500 border-2 border-white rounded-full p-1">
-                        <CheckCircle className="w-3 h-3 text-white" />
-                      </div>
                     </div>
+
+                    {/* Online badge */}
+                    <div className="absolute -bottom-1 -right-1 bg-green-500 border-2 border-white rounded-full p-1">
+                      <CheckCircle className="w-3 h-3 text-white" />
+                    </div>
+                  </div>
+
+
+
                     <div className="flex-1">
-                      <h3 className="text-lg font-semibold text-gray-800 group-hover:text-emerald-600 transition">
+                      <h3 className="text-xs font-semibold text-gray-800 group-hover:text-emerald-600 transition">
                         {stylist.stylist_name}
                       </h3>
                       <span className="text-sm text-gray-500">{stylist.specialty || "Stylist"}</span>
-                      <p className="text-sm text-green-600 font-medium mt-1">Available</p>
+                      <p className="text-xs text-green-600 font-medium mt-1">Available</p>
                     </div>
                     <ChevronRight className="w-6 h-6 text-emerald-600 group-hover:text-emerald-700 transition" />
                   </div>

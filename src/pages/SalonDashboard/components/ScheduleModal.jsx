@@ -124,6 +124,7 @@ const ScheduleModal = ({ stylist, onClose }) => {
           {schedules.map((schedule, index) => (
             <div key={schedule.day_of_week} className="flex items-center gap-4">
               <span className="w-24 font-medium">{schedule.day_of_week}</span>
+              <span className="w-24 font-medium">{schedule.day_name}</span>
               <input
                 type="time"
                 className="border rounded px-2 py-1"

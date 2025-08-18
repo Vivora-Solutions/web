@@ -62,12 +62,50 @@ const OpeningHours = () => {
     setOpeningHours(updatedHours);
   };
 
+
+  const generateTimeOptions = () => {
+    const options = [];
+    for (let h = 0; h < 24; h++) {
+      for (let m = 0; m < 60; m += 15) {
+        const hour = String(h).padStart(2, "0");
+        const minute = String(m).padStart(2, "0");
+        options.push(`${hour}:${minute}:00`);
+      }
+    }
+    return options;
+  };
+
+  const TIME_OPTIONS = generateTimeOptions();
+
   const handleTimeChange = (index, field, value) => {
+    if (!value) {
+      const updatedHours = [...openingHours];
+      updatedHours[index][field] = null;
+      setOpeningHours(updatedHours);
+      return;
+    }
+
+    let [hours, minutes] = value.split(":").map(Number);
+
+    // Round minutes to nearest 15
+    const roundedMinutes = Math.round(minutes / 15) * 15;
+    if (roundedMinutes === 60) {
+      hours = (hours + 1) % 24;
+      minutes = 0;
+    } else {
+      minutes = roundedMinutes;
+    }
+
+    // Format back into HH:mm:ss
+    const formattedValue = `${String(hours).padStart(2, "0")}:${String(
+      minutes
+    ).padStart(2, "0")}:00`;
+
     const updatedHours = [...openingHours];
-    const formattedValue = value ? `${value}:00` : null;
     updatedHours[index][field] = formattedValue;
     setOpeningHours(updatedHours);
   };
+
 
   const formatTimeForDisplay = (time) => {
     if (!time) return "--:-- --";
@@ -181,30 +219,44 @@ const OpeningHours = () => {
                 </td>
                 <td className="px-4 py-3 whitespace-nowrap">
                   {isEditing && day.is_open ? (
-                    <input
-                      type="time"
-                      value={formatTimeForInput(day.opening_time)}
+                    <select
+                      value={day.opening_time || ""}
                       onChange={(e) =>
                         handleTimeChange(index, "opening_time", e.target.value)
                       }
-                      disabled={!day.is_open}
                       className="border border-gray-300 rounded px-2 py-1 text-sm text-black"
-                    />
+                    >
+                      <option value="">--:--</option>
+                      {TIME_OPTIONS.map((time) => (
+                        <option key={time} value={time}>
+                          {formatTimeForDisplay(time)}
+                        </option>
+                      ))}
+                    </select>
+
                   ) : (
                     <span>{formatTimeForDisplay(day.opening_time)}</span>
                   )}
+
                 </td>
                 <td className="px-4 py-3 whitespace-nowrap">
                   {isEditing && day.is_open ? (
-                    <input
-                      type="time"
-                      value={formatTimeForInput(day.closing_time)}
+                    <select
+                      value={day.closing_time || ""}
                       onChange={(e) =>
                         handleTimeChange(index, "closing_time", e.target.value)
                       }
-                      disabled={!day.is_open}
                       className="border border-gray-300 rounded px-2 py-1 text-sm text-black"
-                    />
+                    >
+                      <option value="">--:--</option>
+                      {TIME_OPTIONS.map((time) => (
+                        <option key={time} value={time}>
+                          {formatTimeForDisplay(time)}
+                        </option>
+                      ))}
+                    </select>
+
+
                   ) : (
                     <span>{formatTimeForDisplay(day.closing_time)}</span>
                   )}
