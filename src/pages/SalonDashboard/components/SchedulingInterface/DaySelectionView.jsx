@@ -1,11 +1,11 @@
-import React from 'react';
 import { Plane, CheckCircle } from 'lucide-react';
 
 const DaySelectionView = ({
   weekDates,
   isDaySelected,
   handleDayClick,
-  COLORS
+  COLORS,
+  selectedLeaveDays = []
 }) => {
   return (
     <div style={{ padding: "24px" }}>
