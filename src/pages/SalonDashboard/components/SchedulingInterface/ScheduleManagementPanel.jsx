@@ -1,6 +1,11 @@
 import { X, Save, Trash2, Plane } from "lucide-react"
 import { COLORS } from "./utils/colors";
 
+// Tailwind helper for conditional classes
+function cn(...classes) {
+  return classes.filter(Boolean).join(" ");
+}
+
 const ScheduleManagementPanel = ({
   showScheduleManagementPanel,
   setShowScheduleManagementPanel,
@@ -26,13 +31,7 @@ const ScheduleManagementPanel = ({
     <>
       {/* Overlay */}
       <div
-        style={{
-          position: "fixed",
-          inset: 0,
-          background: COLORS.overlay,
-          backdropFilter: "blur(8px)",
-          zIndex: 50,
-        }}
+        className="fixed inset-0 z-[50] bg-white backdrop-blur-sm"
         onClick={() => {
           setShowScheduleManagementPanel(false)
           setSelectedLeavesToDelete([])
@@ -41,96 +40,56 @@ const ScheduleManagementPanel = ({
 
       {/* Panel */}
       <div
-        style={{
-          position: "fixed",
-          right: 0,
-          top: 0,
-          height: "100vh",
-          width: "450px",
-          background: COLORS.cardBg,
-          boxShadow: "-10px 0 40px rgba(0, 0, 0, 0.2)",
-          zIndex: 51,
-          overflowY: "auto",
-        }}
+        className="fixed right-0 top-0 h-screen w-full max-w-[450px] bg-white  shadow-2xl z-[51] overflow-y-auto flex flex-col"
       >
         {/* Header */}
         <div
+          className="flex justify-between items-center px-6 py-7 border-b-2"
           style={{
-            padding: "28px 32px",
-            borderBottom: `2px solid ${COLORS.border}`,
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
+            borderColor: COLORS.border,
             background: `linear-gradient(135deg, ${COLORS.primary}, ${COLORS.secondary})`,
             color: "white",
           }}
         >
           <div>
-            <h2 style={{ fontSize: "22px", fontWeight: "800", margin: 0, marginBottom: "4px" }}>
-              Schedule Management
-            </h2>
-            <p style={{ fontSize: "14px", opacity: 0.9, margin: 0 }}>Configure staff schedules</p>
+            <h2 className="text-[22px] font-extrabold mb-1">Schedule Management</h2>
+            <p className="text-[14px] opacity-90 m-0">Configure staff schedules</p>
           </div>
           <button
             onClick={() => {
               setShowScheduleManagementPanel(false)
               setSelectedLeavesToDelete([])
             }}
-            style={{
-              background: "rgba(255, 255, 255, 0.2)",
-              border: "none",
-              color: "white",
-              fontSize: "24px",
-              width: "40px",
-              height: "40px",
-              borderRadius: "50%",
-              cursor: "pointer",
-              transition: "all 0.3s ease",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
+            className="bg-white/20 border-none text-white text-[24px] w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 hover:bg-white/30"
           >
             <X size={22} />
           </button>
         </div>
 
         {/* Content */}
-        <div style={{ padding: "32px" }}>
+        <div className="p-4 sm:p-8 flex-1 flex flex-col">
           {/* Schedule Type Selection */}
-          <div style={{ marginBottom: "32px" }}>
-            <label
-              style={{
-                display: "block",
-                fontWeight: "700",
-                color: COLORS.text,
-                marginBottom: "16px",
-                fontSize: "16px",
-              }}
-            >
+          <div className="mb-8">
+            <label className="block font-bold text-gray-800mb-4 text-[16px]">
               Schedule Type
             </label>
-            <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+            <div className="flex flex-col gap-3">
               {scheduleTypes.map((type) => {
                 const Icon = type.icon
                 return (
                   <button
                     key={type.value}
                     onClick={() => setScheduleType(type.value)}
+                    className={cn(
+                      "flex items-center gap-3 px-5 py-4 border-2 rounded-xl font-semibold text-[15px] transition-all duration-300 shadow-sm",
+                      scheduleType === type.value
+                        ? "bg-opacity-10 border-3 shadow-lg"
+                        : "bg-transparent border-3",
+                    )}
                     style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "12px",
-                      padding: "16px 20px",
                       backgroundColor: scheduleType === type.value ? `${type.color}20` : "transparent",
                       borderColor: scheduleType === type.value ? type.color : COLORS.border,
                       color: scheduleType === type.value ? type.color : COLORS.textLight,
-                      border: "3px solid",
-                      borderRadius: "12px",
-                      fontWeight: "600",
-                      cursor: "pointer",
-                      transition: "all 0.3s ease",
-                      fontSize: "15px",
                       boxShadow: scheduleType === type.value ? `0 6px 20px ${type.color}30` : "none",
                     }}
                   >
@@ -143,24 +102,8 @@ const ScheduleManagementPanel = ({
           </div>
 
           {/* Instructions */}
-          <div
-            style={{
-              background: "rgba(59, 130, 246, 0.1)",
-              border: "2px solid rgba(59, 130, 246, 0.2)",
-              borderRadius: "12px",
-              padding: "16px 20px",
-              marginBottom: "32px",
-            }}
-          >
-            <p
-              style={{
-                color: "#1e40af",
-                fontSize: "15px",
-                margin: 0,
-                fontWeight: "500",
-                lineHeight: "1.5",
-              }}
-            >
+          <div className="rounded-xl p-4 mb-8 border-2 bg-blue-100/50 border-blue-200">
+            <p className="text-blue-900 text-[15px] font-medium leading-[1.5] m-0">
               💡{" "}
               {scheduleType === "leave"
                 ? "Switch to day view to select leave days for staff members"
@@ -170,23 +113,8 @@ const ScheduleManagementPanel = ({
 
           {/* Selection Preview */}
           {(selectedTimeSlots.length > 0 || selectedLeaveDays.length > 0) && (
-            <div
-              style={{
-                background: "rgba(66, 153, 225, 0.1)",
-                border: "2px solid rgba(66, 153, 225, 0.2)",
-                borderRadius: "12px",
-                padding: "16px 20px",
-                marginBottom: "32px",
-              }}
-            >
-              <p
-                style={{
-                  color: "#2c5282",
-                  fontSize: "15px",
-                  margin: 0,
-                  fontWeight: "600",
-                }}
-              >
+            <div className="rounded-xl p-4 mb-8 border-2 bg-blue-200/20 border-blue-200">
+              <p className="text-blue-800 text-[15px] font-semibold m-0">
                 <strong>Selection:</strong>{" "}
                 {scheduleType === "leave"
                   ? `${selectedLeaveDays.length} day(s) selected`
@@ -196,40 +124,21 @@ const ScheduleManagementPanel = ({
           )}
 
           {/* Upcoming Leaves */}
-          <div style={{ marginBottom: "32px" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "16px" }}>
+          <div className="mb-8">
+            <div className="flex items-center gap-2 mb-4">
               <Plane size={18} color={COLORS.leave} />
-              <h3 style={{ fontSize: "16px", fontWeight: "700", color: COLORS.text, margin: 0 }}>
+              <h3 className="text-[16px] font-bold text-gray-800 m-0">
                 Manage Upcoming Leaves
               </h3>
             </div>
 
             {getUpcomingLeaves().length === 0 ? (
-              <div
-                style={{
-                  background: "rgba(107, 114, 128, 0.1)",
-                  border: "2px solid rgba(107, 114, 128, 0.2)",
-                  borderRadius: "12px",
-                  padding: "16px 20px",
-                  textAlign: "center",
-                }}
-              >
-                <p style={{ color: COLORS.textLight, fontSize: "14px", margin: 0 }}>
-                  No upcoming leaves found
-                </p>
+              <div className="rounded-xl p-4 text-center border-2 bg-gray-200/30 border-gray-300">
+                <p className="text-gray-400 text-[14px] m-0">No upcoming leaves found</p>
               </div>
             ) : (
               <>
-                <div
-                  style={{
-                    background: "rgba(239, 68, 68, 0.05)",
-                    border: "2px solid rgba(239, 68, 68, 0.1)",
-                    borderRadius: "12px",
-                    maxHeight: "200px",
-                    overflowY: "auto",
-                    marginBottom: "16px",
-                  }}
-                >
+                <div className="rounded-xl max-h-[200px] overflow-y-auto mb-4 border-2 bg-red-100/20 border-red-200">
                   {getUpcomingLeaves().map((leave) => {
                     const stylist = getStylistById(leave.stylist_id)
                     const isSelected = selectedLeavesToDelete.includes(leave.leave_id)
@@ -243,69 +152,34 @@ const ScheduleManagementPanel = ({
                       <div
                         key={leave.leave_id}
                         onClick={() => handleLeaveSelection(leave.leave_id)}
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          padding: "12px 16px",
-                          borderBottom: "1px solid rgba(239, 68, 68, 0.1)",
-                          cursor: "pointer",
-                          transition: "all 0.2s ease",
-                          background: isSelected ? "rgba(239, 68, 68, 0.1)" : "transparent",
-                        }}
+                        className={cn(
+                          "flex items-center px-4 py-3 border-b cursor-pointer transition-all duration-200",
+                          isSelected ? "bg-red-100/40" : "bg-transparent"
+                        )}
+                        style={{ borderBottom: "1px solid rgba(239, 68, 68, 0.1)" }}
                       >
                         <input
                           type="checkbox"
                           checked={isSelected}
                           onChange={() => handleLeaveSelection(leave.leave_id)}
-                          style={{
-                            marginRight: "12px",
-                            accentColor: COLORS.leave,
-                            transform: "scale(1.1)",
-                          }}
+                          className="mr-3 scale-110 accent-red-500"
                         />
 
                         <div
-                          style={{
-                            width: "32px",
-                            height: "32px",
-                            borderRadius: "50%",
-                            backgroundColor: stylist.color,
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            marginRight: "12px",
-                            fontSize: "14px",
-                            color: "white",
-                            boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
-                          }}
+                          className="w-8 h-8 rounded-full flex items-center justify-center mr-3 text-[14px] text-white shadow"
+                          style={{ backgroundColor: stylist.color }}
                         >
                           {stylist.avatar}
                         </div>
 
-                        <div style={{ flex: 1 }}>
-                          <div
-                            style={{
-                              fontWeight: "600",
-                              color: COLORS.text,
-                              fontSize: "14px",
-                              marginBottom: "2px",
-                            }}
-                          >
+                        <div className="flex-1">
+                          <div className="font-semibold text-gray-800 text-[14px] mb-0.5">
                             {stylist.name}
                           </div>
-                          <div style={{ fontSize: "12px", color: COLORS.textLight }}>{leaveDate}</div>
+                          <div className="text-[12px] text-gray-400">{leaveDate}</div>
                         </div>
 
-                        <div
-                          style={{
-                            padding: "4px 8px",
-                            background: "rgba(239, 68, 68, 0.1)",
-                            borderRadius: "6px",
-                            fontSize: "11px",
-                            fontWeight: "600",
-                            color: COLORS.leave,
-                          }}
-                        >
+                        <div className="px-2 py-1 bg-red-100 rounded text-[11px] font-semibold text-red-500">
                           Leave
                         </div>
                       </div>
@@ -317,24 +191,12 @@ const ScheduleManagementPanel = ({
                   <button
                     onClick={handleDeleteSelectedLeaves}
                     disabled={loading}
-                    style={{
-                      width: "100%",
-                      padding: "12px 16px",
-                      background: `linear-gradient(135deg, ${COLORS.danger}, #dc2626)`,
-                      color: "white",
-                      border: "none",
-                      borderRadius: "10px",
-                      fontWeight: "600",
-                      fontSize: "14px",
-                      cursor: loading ? "not-allowed" : "pointer",
-                      transition: "all 0.3s ease",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      gap: "8px",
-                      boxShadow: "0 4px 15px rgba(239, 68, 68, 0.3)",
-                      opacity: loading ? 0.7 : 1,
-                    }}
+                    className={cn(
+                      "w-full py-3 rounded-lg font-semibold text-[14px] flex items-center justify-center gap-2 shadow-md transition-all duration-300",
+                      loading
+                        ? "bg-red-600/80 cursor-not-allowed opacity-70"
+                        : "bg-gradient-to-tr from-red-500 to-red-700 hover:from-red-600 hover:to-red-800 cursor-pointer"
+                    )}
                   >
                     <Trash2 size={16} />
                     {loading ? "Deleting..." : `Delete ${selectedLeavesToDelete.length} Leave(s)`}
@@ -348,35 +210,25 @@ const ScheduleManagementPanel = ({
           <button
             onClick={handleSaveSchedule}
             disabled={loading || (selectedTimeSlots.length === 0 && selectedLeaveDays.length === 0)}
-            style={{
-              width: "100%",
-              padding: "18px",
-              background:
-                loading || (selectedTimeSlots.length === 0 && selectedLeaveDays.length === 0)
-                  ? "#cbd5e0"
-                  : `linear-gradient(135deg, ${COLORS.success}, #38a169)`,
-              color: "white",
-              border: "none",
-              borderRadius: "14px",
-              fontWeight: "700",
-              fontSize: "16px",
-              cursor:
-                loading || (selectedTimeSlots.length === 0 && selectedLeaveDays.length === 0)
-                  ? "not-allowed"
-                  : "pointer",
-              transition: "all 0.3s ease",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: "10px",
-              boxShadow: "0 6px 20px rgba(72, 187, 120, 0.3)",
-            }}
+            className={cn(
+              "w-full py-4 rounded-xl font-bold text-[16px] flex items-center justify-center gap-2 shadow-lg transition-all duration-300",
+              loading || (selectedTimeSlots.length === 0 && selectedLeaveDays.length === 0)
+                ? "bg-gray-300 cursor-not-allowed"
+                : "bg-gradient-to-tr from-green-500 to-green-700 hover:from-green-600 hover:to-green-800 cursor-pointer text-white"
+            )}
           >
             <Save size={18} />
             {loading ? "Saving..." : "Save Schedule"}
           </button>
         </div>
       </div>
+      {/* Responsive: panel slides from right, full width on mobile */}
+      <style>{`
+        @media (max-width: 640px) {
+          .max-w-[450px] { max-width: 100vw !important; }
+          .sm\\:p-8 { padding: 1.25rem !important; }
+        }
+      `}</style>
     </>
   )
 }

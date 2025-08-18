@@ -847,42 +847,46 @@ const SchedulingInterface = () => {
     />
 
     {/* Main Container */}
-    <div className="flex-1 flex flex-col bg-[${COLORS.background}] z-10">
-      {/* Enhanced Header with Filters */}
-      <div className="p-6 md:p-8 bg-white/95 backdrop-blur-lg border-b border-[${COLORS.border}] shadow-sm shrink-0">
-        {/* Title Section */}
-        <Header 
-          title="Salon Scheduler"
-          subtitle="Unified scheduling system for appointments and staff schedules"
-          COLORS={COLORS}
-          navigateDateRange={navigateDateRange}
-          weekDates={weekDates}
-          maxDays={maxDays}
-          formatDate={formatDate}
-          setShowScheduleManagementPanel={setShowScheduleManagementPanel}
-          setSelectedLeavesToDelete={setSelectedLeavesToDelete}
-          handleAddAppointment={handleAddAppointment}
-        />
+    <div className="flex-1 flex flex-col bg-[${COLORS.background}] z-10 w-full">
+  {/* Enhanced Header with Filters */}
+  <div className="p-4 sm:p-6 md:p-8 bg-white/95 backdrop-blur-lg border-b border-[${COLORS.border}] shadow-sm shrink-0 w-full">
+    
+    {/* Title Section */}
+    <Header 
+      title="Salon Scheduler"
+      subtitle="Unified scheduling system for appointments and staff schedules"
+      COLORS={COLORS}
+      navigateDateRange={navigateDateRange}
+      weekDates={weekDates}
+      maxDays={maxDays}
+      formatDate={formatDate}
+      setShowScheduleManagementPanel={setShowScheduleManagementPanel}
+      setSelectedLeavesToDelete={setSelectedLeavesToDelete}
+      handleAddAppointment={handleAddAppointment}
+    />
 
-        {/* Filters Row */}
-        <div className="flex flex-col md:flex-row gap-4 md:gap-8 mt-6">
-          <FiltersRow
-            maxDays={maxDays}
-            setMaxDays={setMaxDays}
-            dayFilters={dayFilters}
-            scheduleType={scheduleType}
-            setScheduleType={setScheduleType}
-            setSelectedTimeSlots={setSelectedTimeSlots}
-            setSelectedLeaveDays={setSelectedLeaveDays}
-            scheduleTypes={scheduleTypes}
-            stylists={stylists}
-            selectedStylists={selectedStylists}
-            setSelectedStylists={setSelectedStylists}
-            handleStylistToggle={handleStylistToggle}
-            COLORS={COLORS}
-          />
-        </div>
-      </div>
+    {/* Filters Row */}
+    <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 md:gap-8 mt-6 w-full overflow-x-auto">
+      <FiltersRow
+        maxDays={maxDays}
+        setMaxDays={setMaxDays}
+        dayFilters={dayFilters}
+        scheduleType={scheduleType}
+        setScheduleType={setScheduleType}
+        setSelectedTimeSlots={setSelectedTimeSlots}
+        setSelectedLeaveDays={setSelectedLeaveDays}
+        scheduleTypes={scheduleTypes}
+        stylists={stylists}
+        selectedStylists={selectedStylists}
+        setSelectedStylists={setSelectedStylists}
+        handleStylistToggle={handleStylistToggle}
+        COLORS={COLORS}
+      />
+    </div>
+    
+  </div>
+
+
 
       {/* Main Content - Fixed Layout */}
       <div className="flex-1 flex flex-col bg-[${COLORS.background}] z-10">
