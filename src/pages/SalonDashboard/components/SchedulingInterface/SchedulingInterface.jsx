@@ -895,6 +895,7 @@ const SchedulingInterface = () => {
               selectedLeaveDays={selectedLeaveDays}
               scheduleType={scheduleType}
               COLORS={COLORS}
+              selectedStylistsData={selectedStylistsData}
             />
           </div>
         </div>
