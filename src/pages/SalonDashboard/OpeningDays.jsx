@@ -7,13 +7,7 @@ const OpeningHours = () => {
   const [isEditing, setIsEditing] = useState(false);
 
   const daysOfWeek = [
-    "Sunday",
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-    "Saturday",
+    "Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday",
   ];
 
   useEffect(() => {
@@ -22,19 +16,12 @@ const OpeningHours = () => {
       try {
         const response = await ProtectedAPI.get("/salon-admin/opening-hours");
         const days = response.data.days || [];
-        const completeDays = Array(7)
-          .fill()
-          .map((_, index) => {
-            const existingDay = days.find((d) => d.day_of_week === index);
-            return (
-              existingDay || {
-                day_of_week: index,
-                is_open: false,
-                opening_time: null,
-                closing_time: null,
-              }
-            );
-          });
+        const completeDays = Array(7).fill().map((_, index) => {
+          const existingDay = days.find((d) => d.day_of_week === index);
+          return (
+            existingDay || { day_of_week: index, is_open: false, opening_time: null, closing_time: null }
+          );
+        });
         setOpeningHours(completeDays);
       } catch (error) {
         console.error("Error fetching opening hours:", error);
@@ -48,20 +35,15 @@ const OpeningHours = () => {
   const handleToggleOpen = (index) => {
     const updatedHours = [...openingHours];
     updatedHours[index].is_open = !updatedHours[index].is_open;
-
     if (!updatedHours[index].is_open) {
       updatedHours[index].opening_time = null;
       updatedHours[index].closing_time = null;
     } else {
-      updatedHours[index].opening_time =
-        updatedHours[index].opening_time || "10:00:00";
-      updatedHours[index].closing_time =
-        updatedHours[index].closing_time || "17:00:00";
+      updatedHours[index].opening_time = updatedHours[index].opening_time || "10:00:00";
+      updatedHours[index].closing_time = updatedHours[index].closing_time || "17:00:00";
     }
-
     setOpeningHours(updatedHours);
   };
-
 
   const generateTimeOptions = () => {
     const options = [];
@@ -84,10 +66,7 @@ const OpeningHours = () => {
       setOpeningHours(updatedHours);
       return;
     }
-
     let [hours, minutes] = value.split(":").map(Number);
-
-    // Round minutes to nearest 15
     const roundedMinutes = Math.round(minutes / 15) * 15;
     if (roundedMinutes === 60) {
       hours = (hours + 1) % 24;
@@ -95,17 +74,11 @@ const OpeningHours = () => {
     } else {
       minutes = roundedMinutes;
     }
-
-    // Format back into HH:mm:ss
-    const formattedValue = `${String(hours).padStart(2, "0")}:${String(
-      minutes
-    ).padStart(2, "0")}:00`;
-
+    const formattedValue = `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:00`;
     const updatedHours = [...openingHours];
     updatedHours[index][field] = formattedValue;
     setOpeningHours(updatedHours);
   };
-
 
   const formatTimeForDisplay = (time) => {
     if (!time) return "--:-- --";
@@ -114,11 +87,6 @@ const OpeningHours = () => {
     const period = hourNum >= 12 ? "pm" : "am";
     const displayHour = hourNum % 12 || 12;
     return `${displayHour}:${minutes} ${period}`;
-  };
-
-  const formatTimeForInput = (time) => {
-    if (!time) return "";
-    return time.substring(0, 5);
   };
 
   const handleSave = async () => {
@@ -136,23 +104,21 @@ const OpeningHours = () => {
       alert("Opening hours updated successfully!");
     } catch (error) {
       console.error("Error updating opening hours:", error);
-      alert(
-        `Failed to update opening hours: ${
-          error.response?.data?.error || error.message
-        }`
-      );
+      alert(`Failed to update opening hours: ${error.response?.data?.error || error.message}`);
     }
   };
 
-  if (isLoading)
+  if (isLoading) {
     return (
       <div className="text-center py-8 text-red-600 font-semibold">
         Loading opening hours...
       </div>
     );
+  }
 
   return (
     <div className="mx-auto my-6 p-6 bg-white rounded-lg shadow-md border border-gray-300">
+      {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
         <h2 className="text-xl font-semibold text-black">Opening Hours</h2>
         <div className="flex gap-3 flex-wrap">
@@ -160,13 +126,13 @@ const OpeningHours = () => {
             <>
               <button
                 onClick={() => setIsEditing(false)}
-                className="px-4 py-2 text-sm font-medium rounded bg-red-600 text-white hover:bg-red-700 transition"
+                className="px-4 py-2 text-sm font-medium rounded bg-red-600 text-white hover:bg-red-700"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSave}
-                className="px-4 py-2 text-sm font-medium rounded bg-red-600 text-white hover:bg-red-700 transition"
+                className="px-4 py-2 text-sm font-medium rounded bg-red-600 text-white hover:bg-red-700"
               >
                 Save Changes
               </button>
@@ -174,7 +140,7 @@ const OpeningHours = () => {
           ) : (
             <button
               onClick={() => setIsEditing(true)}
-              className="px-4 py-2 text-sm font-medium rounded bg-red-600 text-white hover:bg-red-700 transition"
+              className="px-4 py-2 text-sm font-medium rounded bg-red-600 text-white hover:bg-red-700"
             >
               Edit Hours
             </button>
@@ -182,33 +148,22 @@ const OpeningHours = () => {
         </div>
       </div>
 
-      {/* Responsive scroll wrapper */}
-      <div className="overflow-x-auto">
+      {/* Desktop Table */}
+      <div className="hidden sm:block overflow-x-auto">
         <table className="min-w-full border-collapse">
           <thead>
             <tr className="bg-gray-100 border-b border-gray-300">
-              <th className="text-left px-4 py-3 font-medium text-black whitespace-nowrap">
-                Day
-              </th>
-              <th className="text-left px-4 py-3 font-medium text-black whitespace-nowrap">
-                Open
-              </th>
-              <th className="text-left px-4 py-3 font-medium text-black whitespace-nowrap">
-                Opening Time
-              </th>
-              <th className="text-left px-4 py-3 font-medium text-black whitespace-nowrap">
-                Closing Time
-              </th>
+              <th className="text-left px-4 py-3">Day</th>
+              <th className="text-left px-4 py-3">Open</th>
+              <th className="text-left px-4 py-3">Opening Time</th>
+              <th className="text-left px-4 py-3">Closing Time</th>
             </tr>
           </thead>
           <tbody>
             {openingHours.map((day, index) => (
-              <tr
-                key={day.day_of_week}
-                className="hover:bg-gray-50 border-b border-gray-200"
-              >
-                <td className="px-4 py-3 whitespace-nowrap">{daysOfWeek[day.day_of_week]}</td>
-                <td className="px-4 py-3 whitespace-nowrap">
+              <tr key={day.day_of_week} className="hover:bg-gray-50 border-b border-gray-200">
+                <td className="px-4 py-3">{daysOfWeek[day.day_of_week]}</td>
+                <td className="px-4 py-3">
                   <input
                     type="checkbox"
                     checked={day.is_open}
@@ -217,14 +172,12 @@ const OpeningHours = () => {
                     className="w-5 h-5 accent-red-600 cursor-pointer"
                   />
                 </td>
-                <td className="px-4 py-3 whitespace-nowrap">
+                <td className="px-4 py-3">
                   {isEditing && day.is_open ? (
                     <select
                       value={day.opening_time || ""}
-                      onChange={(e) =>
-                        handleTimeChange(index, "opening_time", e.target.value)
-                      }
-                      className="border border-gray-300 rounded px-2 py-1 text-sm text-black"
+                      onChange={(e) => handleTimeChange(index, "opening_time", e.target.value)}
+                      className="border border-gray-300 rounded px-2 py-1 text-sm"
                     >
                       <option value="">--:--</option>
                       {TIME_OPTIONS.map((time) => (
@@ -233,20 +186,16 @@ const OpeningHours = () => {
                         </option>
                       ))}
                     </select>
-
                   ) : (
                     <span>{formatTimeForDisplay(day.opening_time)}</span>
                   )}
-
                 </td>
-                <td className="px-4 py-3 whitespace-nowrap">
+                <td className="px-4 py-3">
                   {isEditing && day.is_open ? (
                     <select
                       value={day.closing_time || ""}
-                      onChange={(e) =>
-                        handleTimeChange(index, "closing_time", e.target.value)
-                      }
-                      className="border border-gray-300 rounded px-2 py-1 text-sm text-black"
+                      onChange={(e) => handleTimeChange(index, "closing_time", e.target.value)}
+                      className="border border-gray-300 rounded px-2 py-1 text-sm"
                     >
                       <option value="">--:--</option>
                       {TIME_OPTIONS.map((time) => (
@@ -255,8 +204,6 @@ const OpeningHours = () => {
                         </option>
                       ))}
                     </select>
-
-
                   ) : (
                     <span>{formatTimeForDisplay(day.closing_time)}</span>
                   )}
@@ -265,6 +212,62 @@ const OpeningHours = () => {
             ))}
           </tbody>
         </table>
+      </div>
+
+      {/* Mobile Cards */}
+      <div className="space-y-4 sm:hidden">
+        {openingHours.map((day, index) => (
+          <div key={day.day_of_week} className="border rounded-lg p-4 shadow-sm bg-gray-50">
+            <div className="flex justify-between items-center">
+              <h3 className="font-semibold">{daysOfWeek[day.day_of_week]}</h3>
+              <input
+                type="checkbox"
+                checked={day.is_open}
+                onChange={() => handleToggleOpen(index)}
+                disabled={!isEditing}
+                className="w-5 h-5 accent-red-600"
+              />
+            </div>
+            <div className="mt-3 text-sm">
+              <p className="font-medium">Opening Time:</p>
+              {isEditing && day.is_open ? (
+                <select
+                  value={day.opening_time || ""}
+                  onChange={(e) => handleTimeChange(index, "opening_time", e.target.value)}
+                  className="w-full border border-gray-300 rounded px-2 py-1 mt-1"
+                >
+                  <option value="">--:--</option>
+                  {TIME_OPTIONS.map((time) => (
+                    <option key={time} value={time}>
+                      {formatTimeForDisplay(time)}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <p>{formatTimeForDisplay(day.opening_time)}</p>
+              )}
+            </div>
+            <div className="mt-3 text-sm">
+              <p className="font-medium">Closing Time:</p>
+              {isEditing && day.is_open ? (
+                <select
+                  value={day.closing_time || ""}
+                  onChange={(e) => handleTimeChange(index, "closing_time", e.target.value)}
+                  className="w-full border border-gray-300 rounded px-2 py-1 mt-1"
+                >
+                  <option value="">--:--</option>
+                  {TIME_OPTIONS.map((time) => (
+                    <option key={time} value={time}>
+                      {formatTimeForDisplay(time)}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <p>{formatTimeForDisplay(day.closing_time)}</p>
+              )}
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );

@@ -17,152 +17,98 @@ const AppointmentPanel = ({
   handleSaveAppointment,
   COLORS
 }) => {
+  // Tailwind helper for conditional classes
+  function cn(...classes) {
+    return classes.filter(Boolean).join(" ");
+  }
   return (
     <>
       {showAddAppointmentPanel && (
         <>
           <div
-            style={{
-              position: "fixed",
-              inset: 0,
-              background: COLORS.overlay,
-              backdropFilter: "blur(8px)",
-              zIndex: 50,
-            }}
+            className="fixed inset-0 z-[50] bg-whitebackdrop-blur-sm"
             onClick={() => setShowAddAppointmentPanel(false)}
           />
           <div
-            style={{
-              position: "fixed",
-              right: 0,
-              top: 0,
-              height: "100vh",
-              width: "500px",
-              background: COLORS.cardBg,
-              boxShadow: "-10px 0 40px rgba(0, 0, 0, 0.2)",
-              zIndex: 51,
-              overflowY: "auto",
-            }}
+            className="fixed right-0 top-0 h-screen w-full max-w-[500px] bg-white shadow-2xl z-[51] overflow-y-auto flex flex-col"
           >
             <div
+              className="flex justify-between items-center px-6 py-7 border-b-2"
               style={{
-                padding: "28px 32px",
-                borderBottom: `2px solid ${COLORS.border}`,
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
+                borderColor: COLORS.border,
                 background: `linear-gradient(135deg, ${COLORS.success}, #38a169)`,
                 color: "white",
               }}
             >
               <div>
-                <h2 style={{ fontSize: "22px", fontWeight: "800", margin: 0, marginBottom: "4px" }}>
-                  {isEditingAppointment ? "Edit Appointment" : "New Appointment"}
-                </h2>
-                <p style={{ fontSize: "14px", opacity: 0.9, margin: 0 }}>
-                  {isEditingAppointment ? "Update appointment details" : "Schedule a new appointment"}
-                </p>
+                <h2 className="text-[22px] font-extrabold mb-1">{isEditingAppointment ? "Edit Appointment" : "New Appointment"}</h2>
+                <p className="text-[14px] opacity-90 m-0">{isEditingAppointment ? "Update appointment details" : "Schedule a new appointment"}</p>
               </div>
               <button
                 onClick={() => setShowAddAppointmentPanel(false)}
-                style={{
-                  background: "rgba(255, 255, 255, 0.2)",
-                  border: "none",
-                  color: "white",
-                  fontSize: "24px",
-                  width: "40px",
-                  height: "40px",
-                  borderRadius: "50%",
-                  cursor: "pointer",
-                  transition: "all 0.3s ease",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
+                className="bg-white/20 border-none text-white text-[24px] w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 hover:bg-white/30"
               >
                 <X size={22} />
               </button>
             </div>
 
-            <div style={{ padding: "32px" }}>
+            <div className="p-4 sm:p-8 flex-1 flex flex-col">
               {/* Client Information */}
-              <div style={{ marginBottom: "24px" }}>
-                <h3 style={{ fontSize: "18px", fontWeight: "700", color: COLORS.text, marginBottom: "16px" }}>
-                  Client Information
-                </h3>
-                <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+              <div className="mb-6">
+                <h3 className="text-[18px] font-bold text-gray-800 mb-4">Client Information</h3>
+                <div className="flex flex-col gap-4">
                   <div>
-                    <label style={{ display: "block", fontWeight: "600", color: COLORS.text, marginBottom: "8px" }}>
-                      Client Name *
-                    </label>
+                    <label className="block font-semibold text-gray-800  mb-2">Client Name *</label>
                     <input
                       type="text"
                       value={newAppointment.clientName}
                       onChange={(e) => setNewAppointment({ ...newAppointment, clientName: e.target.value })}
                       placeholder="Enter client name"
                       disabled={isEditingAppointment}
-                      style={{
-                        width: "100%",
-                        padding: "12px 16px",
-                        border: `2px solid ${COLORS.border}`,
-                        borderRadius: "8px",
-                        fontSize: "14px",
-                        fontFamily: "inherit",
-                        outline: "none",
-                        transition: "border-color 0.2s ease",
-                        backgroundColor: isEditingAppointment ? "#f5f5f5" : "white",
-                        cursor: isEditingAppointment ? "not-allowed" : "text",
-                      }}
-                      onFocus={(e) => !isEditingAppointment && (e.target.style.borderColor = COLORS.info)}
-                      onBlur={(e) => (e.target.style.borderColor = COLORS.border)}
+                      className={cn(
+                        "w-full px-4 py-3 border-2 rounded-lg text-[14px] font-normal outline-none transition-colors",
+                        isEditingAppointment ? "bg-gray-100 cursor-not-allowed" : "bg-white cursor-text"
+                      )}
+                      style={{ borderColor: COLORS.border }}
+                      onFocus={e => !isEditingAppointment && (e.target.style.borderColor = COLORS.info)}
+                      onBlur={e => (e.target.style.borderColor = COLORS.border)}
                     />
                   </div>
                   <div>
-                    <label style={{ display: "block", fontWeight: "600", color: COLORS.text, marginBottom: "8px" }}>
-                      Phone Number
-                    </label>
+                    <label className="block font-semibold text-gray-800  mb-2">Phone Number</label>
                     <input
                       type="tel"
                       value={newAppointment.clientPhone}
                       onChange={(e) => setNewAppointment({ ...newAppointment, clientPhone: e.target.value })}
                       placeholder="Enter phone number"
                       disabled={isEditingAppointment}
-                      style={{
-                        width: "100%",
-                        padding: "12px 16px",
-                        border: `2px solid ${COLORS.border}`,
-                        borderRadius: "8px",
-                        fontSize: "14px",
-                        fontFamily: "inherit",
-                        outline: "none",
-                        transition: "border-color 0.2s ease",
-                        backgroundColor: isEditingAppointment ? "#f5f5f5" : "white",
-                        cursor: isEditingAppointment ? "not-allowed" : "text",
-                      }}
-                      onFocus={(e) => !isEditingAppointment && (e.target.style.borderColor = COLORS.info)}
-                      onBlur={(e) => (e.target.style.borderColor = COLORS.border)}
+                      className={cn(
+                        "w-full px-4 py-3 border-2 rounded-lg text-[14px] font-normal outline-none transition-colors",
+                        isEditingAppointment ? "bg-gray-100 cursor-not-allowed" : "bg-white cursor-text"
+                      )}
+                      style={{ borderColor: COLORS.border }}
+                      onFocus={e => !isEditingAppointment && (e.target.style.borderColor = COLORS.info)}
+                      onBlur={e => (e.target.style.borderColor = COLORS.border)}
                     />
                   </div>
-                  <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                  <div className="flex items-center gap-3">
                     <input
                       type="checkbox"
                       id="walkIn"
                       checked={newAppointment.isWalkIn}
                       onChange={(e) => setNewAppointment({ ...newAppointment, isWalkIn: e.target.checked })}
                       disabled={isEditingAppointment}
-                      style={{
-                        accentColor: COLORS.info,
-                        transform: "scale(1.2)",
-                        cursor: isEditingAppointment ? "not-allowed" : "pointer",
-                      }}
+                      className={cn(
+                        "scale-110 accent-blue-500",
+                        isEditingAppointment ? "cursor-not-allowed" : "cursor-pointer"
+                      )}
                     />
                     <label
                       htmlFor="walkIn"
-                      style={{
-                        fontWeight: "600",
-                        color: isEditingAppointment ? COLORS.textLight : COLORS.text,
-                        cursor: isEditingAppointment ? "not-allowed" : "pointer",
-                      }}
+                      className={cn(
+                        "font-semibold",
+                        isEditingAppointment ? "text-gray-400 cursor-not-allowed" : "text-gray-800  cursor-pointer"
+                      )}
                     >
                       Walk-in Customer
                     </label>

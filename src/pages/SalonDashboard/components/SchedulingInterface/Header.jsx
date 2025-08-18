@@ -15,40 +15,29 @@ const Header = ({
   handleAddAppointment
 }) => {
   return (
-    <div style={{ marginBottom: "24px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+    <div className="mb-6 flex flex-wrap justify-between items-center">
+      <div className="flex items-center gap-4">
         <div
+          className="flex items-center justify-center rounded-2xl shadow-lg"
           style={{
             width: "60px",
             height: "60px",
             background: `linear-gradient(135deg, ${COLORS.primary}, ${COLORS.secondary})`,
-            borderRadius: "16px",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
             boxShadow: "0 8px 25px rgba(102, 126, 234, 0.3)",
           }}
         >
           <Calendar size={28} color="white" />
         </div>
-        <div>
-          <h1
-            style={{
-              fontSize: "28px",
-              fontWeight: "800",
-              color: COLORS.text,
-              marginBottom: "4px",
-              margin: 0,
-            }}
-          >
+        <div className="hidden md:flex flex-col">
+          <h1 className="text-2xl font-extrabold text-[${COLORS.text}] mb-1">
             {title}
           </h1>
-          <p style={{ fontSize: "15px", color: COLORS.textLight, margin: 0, fontWeight: "500" }}>
+          <p className="text-sm font-medium text-[${COLORS.textLight}]">
             {subtitle}
           </p>
         </div>
       </div>
-      <div style={{ display: "flex", gap: "14px" }}>
+      <div className="flex flex-wrap gap-3">
         <DateRangeNavigator 
           navigateDateRange={navigateDateRange}
           weekDates={weekDates}

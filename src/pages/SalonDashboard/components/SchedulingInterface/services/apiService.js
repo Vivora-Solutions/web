@@ -15,6 +15,7 @@ export const ApiService = {
   // Appointments
   async getAppointments(startDate, endDate) {
     const response = await ProtectedAPI.get(`/salon-admin/booking`);
+    console.log("Appointments fetched:", response.data);
     return response.data;
   },
 

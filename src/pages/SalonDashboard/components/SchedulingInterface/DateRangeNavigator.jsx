@@ -9,74 +9,39 @@ const DateRangeNavigator = ({
 }) => {
   return (
     <div
+      className={`flex items-center gap-5 px-5 py-3 rounded-xl shadow-sm border`}
       style={{
-        display: "flex",
-        alignItems: "center",
-        gap: "20px",
         background: COLORS.cardBg,
-        padding: "12px 20px",
-        borderRadius: "14px",
-        boxShadow: "0 4px 15px rgba(0, 0, 0, 0.08)",
-        border: `2px solid ${COLORS.border}`,
+        borderColor: COLORS.border,
+        boxShadow: "0 4px 15px rgba(0,0,0,0.08)"
       }}
     >
       <button
         onClick={() => navigateDateRange(-1)}
-        style={{
-          background: "none",
-          border: "none",
-          padding: "10px",
-          borderRadius: "8px",
-          cursor: "pointer",
-          transition: "all 0.2s ease",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          color: COLORS.text,
-        }}
-        onMouseEnter={(e) => {
-          e.target.style.background = COLORS.hover;
-        }}
-        onMouseLeave={(e) => {
-          e.target.style.background = "none";
-        }}
+        className={`p-2 rounded-md transition-colors duration-200 flex items-center justify-center`}
+        style={{ color: COLORS.text }}
+        onMouseEnter={(e) => e.currentTarget.style.background = COLORS.hover}
+        onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
       >
         <ChevronLeft size={20} />
       </button>
+
       <span
-        style={{
-          fontWeight: "700",
-          color: COLORS.text,
-          minWidth: "220px",
-          textAlign: "center",
-          fontSize: "16px",
-        }}
+        className="font-bold text-center text-sm flex-1 truncate"
+        style={{ color: COLORS.text, minWidth: "180px" }}
       >
         {weekDates.length > 0 &&
           (maxDays === 1
             ? formatDate(weekDates[0])
             : `${formatDate(weekDates[0])} - ${formatDate(weekDates[weekDates.length - 1])}`)}
       </span>
+
       <button
         onClick={() => navigateDateRange(1)}
-        style={{
-          background: "none",
-          border: "none",
-          padding: "10px",
-          borderRadius: "8px",
-          cursor: "pointer",
-          transition: "all 0.2s ease",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          color: COLORS.text,
-        }}
-        onMouseEnter={(e) => {
-          e.target.style.background = COLORS.hover;
-        }}
-        onMouseLeave={(e) => {
-          e.target.style.background = "none";
-        }}
+        className={`p-2 rounded-md transition-colors duration-200 flex items-center justify-center`}
+        style={{ color: COLORS.text }}
+        onMouseEnter={(e) => e.currentTarget.style.background = COLORS.hover}
+        onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
       >
         <ChevronRight size={20} />
       </button>
