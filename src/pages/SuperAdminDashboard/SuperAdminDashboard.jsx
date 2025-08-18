@@ -11,17 +11,8 @@ const SuperAdminDashboard = () => {
   const location = useLocation();
 
   const [searchTerm, setSearchTerm] = useState('');
-  const [chartData, setChartData] = useState({
-    users: [],
-    salons: [],
-    bookings: [],
-  });
-  const [counts, setCounts] = useState({
-    totalCustomers: 0,
-    totalSalons: 0,
-    totalBookings: 0,
-  });
-
+  const [chartData, setChartData] = useState({ users: [], salons: [], bookings: [] });
+  const [counts, setCounts] = useState({ totalCustomers: 0, totalSalons: 0, totalBookings: 0 });
   const [allSalons, setAllSalons] = useState([]);
   const [salons, setSalons] = useState([]);
   const [selectedSalon, setSelectedSalon] = useState(null);
@@ -129,105 +120,89 @@ const SuperAdminDashboard = () => {
   const isBaseRoute = location.pathname === "/super-admin";
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
+    <div className="bg-white min-h-screen text-gray-900">
       <Header />
-      <h2 className="text-3xl font-bold mb-8 text-gray-800 tracking-tight">
-        Super Admin Dashboard
-      </h2>
+      <div className="px-4 md:px-6 pt-24"> {/* padding-top for fixed header */}
+        <h2 className="text-2xl md:text-3xl font-bold mb-6 text-black">
+          Super Admin Dashboard
+        </h2>
 
-      {isBaseRoute ? (
-        <>
-          {/* Charts */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-            <ChartCard
-              title="User Growth"
-              data={chartData.users}
-              type="line"
-              color="#3b82f6"
+        {isBaseRoute ? (
+          <>
+            {/* Charts */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-8">
+              <ChartCard title="User Growth" data={chartData.users} type="line" color="#111" />
+              <ChartCard title="Salon Registrations" data={chartData.salons} type="bar" color="#444" />
+              <ChartCard title="Bookings Trend" data={chartData.bookings} type="area" color="#888" />
+            </div>
+
+            {/* Stats */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-10">
+              <StatCard label="Total Users" value={counts.totalCustomers} icon="users" />
+              <StatCard label="Total Salons" value={counts.totalSalons} icon="store" />
+              <StatCard label="Total Bookings" value={counts.totalBookings} icon="calendar-check" />
+            </div>
+
+            {/* Verify Salons */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-3">
+              <h3 className="text-lg font-semibold text-gray-800">Verify Salons</h3>
+              <button
+                className="text-sm bg-black text-white px-4 py-2 rounded-lg shadow hover:bg-gray-800 transition"
+                onClick={() => navigate('/super-admin/all-salons')}
+              >
+                View All Registered Salons
+              </button>
+            </div>
+
+            <input
+              type="text"
+              placeholder="Search salons..."
+              className="w-full md:w-1/3 p-2 border border-gray-300 rounded-lg mb-6 focus:outline-none focus:ring-2 focus:ring-black"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
-            <ChartCard
-              title="Salon Registrations"
-              data={chartData.salons}
-              type="bar"
-              color="#10b981"
-            />
-            <ChartCard
-              title="Bookings Trend"
-              data={chartData.bookings}
-              type="area"
-              color="#f59e0b"
-            />
-          </div>
 
-          {/* Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-            <StatCard label="Total Users" value={counts.totalCustomers} icon="users" />
-            <StatCard label="Total Salons" value={counts.totalSalons} icon="store" />
-            <StatCard label="Total Bookings" value={counts.totalBookings} icon="calendar-check" />
-          </div>
-
-          {/* Verify Salons */}
-          <div className="flex flex-col md:flex-row md:items-center justify-between mb-6">
-            <h3 className="text-lg font-semibold text-gray-700">Verify Salons</h3>
-            <button
-              className="text-sm bg-black text-white px-5 py-2 rounded-lg shadow hover:bg-gray-800 transition"
-              onClick={() => navigate('/super-admin/all-salons')}
-            >
-              View All Registered Salons
-            </button>
-          </div>
-
-          <input
-            type="text"
-            placeholder="Search salons..."
-            className="w-full md:w-1/3 p-2 border border-gray-300 rounded-lg mb-6 focus:outline-none focus:ring-2 focus:ring-black"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-
-          {/* Scrollable Salon Cards */}
-          <div className="relative">
-            <button className="absolute left-0 top-1/2 transform -translate-y-1/2 z-10 bg-white shadow-md p-3 rounded-full hover:bg-gray-100">
-              ◀
-            </button>
-
-            <div className="overflow-x-auto whitespace-nowrap px-10 py-2 scrollbar-hide">
-              <div className="inline-flex gap-5">
-                {salons.map((salon) => (
-                  <div
-                    key={salon.salon_id}
-                    className="bg-white shadow-lg rounded-xl w-64 shrink-0 cursor-pointer hover:shadow-2xl transition-transform hover:-translate-y-1"
-                    onClick={() => handleSalonClick(salon.salon_id)}
-                  >
-                    <img
-                      src={salon.salon_logo_link}
-                      alt={salon.salon_name}
-                      className="h-40 w-full object-cover rounded-t-xl"
-                    />
-                    <div className="p-4">
-                      <h4 className="text-md font-semibold text-gray-700">{salon.salon_name}</h4>
-                      <p className="text-sm text-gray-500 truncate">{salon.salon_address}</p>
+            {/* Scrollable Salon Cards */}
+            <div className="relative">
+              {/* Horizontal scroll only, no arrows on mobile */}
+              <div className="overflow-x-auto whitespace-nowrap py-2 scrollbar-hide">
+                <div className="inline-flex gap-4 md:gap-6 px-1 md:px-2">
+                  {salons.map((salon) => (
+                    <div
+                      key={salon.salon_id}
+                      className="bg-gray-50 border border-gray-200 shadow-sm rounded-xl w-56 md:w-64 shrink-0 cursor-pointer hover:shadow-md transition-transform hover:-translate-y-1"
+                      onClick={() => handleSalonClick(salon.salon_id)}
+                    >
+                      <img
+                        src={salon.salon_logo_link}
+                        alt={salon.salon_name}
+                        className="h-32 md:h-40 w-full object-cover rounded-t-xl"
+                      />
+                      <div className="p-3">
+                        <h4 className="text-sm md:text-md font-semibold text-gray-800">
+                          {salon.salon_name}
+                        </h4>
+                        <p className="text-xs md:text-sm text-gray-500 truncate">
+                          {salon.salon_address}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
             </div>
 
-            <button className="absolute right-0 top-1/2 transform -translate-y-1/2 z-10 bg-white shadow-md p-3 rounded-full hover:bg-gray-100">
-              ▶
-            </button>
-          </div>
-
-          {/* Modal */}
-          <SalonVerifyModal
-            salon={selectedSalon}
-            onClose={() => setSelectedSalon(null)}
-            onAction={handleModalAction}
-          />
-        </>
-      ) : (
-        <Outlet />
-      )}
+            {/* Modal */}
+            <SalonVerifyModal
+              salon={selectedSalon}
+              onClose={() => setSelectedSalon(null)}
+              onAction={handleModalAction}
+            />
+          </>
+        ) : (
+          <Outlet />
+        )}
+      </div>
     </div>
   );
 };

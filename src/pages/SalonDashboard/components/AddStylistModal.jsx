@@ -64,6 +64,22 @@ const AddStylistModal = ({
     }
   };
 
+
+  const handleSubmit = () => {
+  const phone = formData.stylist_contact_number;
+
+  // Basic phone validation (10–15 digits)
+  const phoneRegex = /^\d{10,15}$/;
+
+  if (!phoneRegex.test(phone)) {
+    alert("Please enter a valid phone number (10–15 digits).");
+    return;
+  }
+
+  onSubmit(); // only call parent if valid
+};
+
+
   return (
     <>
       <div
@@ -109,15 +125,18 @@ const AddStylistModal = ({
               type="tel"
               placeholder="Enter contact number"
               value={formData.stylist_contact_number}
-              onChange={(e) =>
+              onChange={(e) => {
+                const onlyDigits = e.target.value.replace(/\D/g, ""); // only digits
                 setFormData((prev) => ({
                   ...prev,
-                  stylist_contact_number: e.target.value,
-                }))
-              }
+                  stylist_contact_number: onlyDigits,
+                }));
+              }}
+              maxLength={15} // limit length
               required
               className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg text-sm transition-all focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
             />
+
           </div>
 
           {/* Updated Profile Picture Section */}
@@ -202,16 +221,13 @@ const AddStylistModal = ({
           </div>
 
           <button
-            onClick={onSubmit}
+            onClick={handleSubmit}
             disabled={loading || uploading}
             className="w-full py-4 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-xl font-semibold shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none"
           >
-            {loading
-              ? "Adding..."
-              : uploading
-              ? "Uploading..."
-              : "Add Employee"}
+            {loading ? "Adding..." : uploading ? "Uploading..." : "Add Employee"}
           </button>
+
         </div>
       </div>
     </>

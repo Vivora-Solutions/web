@@ -90,7 +90,7 @@ const HomePage = () => {
             </div>
           </div>
       <ReviewSection />
-      {/* <CTASection /> */}
+      <CTASection />
       <Footer />
 
       <style jsx>{`

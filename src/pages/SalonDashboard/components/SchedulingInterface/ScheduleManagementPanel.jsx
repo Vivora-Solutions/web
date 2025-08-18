@@ -1,4 +1,3 @@
-import React from "react"
 import { X, Save, Trash2, Plane } from "lucide-react"
 import { COLORS } from "./utils/colors";
 

@@ -65,6 +65,21 @@ const ProfileModal = ({
     }
   };
 
+  const handleSubmit = () => {
+  const phone = profileFormData.stylist_contact_number;
+
+  // Basic validation: must be 10–15 digits
+  const phoneRegex = /^\d{10,15}$/;
+
+  if (!phoneRegex.test(phone)) {
+    alert("Please enter a valid phone number (10–15 digits).");
+    return;
+  }
+
+  onSubmit(); // call parent handler if valid
+};
+
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
       <div className="bg-white rounded-xl p-6 max-w-lg w-full shadow-xl space-y-5">
@@ -89,12 +104,21 @@ const ProfileModal = ({
               Contact Number
             </label>
             <input
-              type="text"
+              type="tel"
               name="stylist_contact_number"
               value={profileFormData.stylist_contact_number}
-              onChange={handleChange}
+              onChange={(e) => {
+                const onlyDigits = e.target.value.replace(/\D/g, ""); // remove non-digits
+                setProfileFormData((prev) => ({
+                  ...prev,
+                  stylist_contact_number: onlyDigits,
+                }));
+              }}
+              maxLength={15}
               className="mt-1 p-2 w-full border rounded-lg"
+              placeholder="Enter phone number"
             />
+
           </div>
 
           {/* Updated Profile Picture Section */}
@@ -197,16 +221,13 @@ const ProfileModal = ({
             Cancel
           </button>
           <button
-            onClick={onSubmit}
+            onClick={handleSubmit}
             disabled={loading || uploading}
             className="px-6 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:bg-indigo-300"
           >
-            {loading
-              ? "Updating..."
-              : uploading
-              ? "Uploading..."
-              : "Save Changes"}
+            {loading ? "Updating..." : uploading ? "Uploading..." : "Save Changes"}
           </button>
+
         </div>
       </div>
     </div>
