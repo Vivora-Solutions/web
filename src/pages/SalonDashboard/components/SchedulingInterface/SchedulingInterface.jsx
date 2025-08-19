@@ -184,19 +184,7 @@ const SchedulingInterface = () => {
       generateWeekDates();
     } catch (error) {
       console.error("Error loading data:", error);
-
-      // Handle different types of errors with specific messages
-      let errorMessage = "Error loading data. Please try again.";
-
-      if (error.response?.data?.error) {
-        errorMessage = error.response.data.error;
-      } else if (error.response?.data?.message) {
-        errorMessage = error.response.data.message;
-      } else if (error.message) {
-        errorMessage = error.message;
-      }
-
-      showNotification(errorMessage, "error");
+      showNotification("Error loading data. Please try again.", "error");
     } finally {
       setLoading(false);
     }
@@ -746,19 +734,10 @@ const SchedulingInterface = () => {
       await loadData();
     } catch (error) {
       console.error("Error deleting appointment:", error);
-
-      // Handle different types of errors with specific messages
-      let errorMessage = "Error deleting appointment. Please try again.";
-
-      if (error.response?.data?.error) {
-        errorMessage = error.response.data.error;
-      } else if (error.response?.data?.message) {
-        errorMessage = error.response.data.message;
-      } else if (error.message) {
-        errorMessage = error.message;
-      }
-
-      showNotification(errorMessage, "error");
+      showNotification(
+        "Error deleting appointment. Please try again.",
+        "error"
+      );
     } finally {
       setLoading(false);
     }
@@ -775,19 +754,10 @@ const SchedulingInterface = () => {
       await loadData();
     } catch (error) {
       console.error("Error completing appointment:", error);
-
-      // Handle different types of errors with specific messages
-      let errorMessage = "Error completing appointment. Please try again.";
-
-      if (error.response?.data?.error) {
-        errorMessage = error.response.data.error;
-      } else if (error.response?.data?.message) {
-        errorMessage = error.response.data.message;
-      } else if (error.message) {
-        errorMessage = error.message;
-      }
-
-      showNotification(errorMessage, "error");
+      showNotification(
+        "Error completing appointment. Please try again.",
+        "error"
+      );
     }
   };
 
@@ -860,16 +830,17 @@ const SchedulingInterface = () => {
       // Reload data to reflect changes
       await loadData();
     } catch (error) {
-      console.error("Error saving schedule:", error);
-
-      // Handle different types of errors with specific messages
+      // Extract specific error messages from backend response
       let errorMessage = "Error saving schedule. Please try again.";
 
       if (error.response?.data?.error) {
+        // Backend sends error in { error: "message" } format
         errorMessage = error.response.data.error;
       } else if (error.response?.data?.message) {
+        // Alternative message field
         errorMessage = error.response.data.message;
       } else if (error.message) {
+        // JavaScript error message
         errorMessage = error.message;
       }
 
@@ -973,19 +944,7 @@ const SchedulingInterface = () => {
       );
     } catch (error) {
       console.error("Error deleting leaves:", error);
-
-      // Handle different types of errors with specific messages
-      let errorMessage = "Error deleting leaves. Please try again.";
-
-      if (error.response?.data?.error) {
-        errorMessage = error.response.data.error;
-      } else if (error.response?.data?.message) {
-        errorMessage = error.response.data.message;
-      } else if (error.message) {
-        errorMessage = error.message;
-      }
-
-      showNotification(errorMessage, "error");
+      showNotification("Error deleting leaves. Please try again.", "error");
     } finally {
       setLoading(false);
     }
@@ -1021,9 +980,9 @@ const SchedulingInterface = () => {
       />
 
       {/* Main Container */}
-      <div className="flex-1 flex flex-col bg-[${COLORS.background}] z-10">
+      <div className="flex-1 flex flex-col bg-[${COLORS.background}] z-10 w-full">
         {/* Enhanced Header with Filters */}
-        <div className="p-6 md:p-8 bg-white/95 backdrop-blur-lg border-b border-[${COLORS.border}] shadow-sm shrink-0">
+        <div className="p-4 sm:p-6 md:p-8 bg-white/95 backdrop-blur-lg border-b border-[${COLORS.border}] shadow-sm shrink-0 w-full">
           {/* Title Section */}
           <Header
             title="Salon Scheduler"
@@ -1039,7 +998,7 @@ const SchedulingInterface = () => {
           />
 
           {/* Filters Row */}
-          <div className="flex flex-col md:flex-row gap-4 md:gap-8 mt-6">
+          <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 md:gap-8 mt-6 w-full overflow-x-auto">
             <FiltersRow
               maxDays={maxDays}
               setMaxDays={setMaxDays}
