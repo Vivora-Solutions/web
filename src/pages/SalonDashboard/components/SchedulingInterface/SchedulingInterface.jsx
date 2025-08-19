@@ -113,7 +113,7 @@ const SchedulingInterface = () => {
               ?.non_online_customer_mobile_number ||
             "",
           stylistId: appointment.stylist?.stylist_id || appointment.stylist_id,
-          stylistName: appointment.stylist?.stylist_name || "Unknown Stylist", // Add fallback
+          stylistName: appointment.stylist?.stylist_name || "Unknown Stylist",
           date: appointment.booking_start_datetime.split("T")[0],
           startTime: appointment.booking_start_datetime
             .split("T")[1]
@@ -159,14 +159,37 @@ const SchedulingInterface = () => {
         schedule: stylist.schedule,
       }));
 
-      // Find the first active stylist
-      const firstActiveStylist = transformedStylists.find(
-        (stylist) => stylist.isActive
-      );
+      // ✅ FIXED: Only set default selection if no stylists are currently selected
+      if (selectedStylists.length === 0) {
+        const firstActiveStylist = transformedStylists.find(
+          (stylist) => stylist.isActive
+        );
 
-      // Set the first active stylist as selected if one exists
-      if (firstActiveStylist) {
-        setSelectedStylists([firstActiveStylist.id]);
+        // Set the first active stylist as selected if one exists
+        if (firstActiveStylist) {
+          setSelectedStylists([firstActiveStylist.id]);
+        }
+      } else {
+        // ✅ ADDED: Validate that currently selected stylists still exist and are active
+        const validSelectedStylists = selectedStylists.filter((stylistId) => {
+          const stylist = transformedStylists.find((s) => s.id === stylistId);
+          return stylist && stylist.isActive;
+        });
+
+        // If some selected stylists are no longer valid, update the selection
+        if (validSelectedStylists.length !== selectedStylists.length) {
+          if (validSelectedStylists.length > 0) {
+            setSelectedStylists(validSelectedStylists);
+          } else {
+            // If no selected stylists are valid, fall back to first active stylist
+            const firstActiveStylist = transformedStylists.find(
+              (stylist) => stylist.isActive
+            );
+            if (firstActiveStylist) {
+              setSelectedStylists([firstActiveStylist.id]);
+            }
+          }
+        }
       }
 
       const transformedServices = servicesData.map((service) => ({
