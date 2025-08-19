@@ -81,6 +81,7 @@ const SchedulingInterface = () => {
     { value: "leave", label: "Leave", icon: Plane, color: COLORS.leave },
   ];
 
+
   // Notification system
   const showNotification = (message, type = "success") => {
     setNotification({ message, type });
