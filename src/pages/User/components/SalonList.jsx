@@ -38,7 +38,7 @@ const SalonList = ({ filteredSalons, isLoading, onSalonClick, onSalonHover }) =>
     : filteredSalons.slice(0, 3);
 
   return (
-    <section className="py-16 bg-white">
+    <section className="py-6 bg-white">
       <div className="max-w-7xl mx-auto px-6">
         {/* Header Section */}
         <div className="text-center mb-12">

@@ -15,6 +15,7 @@ import {
   Coffee,
   Plane,
   CheckCircle,
+  BookAIcon,
 } from "lucide-react"
 
 import { ProtectedAPI } from "../../../../utils/api"
@@ -78,6 +79,7 @@ const SchedulingInterface = () => {
     { value: "available", label: "Available", icon: CheckCircle, color: COLORS.available },
     { value: "break", label: "Break", icon: Coffee, color: COLORS.break },
     { value: "leave", label: "Leave", icon: Plane, color: COLORS.leave },
+    { value: "booking", label: "Booking", icon: BookAIcon, color: COLORS.available },
   ]
 
   // Notification system

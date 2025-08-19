@@ -1,33 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
-import L from 'leaflet';
+import { GoogleMap, Marker, useJsApiLoader } from '@react-google-maps/api';
 import { Mail, Lock, Store, Phone, MapPin, Loader2, Scissors, Sparkles } from 'lucide-react';
 import { PublicAPI } from '../../utils/api';
 
+// Google Maps container style
+const containerStyle = {
+  width: '100%',
+  height: '100%',
+};
 
-// Fix Leaflet icon issue
-delete L.Icon.Default.prototype._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-});
-
-const LocationPicker = ({ setFormData }) => {
-  useMapEvents({
-    click(e) {
-      setFormData((prev) => ({
-        ...prev,
-        location: {
-          latitude: e.latlng.lat,
-          longitude: e.latlng.lng,
-        },
-      }));
-    },
-  });
-  return null;
+// Default center (Sri Lanka)
+const defaultCenter = {
+  lat: 7.8731,
+  lng: 80.7718,
 };
 
 const RegisterSalon = () => {
@@ -42,13 +28,20 @@ const RegisterSalon = () => {
     salon_description: '',
     salon_logo_link: '',
     location: {
-      latitude: 7.8731,
-      longitude: 80.7718,
+      latitude: defaultCenter.lat,
+      longitude: defaultCenter.lng,
     },
   });
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  // Load Google Maps script
+  const { isLoaded } = useJsApiLoader({
+    id: 'google-map-script',
+    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY, // <-- Put in .env
+    mapIds: [import.meta.env.VITE_GOOGLE_MAP_ID || ''],
+  });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -64,10 +57,7 @@ const RegisterSalon = () => {
     setLoading(true);
 
     try {
-      await PublicAPI.post(
-        '/auth/register-salon',
-        formData
-      );
+      await PublicAPI.post('/auth/register-salon', formData);
 
       alert('Registration successful! Redirecting to login...');
       navigate('/login', {
@@ -83,6 +73,17 @@ const RegisterSalon = () => {
       setLoading(false);
     }
   };
+
+  // Handle map clicks
+  const onMapClick = useCallback((e) => {
+    setFormData((prev) => ({
+      ...prev,
+      location: {
+        latitude: e.latLng.lat(),
+        longitude: e.latLng.lng(),
+      },
+    }));
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 py-8 px-4">
@@ -114,7 +115,7 @@ const RegisterSalon = () => {
           </div>
           <div className="p-4 md:p-8">
             <form onSubmit={handleSubmit} className="space-y-6">
-              
+
               {/* Account Info */}
               <div className="space-y-4">
                 <h3 className="text-base md:text-lg font-semibold text-gray-800 flex items-center gap-2">
@@ -170,7 +171,6 @@ const RegisterSalon = () => {
                   <input name="salon_name" placeholder="Salon Name" value={formData.salon_name} onChange={handleChange} required className="h-12 w-full rounded-md border px-4 focus:outline-none focus:ring-2 focus:ring-gray-400" />
                   <input name="contact_number" placeholder="Contact Number" value={formData.contact_number} onChange={handleChange} required className="h-12 w-full rounded-md border px-4 focus:outline-none focus:ring-2 focus:ring-gray-400" />
                   <input name="salon_address" placeholder="Address" value={formData.salon_address} onChange={handleChange} required className="h-12 w-full rounded-md border px-4 focus:outline-none focus:ring-2 focus:ring-gray-400" />
-                  <input name="salon_logo_link" placeholder="Logo URL" value={formData.salon_logo_link} onChange={handleChange} required className="h-12 w-full rounded-md border px-4 focus:outline-none focus:ring-2 focus:ring-gray-400" />
                 </div>
 
                 <textarea
@@ -193,18 +193,25 @@ const RegisterSalon = () => {
                 </h3>
 
                 <div className="h-64 rounded-xl overflow-hidden border-2 border-gray-200 shadow-md">
-                  <MapContainer
-                    center={[formData.location.latitude, formData.location.longitude]}
-                    zoom={7}
-                    className="h-full w-full"
-                  >
-                    <TileLayer
-                      attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a>'
-                      url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                    />
-                    <LocationPicker setFormData={setFormData} />
-                    <Marker position={[formData.location.latitude, formData.location.longitude]} />
-                  </MapContainer>
+                  {isLoaded && (
+                    <GoogleMap
+                      mapContainerStyle={containerStyle}
+                      center={{
+                        lat: formData.location.latitude,
+                        lng: formData.location.longitude,
+                      }}
+                      zoom={7}
+                      onClick={onMapClick}
+                      options={{ mapId: import.meta.env.VITE_GOOGLE_MAP_ID || undefined }}
+                    >
+                      <Marker
+                        position={{
+                          lat: formData.location.latitude,
+                          lng: formData.location.longitude,
+                        }}
+                      />
+                    </GoogleMap>
+                  )}
                 </div>
 
                 <div className="bg-gray-50 p-4 rounded-lg text-sm">
