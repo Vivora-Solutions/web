@@ -1,227 +1,116 @@
-"use client"
+import { GoogleMap, InfoWindow, useLoadScript } from "@react-google-maps/api"
+import { useState, useMemo, useRef, useEffect } from "react"
 
-import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents } from "react-leaflet"
-import L from "leaflet"
-import "leaflet/dist/leaflet.css"
-import { useEffect } from "react"
 
-// Define the geographical bounds for Sri Lanka
-const sriLankaBounds = L.latLngBounds([
-  [5.918, 79.529], // Southwest corner
-  [9.832, 81.879]  // Northeast corner
-])
+const LIBRARIES = ["marker"]
 
-const defaultIcon = new L.Icon({
-  iconUrl: "https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png",
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-})
-
-// Component to handle the "locate me" button logic
-const LocationButton = () => {
-  const map = useMap()
-
-  const locateUser = () => {
-    map.locate({ setView: false }) // Don't auto-set view; handle in event
-  }
-
-  useEffect(() => {
-    const onLocationFound = (e) => {
-      const userLatLng = e.latlng
-      // Check if user location is within Sri Lanka bounds
-      if (sriLankaBounds.contains(userLatLng)) {
-        // Calculate 5 km radius bounds (approximate: 0.045 degrees ~ 5 km)
-        const radius = 0.045
-        const userBounds = L.latLngBounds([
-          [userLatLng.lat - radius, userLatLng.lng - radius],
-          [userLatLng.lat + radius, userLatLng.lng + radius],
-        ])
-        map.fitBounds(userBounds, { maxZoom: 15 }) // Zoom to 5 km radius
-        L.marker(userLatLng).addTo(map).bindPopup("You are here!").openPopup()
-      } else {
-        console.warn("User location is outside Sri Lanka, defaulting to center")
-        map.fitBounds(sriLankaBounds) // Fallback to Sri Lanka bounds
-      }
-    }
-
-    const onLocationError = (e) => {
-      console.error("Location access denied or failed:", e.message)
-      map.fitBounds(sriLankaBounds) // Fallback to Sri Lanka bounds
-    }
-
-    map.on("locationfound", onLocationFound)
-    map.on("locationerror", onLocationError)
-
-    return () => {
-      map.off("locationfound", onLocationFound)
-      map.off("locationerror", onLocationError)
-    }
-  }, [map])
-
-  return (
-    <button
-      onClick={locateUser}
-      className="absolute top-6 right-6 z-[1000] bg-white/95 backdrop-blur-sm rounded-full p-3 shadow-lg border border-gray-100 hover:bg-white transition-all duration-200 group"
-    >
-      <svg
-        className="w-5 h-5 text-gray-600 group-hover:text-purple-600"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"
-        />
-      </svg>
-    </button>
-  )
+const containerStyle = {
+  width: "100%",
+  height: "100%",
 }
 
-// Component to automatically locate and zoom to the user
-const AutoZoomToUser = () => {
-  const map = useMap()
-
-  useMapEvents({
-    load: () => {
-      map.locate({ setView: false }) // Don't auto-set view; handle in locationfound
-    },
-    locationfound: (e) => {
-      const userLatLng = e.latlng
-      if (sriLankaBounds.contains(userLatLng)) {
-        // Calculate 5 km radius bounds (approximate: 0.045 degrees ~ 5 km)
-        const radius = 0.045
-        const userBounds = L.latLngBounds([
-          [userLatLng.lat - radius, userLatLng.lng - radius],
-          [userLatLng.lat + radius, userLatLng.lng + radius],
-        ])
-        map.fitBounds(userBounds, { maxZoom: 15 }) // Zoom to 5 km radius
-        L.marker(userLatLng).addTo(map).bindPopup("You are here!").openPopup()
-      } else {
-        console.warn("User location is outside Sri Lanka, defaulting to center")
-        map.fitBounds(sriLankaBounds)
-      }
-    },
-    locationerror: (e) => {
-      console.error("Location access denied or failed:", e.message)
-      map.fitBounds(sriLankaBounds) // Fallback to Sri Lanka bounds
-    },
-    dragend: () => {
-      // Ensure map stays within bounds after dragging
-      if (!sriLankaBounds.contains(map.getCenter())) {
-        map.panTo(sriLankaBounds.getCenter())
-      }
-    },
-    zoomend: () => {
-      // Ensure map stays within bounds after zooming
-      if (!sriLankaBounds.contains(map.getCenter())) {
-        map.panTo(sriLankaBounds.getCenter())
-      }
-    },
+export default function MapSection({ center, zoom, filteredSalons, onSalonClick, className, userLocation }) {
+  const { isLoaded, loadError } = useLoadScript({
+    googleMapsApiKey:
+      import.meta.env.VITE_GOOGLE_MAPS_API_KEY || process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
+    libraries: LIBRARIES, 
   })
 
-  return null
-}
+  const [selectedSalon, setSelectedSalon] = useState(null)
+  const mapRef = useRef(null)
+  const markersRef = useRef([])
 
-const MapSection = ({ center, zoom, filteredSalons, onSalonClick, className }) => {
+  const mapCenter = useMemo(
+    () => ({ lat: center[0], lng: center[1] }),
+    [center]
+  )
+
+  useEffect(() => {
+    if (!isLoaded || !mapRef.current) return
+
+    // Clear old markers
+    markersRef.current.forEach((marker) => (marker.map = null))
+    markersRef.current = []
+
+    // ✅ Add salon markers
+    filteredSalons.forEach((salon) => {
+      if (!salon.coordinates?.lat || !salon.coordinates?.lng) return
+
+      const marker = new google.maps.marker.AdvancedMarkerElement({
+        position: {
+          lat: salon.coordinates.lat,
+          lng: salon.coordinates.lng,
+        },
+        map: mapRef.current,
+        title: salon.salon_name,
+      })
+
+      marker.addListener("click", () => {
+        setSelectedSalon(salon)
+        onSalonClick(salon.salon_id)
+      })
+
+      marker.addListener("mouseover", () => {
+        setSelectedSalon(salon)
+      })
+
+      markersRef.current.push(marker)
+    })
+
+  // ✅ Add user location marker
+  if (userLocation) {
+    // Create a custom blue dot element
+    const blueDot = document.createElement("div")
+    blueDot.style.width = "16px"
+    blueDot.style.height = "16px"
+    blueDot.style.backgroundColor = "#4285F4" // Google blue
+    blueDot.style.borderRadius = "50%"
+    blueDot.style.border = "2px solid white"
+    blueDot.style.boxShadow = "0 0 6px rgba(0,0,0,0.3)"
+
+    const userMarker = new google.maps.marker.AdvancedMarkerElement({
+      position: userLocation,
+      map: mapRef.current,
+      title: "You are here",
+      content: blueDot, // ✅ custom marker content
+    })
+    markersRef.current.push(userMarker)
+  }
+
+  }, [isLoaded, filteredSalons, onSalonClick, userLocation])
+
+  if (loadError) return <div>Error loading map</div>
+  if (!isLoaded) return <div>Loading map…</div>
+
   return (
     <div className={className}>
-      <MapContainer
-        center={center}
+      <GoogleMap
+        mapContainerStyle={containerStyle}
+        center={mapCenter}
         zoom={zoom}
-        minZoom={7} // Prevent zooming out too far
-        maxBounds={sriLankaBounds}
-        maxBoundsViscosity={1.0}
-        style={{ height: "100%", width: "100%" }}
-        className="rounded-l-3xl lg:rounded-r-none"
+        options={{
+          mapId: import.meta.env.VITE_GOOGLE_MAP_ID,
+          streetViewControl: false,
+          mapTypeControl: false,
+          fullscreenControl: false,
+        }}
+        onLoad={(map) => (mapRef.current = map)}
       >
-        <TileLayer
-          url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
-          attribution='&copy; <a href="https://carto.com/">CARTO</a>'
-        />
-
-        <AutoZoomToUser />
-        <LocationButton />
-
-        {filteredSalons.map((salon) => (
-          <Marker key={salon.salon_id} position={[salon.coordinates.lat, salon.coordinates.lng]} icon={defaultIcon}>
-            <Popup className="custom-popup">
-              <div
-                onClick={() => onSalonClick(salon.salon_id)}
-                className="cursor-pointer bg-gradient-to-br from-purple-600 to-pink-600 text-white p-4 rounded-xl shadow-lg min-w-64 transform hover:scale-105 transition-transform"
-              >
-                <div className="flex items-start gap-3 mb-3">
-                  <img
-                    src={salon.salon_logo_link || "/placeholder.svg"}
-                    alt="Salon Logo"
-                    className="w-12 h-12 rounded-full object-cover border-2 border-white/30"
-                  />
-                  <div className="flex-1">
-                    <h3 className="font-bold text-lg leading-tight">{salon.salon_name}</h3>
-                    <div className="flex items-center gap-2 mt-1">
-                      <div className="flex text-yellow-300 text-sm">
-                        {Array.from({ length: 5 }).map((_, i) => (
-                          <span key={i}>{i < salon.average_rating ? "★" : "☆"}</span>
-                        ))}
-                      </div>
-                      <span className="text-white/80 text-sm">({salon.average_rating || 0})</span>
-                    </div>
-                  </div>
-                </div>
-                <p className="text-white/90 text-sm mb-3 flex items-center gap-2">
-                  <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                    />
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                    />
-                  </svg>
-                  {salon.salon_address}
-                </p>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                    <span className="text-green-300 text-sm font-medium">Open Now</span>
-                  </div>
-                  <div className="flex items-center gap-1 text-white/90 hover:text-white transition-colors">
-                    <span className="text-sm font-medium">Book Now</span>
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
-                  </div>
-                </div>
-              </div>
-            </Popup>
-          </Marker>
-        ))}
-      </MapContainer>
-
-      <style jsx>{`
-        .custom-popup .leaflet-popup-content-wrapper {
-          background: transparent;
-          box-shadow: none;
-          border-radius: 0;
-          padding: 0;
-        }
-        .custom-popup .leaflet-popup-content {
-          margin: 0;
-          padding: 0;
-        }
-        .custom-popup .leaflet-popup-tip {
-          background: linear-gradient(135deg, #9333ea 0%, #ec4899 100%);
-        }
-      `}</style>
+        {selectedSalon && (
+          <InfoWindow
+            position={{
+              lat: selectedSalon.coordinates.lat,
+              lng: selectedSalon.coordinates.lng,
+            }}
+            onCloseClick={() => setSelectedSalon(null)}
+          >
+            <div>
+              <h3 className="font-semibold">{selectedSalon.salon_name}</h3>
+              <p className="text-sm">{selectedSalon.salon_address}</p>
+            </div>
+          </InfoWindow>
+        )}
+      </GoogleMap>
     </div>
   )
 }
-
-export default MapSection

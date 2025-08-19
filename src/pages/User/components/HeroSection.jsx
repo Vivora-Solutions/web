@@ -60,7 +60,7 @@ const HeroSection = ({ searchTerm, setSearchTerm, salonCount }) => {
       <div className="hidden md:block absolute top-0 right-0 w-72 h-72 bg-yellow-300 rounded-full mix-blend-multiply filter blur-2xl opacity-20 animate-blob animation-delay-2000"></div>
       <div className="hidden md:block absolute -bottom-10 left-20 w-72 h-72 bg-red-300 rounded-full mix-blend-multiply filter blur-2xl opacity-20 animate-blob animation-delay-4000"></div>
 
-      <style jsx>{`
+      <style >{`
         @keyframes blob {
           0% { transform: translate(0px, 0px) scale(1); }
           33% { transform: translate(30px, -50px) scale(1.1); }
