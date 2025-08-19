@@ -808,8 +808,8 @@ const SchedulingInterface = () => {
             await ApiService.createLeave({
               stylist_id: stylistId,
               date: dateStr,
-              leave_start_time: `${dateStr}T00:00:00+00`,
-              leave_end_time: `${dateStr}T23:59:59+00`,
+              leave_start_time: `${dateStr}T00:00:00Z`,
+              leave_end_time: `${dateStr}T23:59:59Z`,
             });
           }
         }
