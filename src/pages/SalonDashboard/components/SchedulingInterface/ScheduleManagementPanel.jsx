@@ -53,7 +53,7 @@ const ScheduleManagementPanel = ({
         >
           <div>
             <h2 className="text-[22px] font-extrabold mb-1">Schedule Management</h2>
-            <p className="text-[14px] opacity-90 m-0">Configure staff schedules</p>
+            <p className="text-[14px] opacity-90 m-0"> staff schedules</p>
           </div>
           <button
             onClick={() => {
