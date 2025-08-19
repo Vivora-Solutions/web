@@ -96,14 +96,53 @@ const SchedulingInterface = () => {
     try {
       setLoading(true);
 
+      // Fetch appointments
+      const appointmentsData = await ApiService.getAppointments();
+      console.log("Raw appointments data:", appointmentsData);
+
+      if (appointmentsData && appointmentsData.length > 0) {
+        const transformedAppointments = appointmentsData.map((appointment) => ({
+          id: appointment.booking_id,
+          clientName: appointment.customer
+            ? `${appointment.customer.first_name} ${appointment.customer.last_name}`
+            : appointment.non_online_customer?.non_online_customer_name ||
+              "Walk-in Customer",
+          clientPhone:
+            appointment.customer?.contact_number ||
+            appointment.non_online_customer
+              ?.non_online_customer_mobile_number ||
+            "",
+          stylistId: appointment.stylist?.stylist_id || appointment.stylist_id,
+          stylistName: appointment.stylist?.stylist_name || "Unknown Stylist", // Add fallback
+          date: appointment.booking_start_datetime.split("T")[0],
+          startTime: appointment.booking_start_datetime
+            .split("T")[1]
+            .substring(0, 5),
+          endTime: appointment.booking_end_datetime
+            .split("T")[1]
+            .substring(0, 5),
+          services:
+            appointment.booking_services?.map((bs) => bs.service.service_id) ||
+            [],
+          isWalkIn: !appointment.user_id,
+          notes: appointment.notes || "",
+          status: appointment.status,
+          workstation: appointment.workstation,
+          originalData: appointment,
+        }));
+
+        console.log("Transformed appointments:", transformedAppointments);
+        setAppointments(transformedAppointments);
+      } else {
+        setAppointments([]);
+      }
+
       // Load all data from API
-      const [stylistsData, appointmentsData, servicesData, leavesData] =
-        await Promise.all([
-          ApiService.getStylists(),
-          ApiService.getAppointments(),
-          ApiService.getServices(),
-          ApiService.getLeaves(),
-        ]);
+      const [stylistsData, servicesData, leavesData] = await Promise.all([
+        ApiService.getStylists(),
+        ApiService.getServices(),
+        ApiService.getLeaves(),
+      ]);
 
       setSalonId(stylistsData[0]?.salon_id || "");
 
@@ -130,33 +169,6 @@ const SchedulingInterface = () => {
         setSelectedStylists([firstActiveStylist.id]);
       }
 
-      const transformedAppointments = appointmentsData.map((appointment) => ({
-        id: appointment.booking_id,
-        clientName: appointment.customer
-          ? `${appointment.customer.first_name} ${appointment.customer.last_name}`
-          : appointment.non_online_customer?.non_online_customer_name ||
-            "Walk-in Customer",
-        clientPhone:
-          appointment.customer?.contact_number ||
-          appointment.non_online_customer?.non_online_customer_mobile_number ||
-          "",
-        stylistId: appointment.stylist.stylist_id,
-        // Fix timezone issue by parsing UTC dates correctly without additional timezone conversion
-        date: appointment.booking_start_datetime.split("T")[0],
-        startTime: appointment.booking_start_datetime
-          .split("T")[1]
-          .substring(0, 5), // Extract HH:MM from ISO string
-        endTime: appointment.booking_end_datetime.split("T")[1].substring(0, 5), // Extract HH:MM from ISO string
-        services: appointment.booking_services.map(
-          (bs) => bs.service.service_id
-        ),
-        isWalkIn: !appointment.user_id,
-        notes: appointment.notes || "",
-        status: appointment.status,
-        workstation: appointment.workstation,
-        originalData: appointment, // Keep original for API calls
-      }));
-
       const transformedServices = servicesData.map((service) => ({
         id: service.service_id,
         name: service.service_name,
@@ -167,7 +179,6 @@ const SchedulingInterface = () => {
       }));
 
       setStylists(transformedStylists);
-      setAppointments(transformedAppointments);
       setServices(transformedServices);
       setLeaves(leavesData);
       generateWeekDates();
