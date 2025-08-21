@@ -16,6 +16,7 @@ const CalendarView = ({
   isDragging,
   gridRef,
   handleMouseDown,
+  handleTouchStart,
   isSlotSelected,
   hasLeaveOnDate,
   hasLeaveAtTimeSlot,
@@ -25,7 +26,8 @@ const CalendarView = ({
   handleAppointmentClick,
   COLORS,
   formatTime,
-  formatDateToString
+  formatDateToString,
+
 }) => {
   if (selectedStylists.length === 0) {
     return (
@@ -74,6 +76,8 @@ const CalendarView = ({
           cursor: isDragging ? "grabbing" : "crosshair",
         }}
         onMouseDown={handleMouseDown}
+        onTouchStart={handleTouchStart}
+        className="scheduling-calendar"
       >
         {/* Time Column */}
         <div
@@ -423,3 +427,4 @@ const CalendarView = ({
 };
 
 export default CalendarView;
+

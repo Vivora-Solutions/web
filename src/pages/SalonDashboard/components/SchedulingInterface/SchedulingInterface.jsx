@@ -81,7 +81,6 @@ const SchedulingInterface = () => {
     { value: "leave", label: "Leave", icon: Plane, color: COLORS.leave },
   ];
 
-
   // Notification system
   const showNotification = (message, type = "success") => {
     setNotification({ message, type });
@@ -335,6 +334,49 @@ const SchedulingInterface = () => {
 
   const handleMouseUp = () => {
     setIsDragging(false);
+  };
+
+  // Add these touch event handlers
+  const handleTouchStart = (e) => {
+    if (scheduleType === "leave") return;
+
+    // Get touch position
+    const touch = e.touches[0];
+    const mockEvent = {
+      clientX: touch.clientX,
+      clientY: touch.clientY,
+    };
+
+    const position = getCellPosition(mockEvent);
+    if (!position) return;
+
+    setIsDragging(true);
+    setDragStart(position);
+    setDragEnd(position);
+    setSelectedTimeSlots([]);
+    e.preventDefault();
+  };
+
+  const handleTouchMove = (e) => {
+    if (!isDragging || !dragStart || scheduleType === "leave") return;
+
+    const touch = e.touches[0];
+    const mockEvent = {
+      clientX: touch.clientX,
+      clientY: touch.clientY,
+    };
+
+    const position = getCellPosition(mockEvent);
+    if (!position) return;
+
+    setDragEnd(position);
+    updateSelection(dragStart, position);
+    e.preventDefault(); // Prevent scrolling while dragging
+  };
+
+  const handleTouchEnd = (e) => {
+    setIsDragging(false);
+    e.preventDefault();
   };
 
   const updateSelection = (start, end) => {
@@ -978,15 +1020,29 @@ const SchedulingInterface = () => {
   useEffect(() => {
     const handleGlobalMouseMove = (e) => handleMouseMove(e);
     const handleGlobalMouseUp = () => handleMouseUp();
+    const handleGlobalTouchMove = (e) => handleTouchMove(e);
+    const handleGlobalTouchEnd = (e) => handleTouchEnd(e);
 
     if (isDragging) {
+      // Mouse events
       document.addEventListener("mousemove", handleGlobalMouseMove);
       document.addEventListener("mouseup", handleGlobalMouseUp);
+
+      // Touch events
+      document.addEventListener("touchmove", handleGlobalTouchMove, {
+        passive: false,
+      });
+      document.addEventListener("touchend", handleGlobalTouchEnd);
     }
 
     return () => {
+      // Clean up mouse events
       document.removeEventListener("mousemove", handleGlobalMouseMove);
       document.removeEventListener("mouseup", handleGlobalMouseUp);
+
+      // Clean up touch events
+      document.removeEventListener("touchmove", handleGlobalTouchMove);
+      document.removeEventListener("touchend", handleGlobalTouchEnd);
     };
   }, [isDragging, dragStart]);
 
@@ -1078,6 +1134,7 @@ const SchedulingInterface = () => {
                 isDragging={isDragging}
                 gridRef={gridRef}
                 handleMouseDown={handleMouseDown}
+                handleTouchStart={handleTouchStart}
                 isSlotSelected={isSlotSelected}
                 hasLeaveOnDate={hasLeaveOnDate}
                 hasLeaveAtTimeSlot={hasLeaveAtTimeSlot}

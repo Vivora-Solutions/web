@@ -1,5 +1,6 @@
-import axios from 'axios';
-const BASE_URL = 'http://localhost:3000/api';
+import axios from "axios";
+const BASE_URL = "http://localhost:3000/api";
+// const BASE_URL = "http://10.10.23.48:3000/api";
 //const BASE_URL = 'https://backend-2-o7e5.onrender.com/api';
 
 // For protected routes
@@ -8,7 +9,7 @@ const ProtectedAPI = axios.create({
 });
 
 ProtectedAPI.interceptors.request.use((req) => {
-  const token = localStorage.getItem('access_token');
+  const token = localStorage.getItem("access_token");
   if (token) {
     req.headers.Authorization = `Bearer ${token}`;
   }
