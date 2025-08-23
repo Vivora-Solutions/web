@@ -231,7 +231,7 @@ const WorkStationManagement = () => {
         <button
           onClick={handleAddNew}
           disabled={loading}
-          className="flex items-center gap-2 bg-gradient-to-r from-green-500 to-green-600 text-white px-5 py-2.5 rounded-xl font-medium hover:shadow-lg hover:-translate-y-0.5 transition disabled:opacity-50"
+          className="flex items-center gap-2 bg-gradient-to-r from-gray-800 to-gray-600 text-white px-5 py-2.5 rounded-xl font-medium hover:shadow-lg hover:-translate-y-0.5 transition disabled:opacity-50"
         >
           <Plus size={20} />
           Add Workstation
@@ -322,7 +322,7 @@ const WorkStationManagement = () => {
                 key={station.workstation_id}
                 className="relative bg-white border border-slate-200 rounded-xl p-6 hover:shadow-lg transition"
               >
-                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-gray-500 to-gray-700 rounded-t-xl"></div>
+                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-gray-800 to-gray-700 rounded-t-xl"></div>
 
                 {/* Header */}
                 <div className="flex justify-between items-start mb-4">
@@ -348,7 +348,7 @@ const WorkStationManagement = () => {
                     </button>
                     <button
                       onClick={() => handleManageServices(station)}
-                      className="w-8 h-8 bg-purple-100 text-purple-500 rounded-md flex items-center justify-center hover:bg-purple-200"
+                      className="w-8 h-8 bg-gray-100 text-gray-600 rounded-md flex items-center justify-center hover:bg-purple-200"
                       title="Manage Services"
                     >
                       <Settings size={16} />
@@ -388,7 +388,7 @@ const WorkStationManagement = () => {
                       <p className="text-sm">No services assigned</p>
                       <button
                         onClick={() => handleManageServices(station)}
-                        className="text-purple-500 hover:text-purple-600 text-xs mt-1"
+                        className="text-gray-600 hover:text-purple-600 text-xs mt-1"
                       >
                         Add services
                       </button>

@@ -20,14 +20,15 @@ const Sidebar = ({ items, activeIndex }) => {
   return (
     <>
       {/* Mobile toggle button */}
-      {isMobile && (
+      {isMobile && !isMobileOpen && (
         <button
           className="fixed z-[60] top-4 left-4 bg-gray-700 text-white px-3 py-2 rounded-md text-xl"
-          onClick={() => setIsMobileOpen(!isMobileOpen)}
+          onClick={() => setIsMobileOpen(true)}
         >
           ☰
         </button>
       )}
+
 
       {/* Overlay */}
       <div
@@ -39,8 +40,8 @@ const Sidebar = ({ items, activeIndex }) => {
       <div
         className={`
           ${isMobile
-          ? "fixed top-0 left-0 h-full z-[50] transition-transform duration-300" 
-          : "sticky top-0 h-[calc(100vh-60px)]"}
+            ? "fixed top-0 left-0 h-full z-[50] transition-transform duration-300"
+            : "sticky top-0 h-[calc(100vh-60px)]"}
           bg-white border-r shadow-sm flex flex-col
           ${isExpanded ? "w-[220px]" : "w-[60px]"}
           ${isMobile ? (isMobileOpen ? "translate-x-0" : "-translate-x-full") : ""}
@@ -68,10 +69,9 @@ const Sidebar = ({ items, activeIndex }) => {
               className={`
                 flex items-center gap-3 cursor-pointer rounded-lg px-4 py-3
                 transition-colors group
-                ${
-                  activeIndex === index
-                    ? "bg-gray-700 text-white"
-                    : "text-gray-700 hover:bg-gray-700 hover:text-white"
+                ${activeIndex === index
+                  ? "bg-gray-700 text-white"
+                  : "text-gray-700 hover:bg-gray-700 hover:text-white"
                 }
               `}
             >
