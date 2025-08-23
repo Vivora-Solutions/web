@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ProtectedAPI } from '../../../utils/api';
 
@@ -36,7 +36,8 @@ const Header = () => {
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-white shadow-md px-6 py-4 flex justify-between items-center h-[60px]">
+    <header className="fixed top-[4px] left-0 right-0 z-50 bg-white shadow-md px-6 py-4 flex justify-between items-center h-[60px]">
+      
       {/* Logo */}
       <Link to="/" className="flex items-center">
         <h1
