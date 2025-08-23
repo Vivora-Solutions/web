@@ -254,7 +254,7 @@ const StylistManagement = ({ onOpenSchedule }) => {
         </div>
         <button
           onClick={() => setShowAddForm(true)}
-          className="px-6 py-3 bg-gradient-to-r from-orange-400 to-orange-500 text-white rounded-xl font-semibold flex items-center gap-2 shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all"
+          className="px-6 py-3 bg-gray-800 text-white rounded-xl font-semibold flex items-center gap-2 shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all"
         >
           <Plus size={20} />
           Add Employee

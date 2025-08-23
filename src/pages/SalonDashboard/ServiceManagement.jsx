@@ -116,7 +116,7 @@
 //       <div className="flex justify-between items-center mb-6">
 //         <h2 className="text-2xl font-semibold">Service Management</h2>
 //         <button
-//           className="bg-green-500 text-white px-4 py-2 rounded disabled:bg-gray-400"
+//           className="bg-gray-800 text-white px-4 py-2 rounded disabled:bg-gray-400"
 //           onClick={handleAddNewClick}
 //           disabled={isAdding || editingId !== null}
 //         >
@@ -202,7 +202,7 @@
 //                   />
 //                 </td>
 //                 <td className="px-4 py-2">
-//                   <button className="bg-green-500 text-white px-2 py-1 rounded mr-2" onClick={handleAddService}>Save</button>
+//                   <button className="bg-gray-800 text-white px-2 py-1 rounded mr-2" onClick={handleAddService}>Save</button>
 //                   <button className="bg-red-500 text-white px-2 py-1 rounded" onClick={handleCancel}>Cancel</button>
 //                 </td>
 //               </tr>
@@ -302,14 +302,14 @@
 //                 <td className="px-4 py-2">
 //                   {editingId === service.service_id ? (
 //                     <>
-//                       <button className="bg-green-500 text-white px-2 py-1 rounded mr-2"
+//                       <button className="bg-gray-800 text-white px-2 py-1 rounded mr-2"
 //                         onClick={() => handleUpdateService(service.service_id)}>Save</button>
 //                       <button className="bg-red-500 text-white px-2 py-1 rounded"
 //                         onClick={handleCancel}>Cancel</button>
 //                     </>
 //                   ) : (
 //                     <button
-//                       className="bg-blue-500 text-white px-2 py-1 rounded"
+//                       className="bg-gray-900 text-white px-2 py-1 rounded"
 //                       onClick={() => handleEditClick(service)}
 //                       disabled={isAdding}
 //                     >
@@ -454,7 +454,7 @@ const ServiceManagement = () => {
       <div className="flex justify-between items-center mb-6 flex-wrap gap-3">
         <h2 className="text-xl sm:text-2xl font-semibold">Service Management</h2>
         <button
-          className="bg-green-500 text-white px-4 py-2 rounded disabled:bg-gray-400 text-sm sm:text-base"
+          className="bg-gray-800 text-white px-4 py-2 rounded disabled:bg-gray-400 text-sm sm:text-base"
           onClick={handleAddNewClick}
           disabled={isAdding || editingId !== null}
         >
@@ -511,7 +511,7 @@ const ServiceManagement = () => {
                   <input type="checkbox" name="show_price" checked={formData.show_price} onChange={handleInputChange} className="scale-125" />
                 </td>
                 <td className="px-4 py-2">
-                  <button className="bg-green-500 text-white px-2 py-1 rounded mr-2" onClick={handleAddService}>Save</button>
+                  <button className="bg-gray-800 text-white px-2 py-1 rounded mr-2" onClick={handleAddService}>Save</button>
                   <button className="bg-red-500 text-white px-2 py-1 rounded" onClick={handleCancel}>Cancel</button>
                 </td>
               </tr>
@@ -566,11 +566,11 @@ const ServiceManagement = () => {
                 <td className="px-4 py-2">
                   {editingId === service.service_id ? (
                     <>
-                      <button className="bg-green-500 text-white px-2 py-1 rounded mr-2" onClick={() => handleUpdateService(service.service_id)}>Save</button>
+                      <button className="bg-gray-800 text-white px-2 py-1 rounded mr-2" onClick={() => handleUpdateService(service.service_id)}>Save</button>
                       <button className="bg-red-500 text-white px-2 py-1 rounded" onClick={handleCancel}>Cancel</button>
                     </>
                   ) : (
-                    <button className="bg-blue-500 text-white px-2 py-1 rounded" onClick={() => handleEditClick(service)} disabled={isAdding}>Edit</button>
+                    <button className="bg-gray-900 text-white px-2 py-1 rounded" onClick={() => handleEditClick(service)} disabled={isAdding}>Edit</button>
                   )}
                 </td>
               </tr>
@@ -601,7 +601,7 @@ const ServiceManagement = () => {
               <label><input type="checkbox" name="show_price" checked={formData.show_price} onChange={handleInputChange}/> Show Price</label>
             </div>
             <div className="flex gap-2">
-              <button className="bg-green-500 text-white px-3 py-1 rounded" onClick={handleAddService}>Save</button>
+              <button className="bg-gray-800 text-white px-3 py-1 rounded" onClick={handleAddService}>Save</button>
               <button className="bg-red-500 text-white px-3 py-1 rounded" onClick={handleCancel}>Cancel</button>
             </div>
           </div>
@@ -629,7 +629,7 @@ const ServiceManagement = () => {
                   <label><input type="checkbox" name="show_price" checked={formData.show_price} onChange={handleInputChange}/> Show Price</label>
                 </div>
                 <div className="flex gap-2">
-                  <button className="bg-green-500 text-white px-3 py-1 rounded" onClick={() => handleUpdateService(service.service_id)}>Save</button>
+                  <button className="bg-gray-800 text-white px-3 py-1 rounded" onClick={() => handleUpdateService(service.service_id)}>Save</button>
                   <button className="bg-red-500 text-white px-3 py-1 rounded" onClick={handleCancel}>Cancel</button>
                 </div>
               </>
@@ -637,7 +637,7 @@ const ServiceManagement = () => {
               <>
                 <div className="flex justify-between items-center">
                   <h3 className="font-semibold text-lg">{service.service_name}</h3>
-                  <button className="bg-blue-500 text-white px-2 py-1 rounded text-xs" onClick={() => handleEditClick(service)}>Edit</button>
+                  <button className="bg-gray-900 text-white px-2 py-1 rounded text-xs" onClick={() => handleEditClick(service)}>Edit</button>
                 </div>
                 <p className="text-gray-600 text-sm mt-1">{service.service_description}</p>
                 <div className="mt-2 text-sm space-y-1">

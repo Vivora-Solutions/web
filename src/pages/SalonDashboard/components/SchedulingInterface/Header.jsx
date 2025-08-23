@@ -18,11 +18,10 @@ const Header = ({
     <div className="mb-6 flex flex-wrap justify-between items-center">
       <div className="flex items-center gap-4">
 <div
-  className="hidden md:flex items-center justify-center rounded-2xl shadow-lg"
+  className="hidden md:flex items-center justify-center rounded-2xl shadow-lg bg-gray-800 text-white"
   style={{
     width: "60px",
     height: "60px",
-    background: `linear-gradient(135deg, ${COLORS.primary}, ${COLORS.secondary})`,
     boxShadow: "0 8px 25px rgba(102, 126, 234, 0.3)",
   }}
 >

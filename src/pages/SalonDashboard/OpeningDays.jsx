@@ -110,7 +110,7 @@ const OpeningHours = () => {
 
   if (isLoading) {
     return (
-      <div className="text-center py-8 text-red-600 font-semibold">
+      <div className="text-center py-8 text-gray-600 font-semibold">
         Loading opening hours...
       </div>
     );
@@ -126,13 +126,13 @@ const OpeningHours = () => {
             <>
               <button
                 onClick={() => setIsEditing(false)}
-                className="px-4 py-2 text-sm font-medium rounded bg-red-600 text-white hover:bg-red-700"
+                className="px-4 py-2 text-sm font-medium rounded bg-gray-600 text-white hover:bg-gray-900"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSave}
-                className="px-4 py-2 text-sm font-medium rounded bg-red-600 text-white hover:bg-red-700"
+                className="px-4 py-2 text-sm font-medium rounded bg-gray-600 text-white hover:bg-gray-900"
               >
                 Save Changes
               </button>
@@ -140,7 +140,7 @@ const OpeningHours = () => {
           ) : (
             <button
               onClick={() => setIsEditing(true)}
-              className="px-4 py-2 text-sm font-medium rounded bg-red-600 text-white hover:bg-red-700"
+              className="px-4 py-2 text-sm font-medium rounded bg-gray-600 text-white hover:bg-gray-900"
             >
               Edit Hours
             </button>
@@ -169,7 +169,7 @@ const OpeningHours = () => {
                     checked={day.is_open}
                     onChange={() => handleToggleOpen(index)}
                     disabled={!isEditing}
-                    className="w-5 h-5 accent-red-600 cursor-pointer"
+                    className="w-5 h-5 accent-gray-600 cursor-pointer"
                   />
                 </td>
                 <td className="px-4 py-3">
@@ -225,7 +225,7 @@ const OpeningHours = () => {
                 checked={day.is_open}
                 onChange={() => handleToggleOpen(index)}
                 disabled={!isEditing}
-                className="w-5 h-5 accent-red-600"
+                className="w-5 h-5 accent-gray-600"
               />
             </div>
             <div className="mt-3 text-sm">
