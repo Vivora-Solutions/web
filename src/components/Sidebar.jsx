@@ -38,15 +38,17 @@ const Sidebar = ({ items, activeIndex }) => {
 
       {/* Sidebar */}
       <div
-        className={`
-          ${isMobile
-            ? "fixed top-0 left-0 h-full z-[50] transition-transform duration-300"
-            : "sticky top-0 h-[calc(100vh-60px)]"}
-          bg-white border-r shadow-sm flex flex-col
-          ${isExpanded ? "w-[220px]" : "w-[60px]"}
-          ${isMobile ? (isMobileOpen ? "translate-x-0" : "-translate-x-full") : ""}
-        `}
-      >
+  className={`
+    ${isMobile
+      ? "fixed top-0 left-0 h-full z-[50] transition-transform duration-300"
+      : "sticky top-[60px] h-[calc(100vh-60px)]"} 
+    bg-white border-r shadow-sm flex flex-col
+    ${isExpanded ? "w-[220px]" : "w-[60px]"}
+    ${isMobile ? (isMobileOpen ? "translate-x-0" : "-translate-x-full") : ""}
+    overflow-y-auto
+  `}
+>
+
         <div className="flex justify-end px-2 py-2">
           {isMobile ? (
             <button onClick={() => setIsMobileOpen(false)} className="text-gray-600 p-1">
