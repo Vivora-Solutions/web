@@ -17,17 +17,18 @@ const Header = ({
   return (
     <div className="mb-6 flex flex-wrap justify-between items-center">
       <div className="flex items-center gap-4">
-        <div
-          className="flex items-center justify-center rounded-2xl shadow-lg"
-          style={{
-            width: "60px",
-            height: "60px",
-            background: `linear-gradient(135deg, ${COLORS.primary}, ${COLORS.secondary})`,
-            boxShadow: "0 8px 25px rgba(102, 126, 234, 0.3)",
-          }}
-        >
-          <Calendar size={28} color="white" />
-        </div>
+<div
+  className="hidden md:flex items-center justify-center rounded-2xl shadow-lg"
+  style={{
+    width: "60px",
+    height: "60px",
+    background: `linear-gradient(135deg, ${COLORS.primary}, ${COLORS.secondary})`,
+    boxShadow: "0 8px 25px rgba(102, 126, 234, 0.3)",
+  }}
+>
+  <Calendar size={28} color="white" />
+</div>
+
         <div className="hidden md:flex flex-col">
           <h1 className="text-2xl font-extrabold text-[${COLORS.text}] mb-1">
             {title}
