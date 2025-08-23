@@ -46,19 +46,20 @@ const Header = ({
           COLORS={COLORS}
         />
         <ActionButton
-          icon={<Settings size={18} />}
-          text="Manage Schedules"
-          onClick={() => {
-            setShowScheduleManagementPanel(true);
-            setSelectedLeavesToDelete([]);
-          }}
-          color={COLORS.warning}
-        />
+  icon={<Settings size={18} />}
+  text="Manage Schedules"
+  onClick={() => {
+    setShowScheduleManagementPanel(true);
+    setSelectedLeavesToDelete([]);
+  }}
+  color="#1f2937" // Tailwind gray-800
+/>
+
         <ActionButton
           icon={<Plus size={18} />}
           text="Add Appointment"
           onClick={handleAddAppointment}
-          color={COLORS.success}
+          color="#1f2937" 
         />
       </div>
     </div>
