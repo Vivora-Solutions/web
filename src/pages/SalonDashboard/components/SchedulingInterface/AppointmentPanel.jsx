@@ -29,9 +29,17 @@ const AppointmentPanel = ({
             className="fixed inset-0 z-[50] bg-whitebackdrop-blur-sm"
             onClick={() => setShowAddAppointmentPanel(false)}
           />
-          <div
-            className="fixed right-0 top-0 h-screen w-full max-w-[500px] bg-white shadow-2xl z-[51] overflow-y-auto flex flex-col"
-          >
+        <div
+  className="
+    fixed right-0 top-[60px]           /* offset to stay below header (adjust if header height differs) */
+    h-[calc(100vh-60px)]              /* full height minus header */
+    w-[90%] sm:w-[450px]              /* take 90% on mobile, 450px on sm+ */
+    bg-white shadow-2xl z-[51] 
+    overflow-y-auto flex flex-col
+  "
+>
+ 
+
             <div
               className="flex justify-between items-center px-6 py-7 border-b-2"
               style={{
