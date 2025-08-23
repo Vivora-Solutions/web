@@ -18,7 +18,7 @@ const SalonImageGallery = ({ banner_images = [] }) => {
     return (
       <div className="flex items-center justify-center w-full h-72 md:h-[36rem] bg-gray-100 rounded-2xl shadow-lg overflow-hidden">
         <img
-          src="https://via.placeholder.com/1200x300"
+          src="https://img.freepik.com/free-photo/interior-latino-hair-salon_23-2150555185.jpg?semt=ais_hybrid&w=740&q=80"
           alt="Default Banner"
           className="w-full h-full object-cover"
         />
