@@ -40,14 +40,14 @@ const Header = () => {
   return (
    <header className="bg-gradient-to-r from-gray-800 via-gray-700 to-gray-600 shadow-md w-full z-50">
 
-      <div className="px-4 sm:px-6 py-4 flex justify-between items-center">
+      <div className="px-4 sm:px-6 py-2 flex justify-between items-center">
         {/* Logo */}
         <Link to="/" className="flex items-center">
           <img
             src="/weblogo-white.png"
             alt="Vivora Logo"
-            className="h-10 w-auto sm:h-15 object-contain"
-            style={{ maxWidth: '180px' }}
+            className="h-15 w-auto sm:h-16 object-contain"
+            style={{ maxWidth: '200px' }}
           />
         </Link>
 
