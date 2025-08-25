@@ -43,21 +43,12 @@ const Header = () => {
       <div className="px-4 sm:px-6 py-4 flex justify-between items-center">
         {/* Logo */}
         <Link to="/" className="flex items-center">
-          <h1
-            className="font-bold text-3xl sm:text-4xl leading-none select-none"
-            style={{
-              fontFamily: '"Italiana", sans-serif',
-              background: 'linear-gradient(to right, #ffffff, #cccccc)',
-              backgroundSize: '200%',
-              backgroundClip: 'text',
-              WebkitBackgroundClip: 'text',
-              color: 'transparent',
-              WebkitTextFillColor: 'transparent',
-              animation: 'animate-gradient 2.5s linear infinite',
-            }}
-          >
-            VIVORA
-          </h1>
+          <img
+            src="/weblogo-white.png"
+            alt="Vivora Logo"
+            className="h-10 w-auto sm:h-15 object-contain"
+            style={{ maxWidth: '180px' }}
+          />
         </Link>
 
         {/* Desktop Navigation */}
@@ -66,7 +57,7 @@ const Header = () => {
           {user?.role === 'customer' && (
             <Link to="/my-bookings" className="text-white hover:text-gray-300 font-medium">My Bookings</Link>
           )}
-          {/* <Link to="/about" className="text-white hover:text-gray-300 font-medium">About</Link> */}
+          <Link to="/about" className="text-white hover:text-gray-300 font-medium">About</Link>
           <Link to="/salon-register" className="text-white hover:text-gray-300 font-medium">Register as a Salon</Link>
           {!loading && user === false && (
             <>
@@ -122,7 +113,7 @@ const Header = () => {
           {user?.role === 'customer' && (
             <Link to="/my-bookings" className="block font-medium hover:text-gray-300" onClick={() => setMenuOpen(false)}>My Bookings</Link>
           )}
-          {/* <Link to="/about" className="block font-medium hover:text-gray-300" onClick={() => setMenuOpen(false)}>About</Link> */}
+          <Link to="/about" className="block font-medium hover:text-gray-300" onClick={() => setMenuOpen(false)}>About</Link>
           <Link to="/salon-register" className="block font-medium hover:text-gray-300" onClick={() => setMenuOpen(false)}>Register as a Salon</Link>
 
           {!loading && user === false && (
