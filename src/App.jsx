@@ -24,6 +24,7 @@ import SchedulingInterface from "./pages/SalonDashboard/components/SchedulingInt
 import OAuthHandler from "./components/OAuthCallback";
 import ProtectedRoute from "./components/ProtectedRoute";
 import PublicCustomerRoute from "./components/PublicCustomerRoute";
+import About from "./pages/User/components/about";
 //
 function App() {
   return (
@@ -34,6 +35,9 @@ function App() {
         <Route path="/signup" element={<RegisterCustomerForm />} />
         <Route path="/salon-register" element={<SalonRegister />} />
         <Route path="/oauth-callback" element={<OAuthHandler />} />
+        <Route path="/about" element={<About />} />
+
+
 
         {/* PublicCustomerRoute Pages */}
         <Route path="/" element={
