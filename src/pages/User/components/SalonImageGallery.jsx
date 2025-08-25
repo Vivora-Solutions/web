@@ -65,10 +65,13 @@ const SalonImageGallery = ({ banner_images = [] }) => {
         </button>
       </div>
 
-      {/* Right: Thumbnails (Scrollable) */}
-      <div className="w-full md:w-1/3 flex flex-col gap-3 h-72 md:h-full overflow-y-auto pr-2">
+      {/* Thumbnails */}
+      <div className="w-full md:w-1/3 flex md:flex-col flex-row gap-3  md:h-full overflow-y-auto md:overflow-y-auto overflow-x-auto pr-2 md:pr-0">
         {banner_images.map((img, index) => (
-          <div key={index} className="flex-1 min-h-0">
+          <div
+            key={index}
+            className="flex-shrink-0 md:flex-1 min-h-0 w-24 md:w-full h-full"
+          >
             <img
               src={img.image_link}
               alt={`Thumbnail ${index + 1}`}

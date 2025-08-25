@@ -106,7 +106,7 @@ const ReviewSection = () => {
         )}
 
         {/* Stats Section */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-16 max-w-4xl mx-auto">
+        {/* <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-16 max-w-4xl mx-auto">
           <div className="text-center bg-white rounded-2xl p-6 shadow-md border border-gray-200">
             <div className="text-3xl font-bold text-black mb-2">4.9</div>
             <div className="text-gray-700">Average Rating</div>
@@ -126,7 +126,7 @@ const ReviewSection = () => {
             <div className="text-3xl font-bold text-black mb-2">98%</div>
             <div className="text-gray-700">Satisfaction Rate</div>
           </div>
-        </div>
+        </div> */}
       </div>
     </section>
   );
