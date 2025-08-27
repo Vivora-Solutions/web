@@ -9,11 +9,10 @@ const Footer = () => {
         <div className="hidden md:grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Logo and Description Section */}
           <div>
-            <div className="flex items-center space-x-2 mb-4">
-              <Sparkles className="h-8 w-8 text-pink-400" />
-              <span className="text-2xl font-bold">Vivora</span>
-            </div>
-            <p className="text-gray-400">Your trusted partner for all beauty and wellness needs.</p>
+            <img src="/logo.png" alt="Vivora Logo" className="w-12 mb-4" />
+            <p className="text-gray-400">
+              Your trusted partner for all beauty and wellness needs.
+            </p>
           </div>
 
           {/* Quick Links Section */}
@@ -21,7 +20,6 @@ const Footer = () => {
             <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
             <ul className="space-y-2 text-gray-400">
               <li><a href="#" className="hover:text-white transition-colors">Find Salons</a></li>
-              {/* <li><a href="#" className="hover:text-white transition-colors">About Us</a></li> */}
               <li><a href="#" className="hover:text-white transition-colors">Contact</a></li>
             </ul>
           </div>
@@ -40,7 +38,7 @@ const Footer = () => {
           {/* Contact Info Section */}
           <div>
             <h3 className="text-lg font-semibold mb-4">Contact Info</h3>
-            <div className="space-y-2 text-gray-400">
+            <div className="space-y-3 text-gray-400">
               <div className="flex items-start">
                 <Phone className="h-4 w-4 mr-2 mt-1" />
                 <div className="flex flex-col space-y-1">
@@ -49,33 +47,39 @@ const Footer = () => {
                   <span>+94 70 244 3978</span>
                 </div>
               </div>
-              <div className="flex items-center">
-                <MapPin className="h-4 w-4 mr-2" />
+              <div className="flex items-start">
+                <MapPin className="h-4 w-4 mr-2 mt-1" />
                 <span>No 251/A, Molpe Road, Katubedda, Moratuwa</span>
               </div>
             </div>
           </div>
-
         </div>
 
         {/* Mobile Version */}
-        <div className="block md:hidden text-center space-y-4">
-          <div className="flex justify-center items-center space-x-2">
-            <Sparkles className="h-6 w-6 text-pink-400" />
-            <span className="text-xl font-bold">Vivora</span>
-          </div>
+        <div className="block md:hidden text-center space-y-6">
+          {/* Logo / Brand */}
+      <div className="flex items-center space-x-2 mb-4 justify-center">
+  <img src="/logo.png" alt="Vivora Logo" className="w-6 h-6" />
+  <span className="text-xl font-bold">Vivora</span>
+</div>
+
+          {/* Quick Links */}
           <ul className="flex justify-center space-x-6 text-gray-400 text-sm">
             <li><a href="#" className="hover:text-white">Find Salons</a></li>
-            <li><a href="#" className="hover:text-white">Services</a></li>
+            <li><a href="#" className="hover:text-white">Contact</a></li>
           </ul>
-          <div className="flex justify-center items-center text-gray-400 text-sm space-x-4">
-            <div className="flex items-center">
-              <Phone className="h-4 w-4 mr-1" />
-              <span>+94 77 123 4567</span>
+
+          {/* Contact Info (stacked) */}
+          <div className="text-gray-400 text-sm space-y-4">
+            <div className="flex flex-col items-center">
+              <Phone className="h-4 w-4 mb-1" />
+              <span>+94 71 572 9105</span>
+              <span>+94 76 678 7578</span>
+              <span>+94 70 244 3978</span>
             </div>
-            <div className="flex items-center">
-              <MapPin className="h-4 w-4 mr-1" />
-              <span>Colombo</span>
+            <div className="flex flex-col items-center">
+              <MapPin className="h-4 w-4 mb-1" />
+              <span>No 251/A, Molpe Road, Katubedda, Moratuwa</span>
             </div>
           </div>
         </div>

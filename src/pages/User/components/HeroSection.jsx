@@ -26,14 +26,14 @@ const HeroSection = ({ searchTerm, setSearchTerm, salonCount }) => {
           </p>
 
           {/* Customer Trust */}
-          <div className="flex items-center gap-2 mt-6 pb-6">
+          {/* <div className="flex items-center gap-2 mt-6 pb-6">
             <div className="flex text-yellow-400">
               {[...Array(5)].map((_, i) => (
                 <Star key={i} className="w-5 h-5 fill-current" />
               ))}
             </div>
             <span className="text-gray-600 text-sm">Rated 4.9/5 by 1,200+ happy clients</span>
-          </div>
+          </div> */}
 
           {/* CTA */}
           <button className="mt-8 px-8 py-3 bg-gradient-to-r from-red-500 via-pink-500 to-orange-400 text-white rounded-full font-semibold shadow-lg hover:scale-105 transition-transform duration-200">

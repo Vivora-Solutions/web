@@ -104,7 +104,7 @@ const SalonInfo = () => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 py-10 px-4 flex justify-center items-start">
+    <div className="min-h-screen bg-slate-50 py-10 p-0 md:p-4 flex justify-center items-start">
       <div className="relative w-full rounded-2xl shadow-xl border border-slate-200 bg-white p-4 pb-20">
         {/* pb-20 adds space at bottom for buttons */}
 

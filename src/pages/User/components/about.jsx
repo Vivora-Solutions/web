@@ -1,6 +1,14 @@
 import React from 'react';
 import Header from './Header';
 
+
+import { useRef } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+
+
+
+
+
 const teamMembers = [
   {
     name: 'ISHARA DILSHAN',
@@ -65,6 +73,23 @@ const teamMembers = [
 ];
 
 const About = () => {
+
+
+
+ const scrollRef = useRef(null);
+
+  const scroll = (direction) => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollBy({
+        left: direction === "left" ? -300 : 300,
+        behavior: "smooth",
+      });
+    }
+  };
+
+
+
+
   return (
     <div className="bg-gray-100">
       <Header />
@@ -104,37 +129,52 @@ const About = () => {
           </p>
         </div>
 
-        {/* Mission */}
-        <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-8 mb-12">
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">Our Mission</h2>
-          <p className="text-gray-600 mb-6">
-            At Vivora, our mission is to bridge the gap between talented salon professionals and clients seeking quality beauty services. We believe that booking a salon appointment should be as easy and seamless as possible. Our platform empowers users to find the perfect salon, browse services, and book appointments with just a few clicks.
-          </p>
-          <p className="text-gray-600">
-            We are committed to supporting local businesses by providing them with the tools they need to showcase their work, manage their schedules, and connect with a wider audience. For our users, we strive to offer a curated selection of top-rated salons, ensuring a high-quality experience every time.
-          </p>
-        </div>
-
+      
         {/* Team */}
-        <div className="text-center">
-          <h2 className="text-3xl font-bold text-gray-800 mb-8">Meet the Team</h2>
-          <div className="flex flex-wrap justify-center gap-8">
-            {teamMembers.map((member, index) => (
-              <div key={index} className="w-full sm:w-1/2 md:w-1/3 lg:w-1/4">
-                <div className="bg-white rounded-lg shadow-md p-6 transform hover:scale-105 transition-transform duration-300">
-                  <img
-                    className="w-32 h-32 rounded-full mx-auto mb-4 object-cover"
-                    src={member.image}
-                    alt={member.name}
-                  />
-                  <h3 className="text-xl font-semibold text-gray-800">{member.name}</h3>
-                  <p className="text-gray-500">{member.position}</p>
-                  <p className="text-gray-600 mt-2 text-sm">{member.role}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+   
+
+ <div className="text-center relative m-4">
+  <h2 className="text-3xl font-bold text-gray-800 mb-8">Meet the Team</h2>
+
+  {/* Scrollable container */}
+  <div
+    ref={scrollRef}
+    className="flex overflow-x-auto gap-6 px-4 pb-4 scrollbar-hide scroll-smooth snap-x snap-mandatory"
+  >
+    {teamMembers.map((member, index) => (
+      <div
+        key={index}
+        className="flex-shrink-0 w-64 text-center snap-center"
+      >
+        <img
+          className="w-28 h-28 md:w-32 md:h-32 rounded-full mx-auto mb-4 object-cover"
+          src={member.image}
+          alt={member.name}
+        />
+        <h3 className="text-lg md:text-xl font-semibold text-gray-800">{member.name}</h3>
+        <p className="text-gray-500 text-sm md:text-base">{member.position}</p>
+        <p className="text-gray-600 mt-2 text-xs md:text-sm">{member.role}</p>
+      </div>
+    ))}
+  </div>
+
+  {/* Left Button (visible on all screens but smaller on mobile) */}
+  <button
+    onClick={() => scroll("left")}
+    className="absolute left-2 top-1/2 -translate-y-1/2 bg-white shadow-lg rounded-full p-2 md:p-3 hover:bg-gray-100"
+  >
+    <ChevronLeft className="w-5 h-5 md:w-6 md:h-6 text-gray-800" />
+  </button>
+
+  {/* Right Button */}
+  <button
+    onClick={() => scroll("right")}
+    className="absolute right-2 top-1/2 -translate-y-1/2 bg-white shadow-lg rounded-full p-2 md:p-3 hover:bg-gray-100"
+  >
+    <ChevronRight className="w-5 h-5 md:w-6 md:h-6 text-gray-800" />
+  </button>
+</div>
+
 
       </div>
     </div>
