@@ -99,11 +99,27 @@ const Header = () => {
         </nav>
 
         {/* Mobile Hamburger */}
-        <div className="md:hidden">
-          <button onClick={() => setMenuOpen(!menuOpen)} className="text-white">
+        <div className="md:hidden flex items-center gap-4">
+          {/* Register as Salon Button */}
+          <Link
+            to="/salon-register"
+            className="px-4 py-2 rounded-xl bg-gradient-to-r from-pink-500 to-purple-600 
+                      text-white font-semibold shadow-md hover:shadow-lg 
+                      transition transform hover:-translate-y-0.5 
+                      focus:outline-none focus:ring-2 focus:ring-pink-400 focus:ring-offset-2"
+          >
+            Register as a Salon
+          </Link>
+
+          {/* Toggle Menu Button */}
+          <button
+            onClick={() => setMenuOpen(!menuOpen)}
+            className="text-white hover:text-gray-300 transition"
+          >
             {menuOpen ? <X size={28} /> : <Menu size={28} />}
           </button>
         </div>
+
       </div>
 
       {/* Mobile Dropdown Menu */}
@@ -114,8 +130,7 @@ const Header = () => {
             <Link to="/my-bookings" className="block font-medium hover:text-gray-300" onClick={() => setMenuOpen(false)}>My Bookings</Link>
           )}
           <Link to="/about" className="block font-medium hover:text-gray-300" onClick={() => setMenuOpen(false)}>About</Link>
-          <Link to="/salon-register" className="block font-medium hover:text-gray-300" onClick={() => setMenuOpen(false)}>Register as a Salon</Link>
-
+          
           {!loading && user === false && (
             <>
               <Link
