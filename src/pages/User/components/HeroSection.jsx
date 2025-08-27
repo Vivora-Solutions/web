@@ -32,7 +32,7 @@ const HeroSection = ({ searchTerm, setSearchTerm, salonCount }) => {
                 <Star key={i} className="w-5 h-5 fill-current" />
               ))}
             </div>
-            <span className="text-gray-600 text-sm">Rated 4.9/5 by 1,200+ happy clients</span>
+            {/* <span className="text-gray-600 text-sm">Rated 4.9/5 by 1,200+ happy clients</span> */}
           </div>
 
           {/* CTA */}
