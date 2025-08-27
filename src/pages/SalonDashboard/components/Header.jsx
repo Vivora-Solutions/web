@@ -1,10 +1,11 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ProtectedAPI } from '../../../utils/api';
 
 const Header = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -30,84 +31,77 @@ const Header = () => {
 
   const handleLogout = () => {
     localStorage.removeItem('access_token');
-    localStorage.removeItem('user_role'); 
+    localStorage.removeItem('user_role');
     setUser(false);
-    navigate('/login');
+    navigate('/');
   };
 
   return (
-    <header className="fixed top-[4px] left-0 right-0 z-50 bg-white shadow-md px-6 py-4 flex justify-between items-center h-[60px]">
-      
+   <header className="fixed top-0 left-0 bg-gradient-to-r from-gray-800 via-gray-700 to-gray-600 shadow-md w-full z-50 animate-slide-down">
+    <div className="px-4 sm:px-6 py-2 flex justify-between items-center">
       {/* Logo */}
-      <Link to="/" className="flex items-center">
-        <h1
-          className="font-bold text-[2.5rem] leading-none select-none"
-          style={{
-            fontFamily: '"Italiana", sans-serif',
-            background: 'linear-gradient(to right, #0e12e2, #19cef7, #487bff, #654dad, #08c37e)',
-            backgroundSize: '200%',
-            backgroundClip: 'text',
-            WebkitBackgroundClip: 'text',
-            color: 'transparent',
-            WebkitTextFillColor: 'transparent',
-            animation: 'animate-gradient 2.5s linear infinite'
-          }}
-        >
-          VIVORA
-        </h1>
+      <Link
+        to="/"
+        className="flex items-center ml-12 md:ml-0" // 👈 pushes logo right in mobile, resets in desktop
+      >
+        <img
+          src="/weblogo-white.png"
+          alt="Vivora Logo"
+          className="h-12 w-auto sm:h-16 object-contain"
+          style={{ maxWidth: "200px" }}
+        />
       </Link>
 
-      {/* Navigation */}
-      <nav className="flex-1 flex justify-end items-center">
-        
 
-        {/* Right section: Auth and Profile */}
-        <div className="flex items-center space-x-4 ml-6">
-          {loading ? (
-            <div className="w-6 h-6 bg-gray-200 rounded-full animate-pulse"></div>
-          ) : user === false ? (
-            <div className="flex items-center space-x-2">
-              <Link to="/login" className="px-4 py-2 text-blue-600 hover:text-blue-800 font-medium">Login</Link>
-              <Link to="/salon-register" className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition font-medium">Sign Up</Link>
+      {/* Desktop Navigation */}
+      <nav className="hidden md:flex gap-6 items-center text-sm sm:text-base">
+        {user?.email && (
+          <div className="flex items-center space-x-4 text-sm">
+            <div className="flex flex-col items-center cursor-pointer group">
+              <img
+                src="https://www.w3schools.com/howto/img_avatar.png"
+                alt="profile"
+                className="w-9 h-9 rounded-full border-2 border-white group-hover:scale-105 transition"
+              />
+              <p className="text-gray-300 text-xs mt-1 group-hover:underline">
+                {user.email}
+              </p>
             </div>
-          ) : user && user.email ? (
-            <div className="text-sm text-right flex items-center space-x-4">
-              {/* Profile Section */}
-              <div className="flex flex-col items-center cursor-pointer group" onClick={() => navigate('/profile')}>
-                <img
-                  src="https://www.w3schools.com/howto/img_avatar.png"
-                  alt="profile"
-                  className="w-10 h-10 rounded-full border-2 border-blue-500 group-hover:scale-105 transition"
-                />
-                <p className="text-gray-600 text-xs mt-1 group-hover:underline">{user.email}</p>
-              </div>
-
-              {/* Logout */}
-              <button
-                onClick={handleLogout}
-                className="text-sm text-red-500 hover:text-red-700"
-              >
-                Logout
-              </button>
-            </div>
-          ) : (
-            <div className="w-6 h-6 bg-gray-200 rounded-full animate-pulse"></div>
-          )}
-        </div>
+            <button
+              onClick={handleLogout}
+              className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 transition"
+            >
+              Logout
+            </button>
+          </div>
+        )}
       </nav>
 
-      {/* Styles */}
-      <style>
-        {`
-          @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Italiana&family=Outfit:wght@100..900&display=swap');
-          @keyframes animate-gradient {
-            to {
-              background-position: 200%;
-            }
-          }
-        `}
-      </style>
-    </header>
+      {/* Mobile Navigation */}
+      <nav className="flex md:hidden items-center gap-3">
+        {user?.email && (
+          <div className="flex items-center space-x-3">
+            {/* Profile + email */}
+            <div className="flex flex-col items-center cursor-pointer">
+              <img
+                src="https://www.w3schools.com/howto/img_avatar.png"
+                alt="profile"
+                className="w-8 h-8 rounded-full border border-white"
+              />
+              <p className="text-gray-300 text-[10px] mt-1">{user.email}</p>
+            </div>
+            {/* Logout button */}
+            <button
+              onClick={handleLogout}
+              className="px-2 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700"
+            >
+              Logout
+            </button>
+          </div>
+        )}
+      </nav>
+    </div>
+  </header>
   );
 };
 

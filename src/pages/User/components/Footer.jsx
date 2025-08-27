@@ -60,25 +60,35 @@ const Footer = () => {
 
         {/* Mobile Version */}
         <div className="block md:hidden text-center space-y-4">
+          {/* Logo */}
           <div className="flex justify-center items-center space-x-2">
             <Sparkles className="h-6 w-6 text-pink-400" />
             <span className="text-xl font-bold">Vivora</span>
           </div>
+
+          {/* Links */}
           <ul className="flex justify-center space-x-6 text-gray-400 text-sm">
             <li><a href="#" className="hover:text-white">Find Salons</a></li>
             <li><a href="#" className="hover:text-white">Services</a></li>
           </ul>
-          <div className="flex justify-center items-center text-gray-400 text-sm space-x-4">
-            <div className="flex items-center">
-              <Phone className="h-4 w-4 mr-1" />
-              <span>+94 77 123 4567</span>
-            </div>
-            <div className="flex items-center">
-              <MapPin className="h-4 w-4 mr-1" />
-              <span>Colombo</span>
+
+          {/* Phone Numbers */}
+          <div className="flex justify-center items-center text-gray-400 text-sm">
+            <Phone className="h-4 w-4 mr-2" />
+            <div className="flex space-x-4">
+              <span>+94 71 572 9105</span>
+              <span>+94 76 678 7578</span>
+              <span>+94 70 244 3978</span>
             </div>
           </div>
+
+          {/* Address */}
+          <div className="flex justify-center items-center text-gray-400 text-sm">
+            <MapPin className="h-4 w-4 mr-2" />
+            <span>No 251/A, Molpe Road, Katubedda, Moratuwa</span>
+          </div>
         </div>
+
 
         {/* Copyright */}
         <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400 text-sm">

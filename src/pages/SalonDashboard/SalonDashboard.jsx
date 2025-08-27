@@ -92,14 +92,14 @@ const SalonDashboard = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
-   <Header /> 
-   <div className="flex flex-1 pt-[60px] h-[calc(100vh-60px)]">
-        <Sidebar items={SECTIONS} activeIndex={activeIndex} />
-        <main className="flex-1 p-1 overflow-y-auto">
-          {isRootPath ? <SalonInfo /> : <Outlet />}
-        </main>
+    <Header /> 
+    <div className="flex flex-1 pt-[70px] h-[calc(100vh-60px)]">
+          <Sidebar items={SECTIONS} activeIndex={activeIndex} />
+          <main className="flex-1 p-1 overflow-y-auto">
+            {isRootPath ? <SalonInfo /> : <Outlet />}
+          </main>
+        </div>
       </div>
-    </div>
   );
 };
 
