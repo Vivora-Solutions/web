@@ -238,7 +238,7 @@ const StylistManagement = ({ onOpenSchedule }) => {
   };
 
   if (loading && stylists.length === 0) {
-    return <LoadingSpinner message="Loading stylists..." />;
+    return <div className="animate-spin h-12 w-12 border-b-2 border-indigo-600 rounded-full mx-auto mt-8 mb-4"></div>
   }
 
   return (
@@ -248,9 +248,7 @@ const StylistManagement = ({ onOpenSchedule }) => {
           <h2 className="text-2xl font-bold text-gray-800 mb-1">
             Employee Management
           </h2>
-          <p className="text-sm text-gray-500">
-            Manage your salon staff and their schedules
-          </p>
+         
         </div>
         <button
           onClick={() => setShowAddForm(true)}

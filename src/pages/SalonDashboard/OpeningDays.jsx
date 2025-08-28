@@ -111,7 +111,7 @@ const OpeningHours = () => {
   if (isLoading) {
     return (
       <div className="text-center py-8 text-gray-600 font-semibold">
-        Loading opening hours...
+        <div className="animate-spin h-12 w-12 border-b-2 border-indigo-600 rounded-full mx-auto mb-4"></div>
       </div>
     );
   }
