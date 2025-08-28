@@ -1,7 +1,7 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { GoogleMap, Marker, useJsApiLoader } from '@react-google-maps/api';
-import { Mail, Lock, Store, Phone, MapPin, Loader2, Scissors, Sparkles } from 'lucide-react';
+import { Mail, Lock, Store, MapPin, Loader2, Scissors, Sparkles } from 'lucide-react';
 import { PublicAPI } from '../../utils/api';
 
 // Google Maps container style
@@ -39,9 +39,28 @@ const RegisterSalon = () => {
   // Load Google Maps script
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
-    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY, // <-- Put in .env
+    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY, // <-- from .env
     mapIds: [import.meta.env.VITE_GOOGLE_MAP_ID || ''],
   });
+
+  // ✅ Auto-detect user location on load
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const { latitude, longitude } = pos.coords;
+          setFormData((prev) => ({
+            ...prev,
+            location: { latitude, longitude },
+          }));
+        },
+        (err) => {
+          console.warn("Geolocation error:", err.message);
+        },
+        { enableHighAccuracy: true }
+      );
+    }
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -74,7 +93,7 @@ const RegisterSalon = () => {
     }
   };
 
-  // Handle map clicks
+  // Handle map clicks (update marker)
   const onMapClick = useCallback((e) => {
     setFormData((prev) => ({
       ...prev,
@@ -200,7 +219,7 @@ const RegisterSalon = () => {
                         lat: formData.location.latitude,
                         lng: formData.location.longitude,
                       }}
-                      zoom={7}
+                      zoom={14}
                       onClick={onMapClick}
                       options={{ mapId: import.meta.env.VITE_GOOGLE_MAP_ID || undefined }}
                     >
@@ -234,7 +253,7 @@ const RegisterSalon = () => {
               >
                 {loading ? (
                   <>
-                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                    <div className="animate-spin h-12 w-12 border-b-2 border-indigo-600 rounded-full mx-auto mt-8 mb-4"></div>
                     Registering...
                   </>
                 ) : (

@@ -100,11 +100,7 @@ const PhotoSection = () => {
 
   return (
     <div className="p-6 bg-white rounded-xl shadow">
-      <h2 className="text-xl font-semibold mb-4">Gallery images</h2>
-      {/* <p className="text-gray-600 mb-4">
-        These images shows what your salon looks like to your customers.
-      </p> */}
-
+      <h2 className="text-xl font-semibold mb-4">Your Photos</h2>
       <div className="flex flex-col gap-6">
         {/* Upload */}
         <div className="flex overflow-x-auto gap-4 pb-4">
@@ -123,7 +119,7 @@ const PhotoSection = () => {
               className="w-full h-full flex flex-col items-center justify-center cursor-pointer"
             >
               {uploading ? (
-                <span className="text-sm">Uploading...</span>
+                <div className="animate-spin h-12 w-12 border-b-2 border-indigo-600 rounded-full mx-auto mt-8 mb-4"></div>
               ) : (
                 <>
                   <span className="text-3xl mb-1">+</span>
