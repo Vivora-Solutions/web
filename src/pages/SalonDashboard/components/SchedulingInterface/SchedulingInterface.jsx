@@ -31,6 +31,14 @@ const SchedulingInterface = () => {
   const [maxDays, setMaxDays] = useState(1);
   const [salonId, setSalonId] = useState("");
 
+  // Mobile touch handling states
+  const [touchHoldTimer, setTouchHoldTimer] = useState(null);
+  const [initialTouchPosition, setInitialTouchPosition] = useState(null);
+  const [isHolding, setIsHolding] = useState(false);
+  const [touchStartTime, setTouchStartTime] = useState(null);
+  const [selectionActive, setSelectionActive] = useState(false);
+  const [inHoldPeriod, setInHoldPeriod] = useState(false);
+
   // Data states - using real API structure
   const [stylists, setStylists] = useState([]);
   const [appointments, setAppointments] = useState([]);
@@ -91,6 +99,31 @@ const SchedulingInterface = () => {
   useEffect(() => {
     loadData();
   }, []);
+
+  // Cleanup touch timer on unmount
+  useEffect(() => {
+    return () => {
+      if (touchHoldTimer) {
+        clearTimeout(touchHoldTimer);
+      }
+      // Always unlock scrolling on cleanup
+      document.body.classList.remove('selection-mode');
+    };
+  }, [touchHoldTimer]);
+
+  // Manage body scroll lock based on selection state
+  useEffect(() => {
+    if (selectionActive || isDragging) {
+      document.body.classList.add('selection-mode');
+    } else {
+      document.body.classList.remove('selection-mode');
+    }
+    
+    // Cleanup on unmount
+    return () => {
+      document.body.classList.remove('selection-mode');
+    };
+  }, [selectionActive, isDragging]);
 
   const loadData = async () => {
     try {
@@ -316,10 +349,19 @@ const SchedulingInterface = () => {
     const position = getCellPosition(e);
     if (!position) return;
 
+    console.log("Mouse down - position:", position); // Debug log
+
     setIsDragging(true);
     setDragStart(position);
     setDragEnd(position);
     setSelectedTimeSlots([]);
+    
+    // Immediately update selection with initial position
+    updateSelection(position, position);
+    
+    // Lock scrolling during mouse drag as well
+    document.body.classList.add('selection-mode');
+    
     e.preventDefault();
   };
 
@@ -334,13 +376,14 @@ const SchedulingInterface = () => {
 
   const handleMouseUp = () => {
     setIsDragging(false);
+    // Unlock body scrolling in case it was locked
+    document.body.classList.remove('selection-mode');
   };
 
-  // Add these touch event handlers
+  // Simplified and working touch event handlers
   const handleTouchStart = (e) => {
     if (scheduleType === "leave") return;
 
-    // Get touch position
     const touch = e.touches[0];
     const mockEvent = {
       clientX: touch.clientX,
@@ -350,36 +393,128 @@ const SchedulingInterface = () => {
     const position = getCellPosition(mockEvent);
     if (!position) return;
 
-    setIsDragging(true);
-    setDragStart(position);
-    setDragEnd(position);
-    setSelectedTimeSlots([]);
-    e.preventDefault();
+    console.log("Touch start - position:", position); // Debug log
+
+    // Store initial touch info
+    setInitialTouchPosition({
+      x: touch.clientX,
+      y: touch.clientY,
+      position,
+    });
+    setTouchStartTime(Date.now());
+    setIsHolding(false);
+    setSelectionActive(false);
+    setInHoldPeriod(true);
+
+    // Clear any existing timer
+    if (touchHoldTimer) {
+      clearTimeout(touchHoldTimer);
+    }
+
+    // Set timer for hold detection - 400ms for better responsiveness
+    const timer = setTimeout(() => {
+      console.log("Hold timer triggered - starting selection"); // Debug log
+      // Start selection mode
+      setIsHolding(true);
+      setSelectionActive(true);
+      setIsDragging(true);
+      setDragStart(position);
+      setDragEnd(position);
+      setSelectedTimeSlots([]);
+      setInHoldPeriod(false);
+
+      // Immediately update selection with initial position
+      updateSelection(position, position);
+
+      // Lock body scrolling
+      document.body.classList.add('selection-mode');
+
+      // Haptic feedback
+      if (navigator.vibrate) {
+        navigator.vibrate([50]);
+      }
+    }, 400);
+
+    setTouchHoldTimer(timer);
   };
 
   const handleTouchMove = (e) => {
-    if (!isDragging || !dragStart || scheduleType === "leave") return;
+    if (!initialTouchPosition) return;
 
     const touch = e.touches[0];
-    const mockEvent = {
-      clientX: touch.clientX,
-      clientY: touch.clientY,
-    };
+    const deltaX = Math.abs(touch.clientX - initialTouchPosition.x);
+    const deltaY = Math.abs(touch.clientY - initialTouchPosition.y);
+    const totalMovement = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+    
+    // If already in selection mode, handle drag selection
+    if (selectionActive && isDragging && dragStart) {
+      console.log("Touch move - in selection mode"); // Debug log
+      const mockEvent = {
+        clientX: touch.clientX,
+        clientY: touch.clientY,
+      };
 
-    const position = getCellPosition(mockEvent);
-    if (!position) return;
+      const position = getCellPosition(mockEvent);
+      if (position) {
+        setDragEnd(position);
+        updateSelection(dragStart, position);
+      }
+      
+      // Always prevent scrolling during selection
+      e.preventDefault();
+      e.stopPropagation();
+      return;
+    }
 
-    setDragEnd(position);
-    updateSelection(dragStart, position);
-    e.preventDefault(); // Prevent scrolling while dragging
+    // If in hold period and user moves significantly, cancel hold and allow scrolling
+    if (inHoldPeriod && totalMovement > 25) {
+      console.log("Touch move - canceling hold due to movement:", totalMovement); // Debug log
+      if (touchHoldTimer) {
+        clearTimeout(touchHoldTimer);
+        setTouchHoldTimer(null);
+      }
+      setInitialTouchPosition(null);
+      setIsHolding(false);
+      setInHoldPeriod(false);
+      // Allow normal scrolling
+      return;
+    }
+
+    // If in hold period with minimal movement, prevent scrolling
+    if (inHoldPeriod) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
   };
 
   const handleTouchEnd = (e) => {
+    // Clear the hold timer
+    if (touchHoldTimer) {
+      clearTimeout(touchHoldTimer);
+      setTouchHoldTimer(null);
+    }
+
+    const wasInSelectionMode = selectionActive;
+
+    // Reset all touch-related state
     setIsDragging(false);
-    e.preventDefault();
+    setInitialTouchPosition(null);
+    setIsHolding(false);
+    setSelectionActive(false);
+    setInHoldPeriod(false);
+
+    // Unlock body scrolling
+    document.body.classList.remove('selection-mode');
+
+    // Prevent default only if we were in selection mode
+    if (wasInSelectionMode) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
   };
 
   const updateSelection = (start, end) => {
+    console.log("updateSelection called with:", start, end); // Debug log
     const slots = [];
     const breakSlots = [];
 
@@ -396,6 +531,8 @@ const SchedulingInterface = () => {
       start.hourIndex * 60 + start.minute,
       end.hourIndex * 60 + end.minute
     );
+
+    console.log("Selection boundaries:", { minDateIndex, maxDateIndex, minStylistIndex, maxStylistIndex, minTime, maxTime }); // Debug log
 
     // Helper function to format time consistently
     const formatDateTime = (date, totalMinutes) => {
@@ -484,6 +621,7 @@ const SchedulingInterface = () => {
       ]);
     });
 
+    console.log("Generated slots:", slots.length); // Debug log
     setSelectedBreakSlots(breakSlots);
     setSelectedTimeSlots(slots);
   };
@@ -1016,35 +1154,39 @@ const SchedulingInterface = () => {
     }
   };
 
-  // Global mouse event listeners
+  // Global mouse and touch event listeners
   useEffect(() => {
     const handleGlobalMouseMove = (e) => handleMouseMove(e);
     const handleGlobalMouseUp = () => handleMouseUp();
     const handleGlobalTouchMove = (e) => handleTouchMove(e);
     const handleGlobalTouchEnd = (e) => handleTouchEnd(e);
 
-    if (isDragging) {
-      // Mouse events
+    if (isDragging || initialTouchPosition || inHoldPeriod || selectionActive) {
+      // Mouse events for desktop
       document.addEventListener("mousemove", handleGlobalMouseMove);
       document.addEventListener("mouseup", handleGlobalMouseUp);
 
-      // Touch events
+      // Touch events for mobile - passive: false allows preventDefault
       document.addEventListener("touchmove", handleGlobalTouchMove, {
         passive: false,
       });
-      document.addEventListener("touchend", handleGlobalTouchEnd);
+      document.addEventListener("touchend", handleGlobalTouchEnd, {
+        passive: false,
+      });
+      document.addEventListener("touchcancel", handleGlobalTouchEnd, {
+        passive: false,
+      });
     }
 
     return () => {
-      // Clean up mouse events
+      // Clean up all event listeners
       document.removeEventListener("mousemove", handleGlobalMouseMove);
       document.removeEventListener("mouseup", handleGlobalMouseUp);
-
-      // Clean up touch events
       document.removeEventListener("touchmove", handleGlobalTouchMove);
       document.removeEventListener("touchend", handleGlobalTouchEnd);
+      document.removeEventListener("touchcancel", handleGlobalTouchEnd);
     };
-  }, [isDragging, dragStart]);
+  }, [isDragging, dragStart, initialTouchPosition, selectionActive, inHoldPeriod]);
 
   const selectedStylistsData = stylists.filter((s) =>
     selectedStylists.includes(s.id)
@@ -1132,6 +1274,8 @@ const SchedulingInterface = () => {
                 stylists={stylists}
                 appointments={appointments}
                 isDragging={isDragging}
+                selectionActive={selectionActive}
+                inHoldPeriod={inHoldPeriod}
                 gridRef={gridRef}
                 handleMouseDown={handleMouseDown}
                 handleTouchStart={handleTouchStart}
