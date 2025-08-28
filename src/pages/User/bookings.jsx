@@ -20,8 +20,16 @@ const MyBookingsPage = () => {
 
   // Format date/time
   const formatDateTime = (datetime) => {
+    // Create date object and subtract the timezone offset to get correct time
     const date = new Date(datetime);
-    return `${date.toLocaleDateString()} - ${date.toLocaleTimeString([], {
+
+    // Get the timezone offset in minutes and convert to milliseconds
+    const timezoneOffset = date.getTimezoneOffset() * 60000;
+
+    // Create a new date with the offset applied
+    const adjustedDate = new Date(date.getTime() + timezoneOffset);
+
+    return `${adjustedDate.toLocaleDateString()} - ${adjustedDate.toLocaleTimeString([], {
       hour: "2-digit",
       minute: "2-digit",
     })}`;
