@@ -100,7 +100,10 @@ const PhotoSection = () => {
 
   return (
     <div className="p-6 bg-white rounded-xl shadow">
-      <h2 className="text-xl font-semibold mb-4">Photossss</h2>
+      <h2 className="text-xl font-semibold mb-4">Gallery images</h2>
+      {/* <p className="text-gray-600 mb-4">
+        These images shows what your salon looks like to your customers.
+      </p> */}
 
       <div className="flex flex-col gap-6">
         {/* Upload */}
