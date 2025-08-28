@@ -66,16 +66,16 @@ const teamMembers = [
 
 const About = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-gray-100 relative overflow-hidden">
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-purple-400/20 to-pink-400/20 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute top-1/2 -left-40 w-80 h-80 bg-gradient-to-br from-blue-400/20 to-cyan-400/20 rounded-full blur-3xl animate-pulse animation-delay-1000"></div>
-        <div className="absolute -bottom-40 right-1/3 w-80 h-80 bg-gradient-to-br from-indigo-400/20 to-purple-400/20 rounded-full blur-3xl animate-pulse animation-delay-2000"></div>
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-gray-400/20 to-pink-400/20 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute top-1/2 -left-40 w-80 h-80 bg-gradient-to-br from-gray-400/20 to-cyan-400/20 rounded-full blur-3xl animate-pulse animation-delay-1000"></div>
+        <div className="absolute -bottom-40 right-1/3 w-80 h-80 bg-gradient-to-br from-gray-400/20 to-gray-400/20 rounded-full blur-3xl animate-pulse animation-delay-2000"></div>
       </div>
 
       <Header />
 
-      <div className="relative py-20 overflow-hidden bg-gradient-to-r from-purple-600 via-indigo-700 to-blue-800">
+      <div className="relative py-20 overflow-hidden bg-gradient-to-r from-gray-600 via-gray-700 to-gray-800">
         <div className="absolute inset-0 bg-black/10"></div>
         <div className="relative container mx-auto px-4">
           <div className="text-center text-white max-w-4xl mx-auto">
@@ -85,23 +85,23 @@ const About = () => {
                 Vivora
               </span>
             </h1>
-            <p className="text-xl md:text-2xl opacity-90 mb-12 animate-fade-in-up animation-delay-300 leading-relaxed">
+            {/* <p className="text-xl md:text-2xl opacity-90 mb-12 animate-fade-in-up animation-delay-300 leading-relaxed">
               Your one-stop solution for discovering and booking the best salon experiences in your city.
-            </p>
+            </p> */}
 
-            <div className="absolute inset-0 overflow-hidden">
+            {/* <div className="absolute inset-0 overflow-hidden">
               <div className="absolute top-20 left-10 w-2 h-2 bg-yellow-300 rounded-full animate-float"></div>
               <div className="absolute top-32 right-20 w-3 h-3 bg-pink-300 rounded-full animate-float animation-delay-1000"></div>
-              <div className="absolute bottom-20 left-1/4 w-2 h-2 bg-blue-300 rounded-full animate-float animation-delay-2000"></div>
-              <div className="absolute bottom-32 right-1/3 w-4 h-4 bg-purple-300 rounded-full animate-float animation-delay-500"></div>
+              <div className="absolute bottom-20 left-1/4 w-2 h-2 bg-gray-300 rounded-full animate-float animation-delay-2000"></div>
+              <div className="absolute bottom-32 right-1/3 w-4 h-4 bg-gray-300 rounded-full animate-float animation-delay-500"></div>
 
-              <div className="absolute top-16 left-1/3 w-72 h-72 bg-gradient-to-r from-purple-400/30 to-pink-400/30 rounded-full mix-blend-overlay filter blur-xl animate-blob"></div>
+              <div className="absolute top-16 left-1/3 w-72 h-72 bg-gradient-to-r from-gray-400/30 to-pink-400/30 rounded-full mix-blend-overlay filter blur-xl animate-blob"></div>
               <div className="absolute top-20 right-1/4 w-72 h-72 bg-gradient-to-r from-yellow-400/30 to-orange-400/30 rounded-full mix-blend-overlay filter blur-xl animate-blob animation-delay-2000"></div>
-              <div className="absolute bottom-10 left-1/5 w-72 h-72 bg-gradient-to-r from-blue-400/30 to-cyan-400/30 rounded-full mix-blend-overlay filter blur-xl animate-blob animation-delay-4000"></div>
-            </div>
+              <div className="absolute bottom-10 left-1/5 w-72 h-72 bg-gradient-to-r from-gray-400/30 to-cyan-400/30 rounded-full mix-blend-overlay filter blur-xl animate-blob animation-delay-4000"></div>
+            </div> */}
           </div>
         </div>
-
+{/* 
         <div className="absolute bottom-0 left-0 w-full overflow-hidden">
           <svg
             className="relative block w-full h-20"
@@ -127,7 +127,7 @@ const About = () => {
               className="text-slate-50 animate-wave animation-delay-2000"
             ></path>
           </svg>
-        </div>
+        </div> */}
       </div>
 
       <div className="container mx-auto px-4 py-20 relative z-10">
@@ -137,7 +137,7 @@ const About = () => {
 
         <div className="text-center mb-16 animate-fade-in-up animation-delay-400">
           <h2 className="text-4xl md:text-5xl font-bold text-gray-800 mb-6 text-balance">Meet Our Team</h2>
-          <div className="w-24 h-1 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-full mx-auto mb-6"></div>
+          <div className="w-24 h-1 bg-gradient-to-r from-gray-500 to-gray-600 rounded-full mx-auto mb-6"></div>
           <p className="text-gray-600 max-w-3xl mx-auto mb-16 text-xl leading-relaxed">
             A diverse team of passionate individuals working together to revolutionize the salon experience.
           </p>
@@ -152,7 +152,7 @@ const About = () => {
                 style={{ animationDelay: `${index * 100 + 600}ms` }}
               >
                 <div className="bg-white/90 backdrop-blur-sm rounded-3xl shadow-xl p-8 transform transition-all duration-500 group-hover:-translate-y-4 group-hover:shadow-2xl group-hover:bg-white relative overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-br from-purple-50/50 to-indigo-50/50 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                  <div className="absolute inset-0 bg-gradient-to-br from-gray-50/50 to-gray-50/50 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
 
                   <div className="relative mb-6">
                     <div className="w-32 h-32 mx-auto rounded-full overflow-hidden border-4 border-white shadow-xl relative">
@@ -161,10 +161,10 @@ const About = () => {
                         src={member.image || "/placeholder.svg"}
                         alt={member.name}
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-purple-600/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                      <div className="absolute inset-0 bg-gradient-to-t from-gray-600/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                     </div>
 
-                    <div className="absolute bottom-0 right-1/2 transform translate-x-1/2 translate-y-1/3 w-12 h-12 rounded-full bg-gradient-to-r from-purple-500 to-indigo-600 flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:rotate-12 transition-all duration-300">
+                    <div className="absolute bottom-0 right-1/2 transform translate-x-1/2 translate-y-1/3 w-12 h-12 rounded-full bg-gradient-to-r from-gray-500 to-gray-600 flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:rotate-12 transition-all duration-300">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         className="h-6 w-6 text-white"
@@ -181,11 +181,11 @@ const About = () => {
                   </div>
 
                   <div className="relative">
-                    <h3 className="text-xl font-bold text-gray-800 mb-2 group-hover:text-purple-700 transition-colors duration-300">
+                    <h3 className="text-xl font-bold text-gray-800 mb-2 group-hover:text-gray-700 transition-colors duration-300">
                       {member.name}
                     </h3>
-                    <div className="h-1 w-16 bg-gradient-to-r from-purple-400 to-indigo-500 rounded-full mx-auto mb-4 group-hover:w-20 transition-all duration-300"></div>
-                    <p className="text-purple-600 font-semibold mb-4 text-sm">{member.position}</p>
+                    <div className="h-1 w-16 bg-gradient-to-r from-gray-400 to-gray-500 rounded-full mx-auto mb-4 group-hover:w-20 transition-all duration-300"></div>
+                    <p className="text-gray-600 font-semibold mb-4 text-sm">{member.position}</p>
                     <p className="text-gray-600 text-sm leading-relaxed group-hover:text-gray-700 transition-colors duration-300">
                       {member.role}
                     </p>
@@ -200,8 +200,8 @@ const About = () => {
 
         <div className="max-w-5xl mx-auto bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl p-10 md:p-12 mb-20 transition-all duration-500 hover:shadow-3xl hover:bg-white/90 group animate-fade-in-up">
           <div className="flex items-center mb-8">
-            <div className="h-12 w-1.5 bg-gradient-to-b from-purple-500 via-indigo-600 to-blue-600 rounded-full mr-6 group-hover:scale-110 transition-transform duration-300"></div>
-            <h2 className="text-4xl font-bold text-gray-800 group-hover:text-purple-700 transition-colors duration-300">
+            <div className="h-12 w-1.5 bg-gradient-to-b from-gray-500 via-gray-600 to-gray-600 rounded-full mr-6 group-hover:scale-110 transition-transform duration-300"></div>
+            <h2 className="text-4xl font-bold text-gray-800 group-hover:text-gray-700 transition-colors duration-300">
               Our Story
             </h2>
           </div>
@@ -209,14 +209,14 @@ const About = () => {
           <div className="space-y-6 text-lg leading-relaxed">
             <p className="text-gray-700 animate-fade-in-up animation-delay-100">
               SalonDora was born out of a late-night discussion among friends who shared a simple but powerful idea:
-              <span className="italic purple-600 font-semibold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
+              <span className="italic gray-600 font-semibold bg-gradient-to-r from-gray-600 to-gray-600 bg-clip-text text-transparent">
                 {" "}
                 "What if busy people could book a salon appointment easily and walk in without waiting?"
               </span>
             </p>
             <p className="text-gray-700 animate-fade-in-up animation-delay-200">
               That thought grew into a software solution, and soon after, our team came together under the name{" "}
-              <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-indigo-600">
+              <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-gray-600 to-gray-600">
                 Vivora Solutions
               </span>
               .
@@ -229,7 +229,7 @@ const About = () => {
             </p>
             <p className="text-gray-700 animate-fade-in-up animation-delay-400">
               Our vision and mission is simple:{" "}
-              <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-indigo-600">
+              <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-gray-600 to-gray-600">
                 to make everyday life easier through smart and accessible technology.
               </span>
             </p>
