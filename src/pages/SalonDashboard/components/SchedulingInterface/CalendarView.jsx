@@ -6,7 +6,7 @@ import {
   Clock,
   User,
   MapPin,
-} from "lucide-react"
+} from "lucide-react";
 const CalendarView = ({
   selectedStylists,
   selectedStylistsData,
@@ -14,6 +14,8 @@ const CalendarView = ({
   stylists,
   appointments,
   isDragging,
+  selectionActive,
+  inHoldPeriod,
   gridRef,
   handleMouseDown,
   handleTouchStart,
@@ -27,7 +29,6 @@ const CalendarView = ({
   COLORS,
   formatTime,
   formatDateToString,
-
 }) => {
   if (selectedStylists.length === 0) {
     return (
@@ -50,12 +51,30 @@ const CalendarView = ({
             maxWidth: "500px",
           }}
         >
-          <Users size={64} color={COLORS.textLight} style={{ marginBottom: "24px" }} />
-          <h3 style={{ fontSize: "28px", fontWeight: "700", color: COLORS.text, marginBottom: "12px" }}>
+          <Users
+            size={64}
+            color={COLORS.textLight}
+            style={{ marginBottom: "24px" }}
+          />
+          <h3
+            style={{
+              fontSize: "28px",
+              fontWeight: "700",
+              color: COLORS.text,
+              marginBottom: "12px",
+            }}
+          >
             No Staff Selected
           </h3>
-          <p style={{ fontSize: "16px", color: COLORS.textLight, lineHeight: "1.6" }}>
-            Please select one or more staff members from the sidebar to view their schedules and manage appointments.
+          <p
+            style={{
+              fontSize: "16px",
+              color: COLORS.textLight,
+              lineHeight: "1.6",
+            }}
+          >
+            Please select one or more staff members from the sidebar to view
+            their schedules and manage appointments.
           </p>
         </div>
       </div>
@@ -77,7 +96,9 @@ const CalendarView = ({
         }}
         onMouseDown={handleMouseDown}
         onTouchStart={handleTouchStart}
-        className="scheduling-calendar"
+        className={`scheduling-calendar ${
+          selectionActive ? "selection-active" : ""
+        } ${inHoldPeriod ? "hold-period" : ""}`}
       >
         {/* Time Column */}
         <div
@@ -161,9 +182,21 @@ const CalendarView = ({
               }}
             >
               <div style={{ textAlign: "center" }}>
-                <span style={{ fontSize: "20px", fontWeight: "800", display: "block" }}>{date.getDate()}</span>
-                <span style={{ fontSize: "11px", opacity: 0.9, fontWeight: "600" }}>
-                  {date.toLocaleDateString("en-US", { month: "short" }).toUpperCase()}
+                <span
+                  style={{
+                    fontSize: "20px",
+                    fontWeight: "800",
+                    display: "block",
+                  }}
+                >
+                  {date.getDate()}
+                </span>
+                <span
+                  style={{ fontSize: "11px", opacity: 0.9, fontWeight: "600" }}
+                >
+                  {date
+                    .toLocaleDateString("en-US", { month: "short" })
+                    .toUpperCase()}
                 </span>
               </div>
             </div>
@@ -189,10 +222,14 @@ const CalendarView = ({
                       gap: "6px",
                       padding: "4px 8px",
                       borderRight: `1px solid ${COLORS.border}`,
-                      borderTop: `4px solid ${hasAnyLeave ? COLORS.leave : stylist.color}`,
+                      borderTop: `4px solid ${
+                        hasAnyLeave ? COLORS.leave : stylist.color
+                      }`,
                       fontSize: "11px",
                       fontWeight: "700",
-                      background: hasAnyLeave ? "rgba(239, 68, 68, 0.1)" : "rgba(255, 255, 255, 0.8)",
+                      background: hasAnyLeave
+                        ? "rgba(239, 68, 68, 0.1)"
+                        : "rgba(255, 255, 255, 0.8)",
                     }}
                   >
                     <div
@@ -200,7 +237,9 @@ const CalendarView = ({
                         width: "24px",
                         height: "24px",
                         borderRadius: "50%",
-                        backgroundColor: hasAnyLeave ? COLORS.leave : stylist.color,
+                        backgroundColor: hasAnyLeave
+                          ? COLORS.leave
+                          : stylist.color,
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
@@ -211,7 +250,9 @@ const CalendarView = ({
                     >
                       {hasAnyLeave ? <Plane size={12} /> : stylist.avatar}
                     </div>
-                    <span style={{ color: COLORS.text }}>{stylist.name.split(" ")[0]}</span>
+                    <span style={{ color: COLORS.text }}>
+                      {stylist.name.split(" ")[0]}
+                    </span>
                   </div>
                 );
               })}
@@ -249,9 +290,24 @@ const CalendarView = ({
                           }}
                         >
                           {[0, 15, 30, 45].map((minute) => {
-                            const minuteIsSelected = isSlotSelected(stylist.id, date, hourIndex, minute);
-                            const hasLeaveAtSlot = hasLeaveAtTimeSlot(stylist.id, date, hourIndex, minute);
-                            const isAvailable = isTimeSlotAvailable(stylist.id, date, hourIndex, minute);
+                            const minuteIsSelected = isSlotSelected(
+                              stylist.id,
+                              date,
+                              hourIndex,
+                              minute
+                            );
+                            const hasLeaveAtSlot = hasLeaveAtTimeSlot(
+                              stylist.id,
+                              date,
+                              hourIndex,
+                              minute
+                            );
+                            const isAvailable = isTimeSlotAvailable(
+                              stylist.id,
+                              date,
+                              hourIndex,
+                              minute
+                            );
 
                             // Determine background color based on conditions
                             let backgroundColor = "transparent";
@@ -267,9 +323,16 @@ const CalendarView = ({
                               <div
                                 key={minute}
                                 style={{
-                                  borderTop: minute === 0 ? "none" : "1px solid rgba(226, 232, 240, 0.5)",
+                                  borderTop:
+                                    minute === 0
+                                      ? "none"
+                                      : "1px solid rgba(226, 232, 240, 0.5)",
                                   backgroundColor,
-                                  opacity: minuteIsSelected ? 0.4 : !isAvailable ? 0.6 : 1,
+                                  opacity: minuteIsSelected
+                                    ? 0.4
+                                    : !isAvailable
+                                    ? 0.6
+                                    : 1,
                                   transition: "all 0.15s ease",
                                   position: "relative",
                                 }}
@@ -322,12 +385,18 @@ const CalendarView = ({
 
               {/* Appointments positioned absolutely */}
               {selectedStylistsData.map((stylist, stylistIndex) => {
-                const dayAppointments = getAppointmentsForDate(date, stylist.id);
+                const dayAppointments = getAppointmentsForDate(
+                  date,
+                  stylist.id
+                );
                 const columnWidth = 100 / selectedStylists.length;
                 const leftPosition = stylistIndex * columnWidth;
 
                 return dayAppointments.map((appointment) => {
-                  const position = calculateSlotPosition(appointment.startTime, appointment.endTime);
+                  const position = calculateSlotPosition(
+                    appointment.startTime,
+                    appointment.endTime
+                  );
                   const statusColor =
                     appointment.status === "confirmed"
                       ? stylist.color
@@ -398,12 +467,28 @@ const CalendarView = ({
                           >
                             {appointment.clientName}
                           </span>
-                          <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-                            {appointment.isWalkIn ? <PersonStandingIcon size={14} /> : <Phone size={14} />}
+                          <div
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "4px",
+                            }}
+                          >
+                            {appointment.isWalkIn ? (
+                              <PersonStandingIcon size={14} />
+                            ) : (
+                              <Phone size={14} />
+                            )}
                             {appointment.workstation && <MapPin size={12} />}
                           </div>
                         </div>
-                        <div style={{ fontSize: "10px", fontWeight: "600", opacity: 0.9 }}>
+                        <div
+                          style={{
+                            fontSize: "10px",
+                            fontWeight: "600",
+                            opacity: 0.9,
+                          }}
+                        >
                           <div>
                             {appointment.startTime} - {appointment.endTime}
                           </div>
@@ -427,4 +512,3 @@ const CalendarView = ({
 };
 
 export default CalendarView;
-
