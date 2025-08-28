@@ -253,7 +253,7 @@ const RegisterSalon = () => {
               >
                 {loading ? (
                   <>
-                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                    <div className="animate-spin h-12 w-12 border-b-2 border-indigo-600 rounded-full mx-auto mt-8 mb-4"></div>
                     Registering...
                   </>
                 ) : (

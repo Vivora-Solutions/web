@@ -208,7 +208,7 @@ const WorkStationManagement = () => {
   };
 
   if (loading) {
-    return <LoadingSpinner message="Loading workstations..." />;
+    return <div className="animate-spin h-12 w-12 border-b-2 border-indigo-600 rounded-full mx-auto mt-8 mb-4"></div>
   }
 
   return (

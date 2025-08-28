@@ -95,9 +95,9 @@ const SalonInfo = () => {
       <div className="flex items-center justify-center min-h-[400px] bg-slate-100">
         <div className="text-center">
           <div className="animate-spin h-12 w-12 border-b-2 border-indigo-600 rounded-full mx-auto mb-4"></div>
-          <p className="text-slate-600 font-medium">
+          {/* <p className="text-slate-600 font-medium">
             Loading salon information...
-          </p>
+          </p> */}
         </div>
       </div>
     );
@@ -143,7 +143,7 @@ const SalonInfo = () => {
                       className="w-full h-full flex items-center justify-center cursor-pointer"
                     >
                       {uploading ? (
-                        <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
+                        <div className="animate-spin h-12 w-12 border-b-2 border-indigo-600 rounded-full mx-auto mb-4"></div>
                       ) : (
                         <svg
                           className="h-6 w-6 text-white"
@@ -193,7 +193,7 @@ const SalonInfo = () => {
                       className="w-full h-full flex items-center justify-center cursor-pointer"
                     >
                       {uploading ? (
-                        <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
+                        <div className="animate-spin h-12 w-12 border-b-2 border-indigo-600 rounded-full mx-auto mb-4"></div>
                       ) : (
                         <svg
                           className="h-6 w-6 text-white"
