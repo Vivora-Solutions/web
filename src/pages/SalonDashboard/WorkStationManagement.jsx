@@ -212,7 +212,7 @@ const WorkStationManagement = () => {
   }
 
   return (
-    <div className="w-full px-4">
+    <div className="w-full px-4 py-8">
       <div className="mb-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div className="flex items-center gap-4">
           <Monitor
@@ -304,13 +304,13 @@ const WorkStationManagement = () => {
               No Workstations Found
             </h3>
             <p className="mb-6">Start by adding your first workstation.</p>
-            <button
+            {/* <button
               onClick={handleAddNew}
               className="flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white px-5 py-2.5 rounded-xl font-medium hover:shadow-lg hover:-translate-y-0.5 transition"
             >
               <Plus size={20} />
               Add Workstation
-            </button>
+            </button> */}
           </div>
         ) : (
           workStations.map((station) => {
