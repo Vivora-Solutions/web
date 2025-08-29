@@ -44,7 +44,6 @@ const SchedulingInterface = () => {
   const [appointments, setAppointments] = useState([]);
   const [leaves, setLeaves] = useState([]);
   const [services, setServices] = useState([]);
-  const [salonOpeningHours, setSalonOpeningHours] = useState([]);
 
   // Panel states
   const [showAddAppointmentPanel, setShowAddAppointmentPanel] = useState(false);
@@ -178,22 +177,6 @@ const SchedulingInterface = () => {
         ApiService.getLeaves(),
       ]);
 
-      // Fetch salon opening hours
-      try {
-        const openingHoursResponse = await ApiService.getOpeningHours();
-        setSalonOpeningHours(openingHoursResponse.days || []);
-      } catch (error) {
-        console.error("Error fetching opening hours:", error);
-        // Set default opening hours if fetch fails (9 AM to 6 PM)
-        const defaultHours = Array(7).fill().map((_, index) => ({
-          day_of_week: index,
-          is_open: true,
-          opening_time: "09:00",
-          closing_time: "18:00"
-        }));
-        setSalonOpeningHours(defaultHours);
-      }
-
       setSalonId(stylistsData[0]?.salon_id || "");
 
       // Transform API data to internal format
@@ -301,86 +284,6 @@ const SchedulingInterface = () => {
     });
   };
 
-  // Helper functions for salon opening hours
-  const getSalonHoursForDate = (date) => {
-    const dayOfWeek = date.getDay(); // 0 = Sunday, 1 = Monday, etc.
-    const dayHours = salonOpeningHours.find(h => h.day_of_week === dayOfWeek);
-    
-    if (!dayHours || !dayHours.is_open) {
-      return null; // Salon is closed this day
-    }
-    
-    return {
-      openingTime: dayHours.opening_time,
-      closingTime: dayHours.closing_time
-    };
-  };
-
-  const getDisplayHours = () => {
-    if (salonOpeningHours.length === 0) {
-      return Array.from({ length: 24 }, (_, i) => i); // Default to all 24 hours if no data
-    }
-
-    // For weekly view, get hours that cover all dates in the current view
-    if (weekDates.length === 0) {
-      return Array.from({ length: 24 }, (_, i) => i);
-    }
-
-    const hoursSet = new Set();
-    
-    weekDates.forEach(date => {
-      const dayOfWeek = date.getDay();
-      const dayHours = salonOpeningHours.find(h => h.day_of_week === dayOfWeek);
-      
-      if (dayHours && dayHours.is_open && dayHours.opening_time && dayHours.closing_time) {
-        try {
-          const openTime = parseInt(dayHours.opening_time.split(':')[0]);
-          const closeTime = parseInt(dayHours.closing_time.split(':')[0]);
-          
-          if (!isNaN(openTime) && !isNaN(closeTime) && openTime <= closeTime) {
-            for (let hour = openTime; hour <= closeTime; hour++) {
-              hoursSet.add(hour);
-            }
-          }
-        } catch (err) {
-          console.error(`Error parsing times for day ${dayOfWeek}:`, err);
-        }
-      }
-    });
-
-    if (hoursSet.size === 0) {
-      return []; // No open hours for any day in the view
-    }
-
-    // Convert to sorted array
-    return Array.from(hoursSet).sort((a, b) => a - b);
-  };
-
-  // Get display hours for specific date - only show hours if salon is open that day
-  const getDisplayHoursForDate = (date) => {
-    if (salonOpeningHours.length === 0) {
-      return Array.from({ length: 24 }, (_, i) => i); // Default to all 24 hours if no data
-    }
-
-    const dayOfWeek = date.getDay(); // 0 = Sunday, 1 = Monday, etc.
-    const dayHours = salonOpeningHours.find(h => h.day_of_week === dayOfWeek);
-    
-    if (!dayHours || !dayHours.is_open) {
-      return []; // Salon is closed this day - return empty array
-    }
-    
-    const openTime = parseInt(dayHours.opening_time.split(':')[0]);
-    const closeTime = parseInt(dayHours.closing_time.split(':')[0]);
-    
-    // Create array of hours from opening to closing time
-    const hours = [];
-    for (let hour = openTime; hour <= closeTime; hour++) {
-      hours.push(hour);
-    }
-    
-    return hours;
-  };
-
   const parseTimeToMinutes = (timeStr) => {
     const [hours, minutes] = timeStr.split(":").map(Number);
     return hours * 60 + minutes;
@@ -391,13 +294,7 @@ const SchedulingInterface = () => {
     const endMinutes = parseTimeToMinutes(endTime);
     const duration = endMinutes - startMinutes;
     const hourHeight = 64;
-    
-    // Calculate position relative to the display hours
-    const displayHours = getDisplayHours();
-    const firstDisplayHour = displayHours.length > 0 ? displayHours[0] : 0;
-    const adjustedStartMinutes = startMinutes - (firstDisplayHour * 60);
-    
-    const top = Math.max(0, (adjustedStartMinutes / 60) * hourHeight);
+    const top = (startMinutes / 60) * hourHeight;
     const height = (duration / 60) * hourHeight;
     return { top, height };
   };
@@ -413,7 +310,6 @@ const SchedulingInterface = () => {
 
     if (y < headerHeight || x < timeColumnWidth) return null;
 
-    const displayHours = getDisplayHours();
     const availableWidth = rect.width - timeColumnWidth;
     const cellWidth =
       availableWidth / (weekDates.length * selectedStylists.length);
@@ -433,18 +329,15 @@ const SchedulingInterface = () => {
       stylistIndex < 0 ||
       stylistIndex >= selectedStylists.length ||
       hourIndex < 0 ||
-      hourIndex >= displayHours.length
+      hourIndex >= 24
     ) {
       return null;
     }
 
-    // Convert hourIndex (position in displayHours array) to actual hour
-    const actualHour = displayHours[hourIndex];
-
     return {
       dateIndex,
       stylistIndex,
-      hourIndex: actualHour, // Use the actual hour value
+      hourIndex,
       minute,
       stylistId: selectedStylists[stylistIndex],
       date: weekDates[dateIndex],
@@ -738,37 +631,15 @@ const SchedulingInterface = () => {
     return selectedTimeSlots.includes(slotId);
   };
 
-  // Check if a time slot is within stylist's working schedule AND salon is open
+  // Check if a time slot is within stylist's working schedule
   const isTimeSlotAvailable = (stylistId, date, hour, minute = 0) => {
-    // First check if salon is open at this time for this date
-    const dayOfWeek = date.getDay(); // 0 = Sunday, 1 = Monday, etc.
-    const salonHours = salonOpeningHours.find(h => h.day_of_week === dayOfWeek);
-    
-    if (!salonHours || !salonHours.is_open || !salonHours.opening_time || !salonHours.closing_time) {
-      return false; // Salon is closed this day or hours not configured
-    }
-    
-    // Check if time falls within salon opening hours
-    const currentTimeMinutes = hour * 60 + minute;
-    try {
-      const openingTimeParts = salonHours.opening_time.split(':');
-      const closingTimeParts = salonHours.closing_time.split(':');
-      const salonOpenMinutes = parseInt(openingTimeParts[0]) * 60 + parseInt(openingTimeParts[1] || '0');
-      const salonCloseMinutes = parseInt(closingTimeParts[0]) * 60 + parseInt(closingTimeParts[1] || '0');
-      
-      if (currentTimeMinutes < salonOpenMinutes || currentTimeMinutes >= salonCloseMinutes) {
-        return false; // Outside salon hours
-      }
-    } catch (err) {
-      console.error('Error parsing salon hours:', err);
-      return false;
-    }
-
-    // Then check stylist availability
     const stylist = stylists.find((s) => s.id === stylistId);
     if (!stylist || !stylist.schedule || stylist.schedule.length === 0) {
-      return true; // If no stylist schedule defined, but salon is open, assume available
+      return true; // If no schedule defined, assume all times are available
     }
+
+    const dayOfWeek = date.getDay(); // 0 = Sunday, 1 = Monday, etc.
+    const currentTimeMinutes = hour * 60 + minute;
 
     // Check if the stylist has any schedule for this day of week
     const daySchedules = stylist.schedule.filter(
@@ -776,26 +647,21 @@ const SchedulingInterface = () => {
     );
 
     if (daySchedules.length === 0) {
-      return false; // No stylist schedule for this day = not available
+      return false; // No schedule for this day = not available
     }
 
-    // Check if current time falls within any of the stylist's scheduled time ranges for this day
+    // Check if current time falls within any of the scheduled time ranges for this day
     return daySchedules.some((schedule) => {
-      try {
-        const startTimeParts = schedule.start_time_daily.split(":");
-        const endTimeParts = schedule.end_time_daily.split(":");
-        const startMinutes =
-          parseInt(startTimeParts[0]) * 60 + parseInt(startTimeParts[1] || '0');
-        const endMinutes =
-          parseInt(endTimeParts[0]) * 60 + parseInt(endTimeParts[1] || '0');
+      const startTimeParts = schedule.start_time_daily.split(":");
+      const endTimeParts = schedule.end_time_daily.split(":");
+      const startMinutes =
+        parseInt(startTimeParts[0]) * 60 + parseInt(startTimeParts[1]);
+      const endMinutes =
+        parseInt(endTimeParts[0]) * 60 + parseInt(endTimeParts[1]);
 
-        return (
-          currentTimeMinutes >= startMinutes && currentTimeMinutes < endMinutes
-        );
-      } catch (err) {
-        console.error('Error parsing stylist schedule times:', err);
-        return false;
-      }
+      return (
+        currentTimeMinutes >= startMinutes && currentTimeMinutes < endMinutes
+      );
     });
   };
 
@@ -1423,8 +1289,6 @@ const SchedulingInterface = () => {
                 COLORS={COLORS}
                 formatTime={formatTime}
                 formatDateToString={formatDateToString}
-                displayHours={getDisplayHours()}
-                getSalonHoursForDate={getSalonHoursForDate}
               />
             )}
           </div>

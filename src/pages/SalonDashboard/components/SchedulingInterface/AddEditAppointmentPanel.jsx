@@ -1,5 +1,5 @@
 import React from "react"
-import { X, Clock, Save } from "lucide-react"
+import { X } from "lucide-react"
 
 const AddEditAppointmentPanel = ({
   show,
@@ -22,76 +22,47 @@ const AddEditAppointmentPanel = ({
     <>
       {/* Overlay */}
       <div
-        style={{
-          position: "fixed",
-          inset: 0,
-          background: COLORS.overlay,
-          backdropFilter: "blur(8px)",
-          zIndex: 50,
-        }}
+        className="fixed inset-0 z-50 backdrop-blur-md"
+        style={{ background: COLORS.overlay }}
         onClick={() => setShow(false)}
       />
 
       {/* Side Panel */}
       <div
-        style={{
-          position: "fixed",
-          right: 0,
-          top: 0,
-          height: "100vh",
-          width: "500px",
-          background: COLORS.cardBg,
-          boxShadow: "-10px 0 40px rgba(0, 0, 0, 0.2)",
-          zIndex: 51,
-          overflowY: "auto",
-        }}
+        className="fixed top-0 right-0 h-screen w-full sm:w-[500px] z-50 shadow-2xl overflow-y-auto transition-all"
+        style={{ background: COLORS.cardBg }}
       >
         {/* Header */}
         <div
+          className="px-8 py-7 border-b-2 flex justify-between items-center"
           style={{
-            padding: "28px 32px",
-            borderBottom: `2px solid ${COLORS.border}`,
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
+            borderColor: COLORS.border,
             background: `linear-gradient(135deg, ${COLORS.success}, #38a169)`,
             color: "white",
           }}
         >
           <div>
-            <h2 style={{ fontSize: "22px", fontWeight: "800", margin: 0, marginBottom: "4px" }}>
+            <h2 className="text-[22px] font-extrabold leading-tight mb-1">
               {isEditing ? "Edit Appointment" : "New Appointment"}
             </h2>
-            <p style={{ fontSize: "14px", opacity: 0.9, margin: 0 }}>
-              {isEditing ? "Update appointment details" : "Schedule a new appointment"}
+            <p className="text-sm opacity-90">
+              {isEditing
+                ? "Update appointment details"
+                : "Schedule a new appointment"}
             </p>
           </div>
           <button
             onClick={() => setShow(false)}
-            style={{
-              background: "rgba(255, 255, 255, 0.2)",
-              border: "none",
-              color: "white",
-              fontSize: "24px",
-              width: "40px",
-              height: "40px",
-              borderRadius: "50%",
-              cursor: "pointer",
-              transition: "all 0.3s ease",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
+            className="w-10 h-10 rounded-full flex items-center justify-center bg-white/20 text-white hover:bg-white/30 transition"
           >
             <X size={22} />
           </button>
         </div>
 
         {/* === Main Form === */}
-        <div style={{ padding: "32px" }}>
-          {/* 🔹 Client Info, Appointment Details, Services, Notes, Buttons */}
-          {/* Keep the big JSX blocks you already wrote here, unchanged,
-              just replacing state props with the ones passed down */}
+        <div className="p-8 space-y-6">
+          {/* 🔹 Client Info, Appointment Details, Services, Notes, Buttons 
+              (Insert your existing JSX form fields here, only update classes to Tailwind) */}
         </div>
       </div>
     </>
