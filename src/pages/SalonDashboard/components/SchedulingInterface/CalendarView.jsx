@@ -29,6 +29,8 @@ const CalendarView = ({
   COLORS,
   formatTime,
   formatDateToString,
+  displayHours = Array.from({ length: 24 }, (_, i) => i), // Default to 24 hours if not provided
+  getSalonHoursForDate,
 }) => {
   if (selectedStylists.length === 0) {
     return (
@@ -138,7 +140,7 @@ const CalendarView = ({
           >
             <User size={16} />
           </div>
-          {Array.from({ length: 24 }, (_, hour) => (
+          {displayHours.map((hour) => (
             <div
               key={hour}
               style={{
@@ -260,7 +262,7 @@ const CalendarView = ({
 
             <div style={{ position: "relative", minHeight: "100%" }}>
               {/* Time slot grid */}
-              {Array.from({ length: 24 }).map((_, hourIndex) => (
+              {displayHours.map((hourIndex) => (
                 <div
                   key={hourIndex}
                   style={{
