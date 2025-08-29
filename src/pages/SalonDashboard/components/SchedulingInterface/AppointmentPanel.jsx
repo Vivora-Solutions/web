@@ -193,98 +193,7 @@ const AppointmentPanel = ({
                     </div>
                   </div>
 
-                  {availableTimeSlots.length > 0 && (
-                    <div>
-                      <label style={{ display: "block", fontWeight: "600", color: COLORS.text, marginBottom: "8px" }}>
-                        Available Time Slots *
-                      </label>
-                      <select
-                        value={newAppointment.startTime && newAppointment.endTime ? `${newAppointment.startTime}|${newAppointment.endTime}` : ""}
-                        onChange={(e) => {
-                          const [startTime, endTime] = e.target.value.split('|');
-                          setNewAppointment({
-                            ...newAppointment,
-                            startTime,
-                            endTime
-                          });
-                          console.log(`Selected time slot: ${startTime} - ${endTime}`);
-                        }}
-                        style={{
-                          width: "100%",
-                          padding: "12px 16px",
-                          border: `2px solid ${COLORS.border}`,
-                          borderRadius: "8px",
-                          fontSize: "14px",
-                          fontFamily: "inherit",
-                          outline: "none",
-                          transition: "border-color 0.2s ease",
-                          backgroundColor: "white",
-                        }}
-                        onFocus={(e) => (e.target.style.borderColor = COLORS.info)}
-                        onBlur={(e) => (e.target.style.borderColor = COLORS.border)}
-                      >
-                        <option value="">Select available time slot</option>
-                        {availableTimeSlots.map((slot, index) => {
-                          return (
-                            <option key={index} value={`${slot.startTime}|${slot.endTime}`}>
-                              {slot.startTime.split('T')[1].split(":").slice(0, 2).join(":")} - {slot.endTime.split('T')[1].split(":").slice(0, 2).join(":")}
-                            </option>
-                          );
-                        })}
-                      </select>
-                    </div>
-                  )}
 
-                  {availableTimeSlots.length === 0 && (
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
-                      <div>
-                        <label style={{ display: "block", fontWeight: "600", color: COLORS.text, marginBottom: "8px" }}>
-                          Start Time *
-                        </label>
-                        <input
-                          type="time"
-                          value={newAppointment.startTime}
-                          onChange={(e) => setNewAppointment({ ...newAppointment, startTime: e.target.value })}
-                          disabled={true}
-                          style={{
-                            width: "100%",
-                            padding: "12px 16px",
-                            border: `2px solid ${COLORS.border}`,
-                            borderRadius: "8px",
-                            fontSize: "14px",
-                            fontFamily: "inherit",
-                            outline: "none",
-                            transition: "border-color 0.2s ease",
-                            backgroundColor: "#f5f5f5",
-                            cursor: "not-allowed",
-                          }}
-                        />
-                      </div>
-                      <div>
-                        <label style={{ display: "block", fontWeight: "600", color: COLORS.text, marginBottom: "8px" }}>
-                          End Time *
-                        </label>
-                        <input
-                          type="time"
-                          value={newAppointment.endTime}
-                          onChange={(e) => setNewAppointment({ ...newAppointment, endTime: e.target.value })}
-                          disabled={true}
-                          style={{
-                            width: "100%",
-                            padding: "12px 16px",
-                            border: `2px solid ${COLORS.border}`,
-                            borderRadius: "8px",
-                            fontSize: "14px",
-                            fontFamily: "inherit",
-                            outline: "none",
-                            transition: "border-color 0.2s ease",
-                            backgroundColor: "#f5f5f5",
-                            cursor: "not-allowed",
-                          }}
-                        />
-                      </div>
-                    </div>
-                  )}
                 </div>
               </div>
 
@@ -382,6 +291,7 @@ const AppointmentPanel = ({
 
               {/* Action Buttons */}
               <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                {/* Check Availability Button - Show when required fields are filled but no slots available */}
                 {newAppointment.stylistId &&
                   newAppointment.date &&
                   newAppointment.services.length > 0 &&
@@ -410,6 +320,73 @@ const AppointmentPanel = ({
                     </button>
                   )}
 
+                {/* Available Time Slots - Show when slots are available */}
+                {availableTimeSlots.length > 0 && (
+                  <div style={{ marginBottom: "16px" }}>
+                    <h3 style={{ fontSize: "18px", fontWeight: "700", color: COLORS.text, marginBottom: "16px" }}>
+                      Available Time Slots
+                    </h3>
+                    <div style={{ 
+                      display: "grid", 
+                      gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", 
+                      gap: "12px",
+                      maxHeight: "300px",
+                      overflowY: "auto"
+                    }}>
+                      {availableTimeSlots.map((slot, index) => {
+                        const isSelected = newAppointment.startTime === slot.startTime && newAppointment.endTime === slot.endTime;
+                        return (
+                          <div
+                            key={index}
+                            onClick={() => {
+                              setNewAppointment({
+                                ...newAppointment,
+                                startTime: slot.startTime,
+                                endTime: slot.endTime
+                              });
+                            }}
+                            style={{
+                              padding: "12px 16px",
+                              border: `2px solid ${isSelected ? COLORS.success : COLORS.border}`,
+                              borderRadius: "8px",
+                              cursor: "pointer",
+                              transition: "all 0.2s ease",
+                              backgroundColor: isSelected ? "rgba(72, 187, 120, 0.1)" : "white",
+                              textAlign: "center",
+                              display: "flex",
+                              flexDirection: "column",
+                              alignItems: "center",
+                              gap: "4px"
+                            }}
+                            onMouseEnter={(e) => {
+                              if (!isSelected) {
+                                e.target.style.borderColor = COLORS.info;
+                                e.target.style.backgroundColor = "rgba(66, 153, 225, 0.1)";
+                              }
+                            }}
+                            onMouseLeave={(e) => {
+                              if (!isSelected) {
+                                e.target.style.borderColor = COLORS.border;
+                                e.target.style.backgroundColor = "white";
+                              }
+                            }}
+                          >
+                            {/* <Clock size={16} color={isSelected ? COLORS.success : COLORS.textLight} /> */}
+                            <div style={{
+                              fontWeight: "600",
+                              color: isSelected ? COLORS.success : COLORS.text,
+                              fontSize: "14px"
+                            }}>
+                              {slot.startTime.split('T')[1].split(":").slice(0, 2).join(":")} - {slot.endTime.split('T')[1].split(":").slice(0, 2).join(":")}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {/* Save/Cancel Buttons */}
                 {(availableTimeSlots.length > 0 && newAppointment.startTime && newAppointment.endTime) ||
                   (!newAppointment.stylistId || !newAppointment.date || newAppointment.services.length === 0) ? (
                   <div style={{ display: "flex", gap: "12px" }}>
