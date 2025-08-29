@@ -43,15 +43,9 @@ const AppointmentDetailsPanel = ({
         style={{
           position: "fixed",
           right: 0,
-<<<<<<< HEAD
-          top: 0,
-          height: "100vh",
-          width: window.innerWidth <= 768 ? "100vw" : "450px",
-=======
           top: "60px",
           height: "calc(100vh - 60px)",
           width: window.innerWidth <= 768 ? "90%" : "450px",
->>>>>>> origin/main
           background: COLORS.cardBg,
           boxShadow: "-10px 0 40px rgba(0, 0, 0, 0.2)",
           zIndex: 51,
