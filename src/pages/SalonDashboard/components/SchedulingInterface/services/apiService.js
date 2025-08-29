@@ -76,4 +76,10 @@ export const ApiService = {
     const response = await ProtectedAPI.delete(`/salon-admin/schedule/stylists/${leaveData.stylist_id}/leave/${leaveData.leave_id}`);
     return response.data;
   },
+
+  // Salon Opening Hours
+  async getOpeningHours() {
+    const response = await ProtectedAPI.get('/salon-admin/opening-hours');
+    return response.data;
+  },
 };
