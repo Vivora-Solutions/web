@@ -28,17 +28,30 @@ const AppointmentDetailsPanel = ({
     <>
       {/* Overlay */}
       <div
-        className="fixed inset-0 z-50 backdrop-blur-md"
-        style={{ background: COLORS.overlay }}
+        style={{
+          position: "fixed",
+          inset: 0,
+          background: "rgba(0, 0, 0, 0.5)",
+          backdropFilter: "blur(4px)",
+          zIndex: 50,
+        }}
         onClick={onClose}
       />
 
       {/* Panel */}
       <div
-  className="fixed top-16 right-0 h-[calc(100vh-4rem)] w-full sm:w-[450px] z-50 shadow-2xl overflow-y-auto transition-all"
-  style={{ background: COLORS.cardBg }}
->
-
+        style={{
+          position: "fixed",
+          right: 0,
+          top: "60px",
+          height: "calc(100vh - 60px)",
+          width: window.innerWidth <= 768 ? "90%" : "450px",
+          background: COLORS.cardBg,
+          boxShadow: "-10px 0 40px rgba(0, 0, 0, 0.2)",
+          zIndex: 51,
+          overflowY: "auto",
+        }}
+      >
         {/* Header */}
         <div
           className="flex items-center justify-between px-6 py-6 border-b-2"
