@@ -298,7 +298,7 @@ const AppointmentPanel = ({
                           {service.name}
                         </div>
                         <div className="text-xs sm:text-sm text-gray-500">
-                          {service.duration} min • ${service.price}
+                          {service.duration} min • Rs. {service.price}
                         </div>
                       </div>
                     </div>

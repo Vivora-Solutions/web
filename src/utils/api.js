@@ -1,7 +1,8 @@
 import axios from "axios";
 const BASE_URL = "http://localhost:3000/api";  
-//const BASE_URL = "http://13.48.10.128/api";
-//const BASE_URL = "/api";
+//const BASE_URL = "http://13.48.10.1/api";
+// const BASE_URL = "http://192.168.158.190:3000/api";
+// const BASE_URL = "/api";
 // const BASE_URL = "http://10.10.23.48:3000/api";
 //const BASE_URL = 'https://backend-2-o7e5.onrender.com/api';
 
