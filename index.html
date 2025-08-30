@@ -2,14 +2,34 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <!-- <link rel="icon" type="image/svg+xml" href="/logo.jpg" /> -->
-    <link rel="icon" type="image/jpg" href="/weblogo-white.png" />
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>SalonDora</title>
+    <title>Salon Dora</title>
+
+    <!-- ✅ Favicons -->
+    <!-- Best practice is to provide multiple sizes + ICO -->
+    <link rel="icon" href="/favicon.ico" sizes="any"> <!-- fallback -->
+    <link rel="icon" type="image/png" href="/weblogo-white.png" sizes="32x32">
+    <link rel="apple-touch-icon" href="/weblogo-white.png"> <!-- for iOS Safari -->
+
+    <!-- ✅ Structured Data for Google (Logo + Org Info) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "name": "Salon Dora",
+      "url": "https://salondora.com",
+      "logo": "https://salondora.com/weblogo-white.png",
+      <!-- "sameAs": [
+        "https://www.facebook.com/SalonDora",
+        "https://www.instagram.com/yourprofile", 
+        "https://twitter.com/yourprofile"
+      ] -->
+    }
+    </script>
+
     <style>
       .logo {
-        width: 80px; /* or desired size */
+        width: 80px;
         height: 80px;
         border-radius: 50%;
         object-fit: cover;
@@ -21,6 +41,3 @@
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
-
-
-

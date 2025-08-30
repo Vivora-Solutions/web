@@ -1,7 +1,7 @@
 import HeaderWithSearchBar from "./HeaderWithSearchBar";
 import { Star } from "lucide-react";
 
-const HeroSection = ({ searchTerm, setSearchTerm, salonCount }) => {
+const HeroSection = ({ searchTerm, setSearchTerm, salonCount, onExploreClick }) => {
   return (
     <div className="relative overflow-hidden bg-gradient-to-br from-[#fff9f9] via-[#fdfbfb] to-gray-200">
       {/* Gradient overlay for depth */}
@@ -36,7 +36,9 @@ const HeroSection = ({ searchTerm, setSearchTerm, salonCount }) => {
           </div>
 
           {/* CTA */}
-          <button className="mt-8 px-8 py-3 bg-gradient-to-r from-red-500 via-pink-500 to-orange-400 text-white rounded-full font-semibold shadow-lg hover:scale-105 transition-transform duration-200">
+          <button 
+            onClick={onExploreClick} 
+            className="mt-8 px-8 py-3 bg-gradient-to-r from-red-500 via-pink-500 to-orange-400 text-white rounded-full font-semibold shadow-lg hover:scale-105 transition-transform duration-200">
             Explore Salons
           </button>
 
