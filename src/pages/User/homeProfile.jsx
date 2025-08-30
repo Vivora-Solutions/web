@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import { Search } from "lucide-react"
 import { useNavigate } from "react-router-dom"
 import { parseWKBHexToLatLng } from "../../utils/wkbToLatLng"
@@ -20,7 +20,15 @@ const HomePage = () => {
   const [center, setCenter] = useState([7.8731, 80.7718]) // default Sri Lanka
   const [zoom, setZoom] = useState(7)
   const [userLocation, setUserLocation] = useState(null)
+  const salonListRef = useRef(null)
+
   const navigate = useNavigate()
+
+  const scrollToSalonList = () => {
+    if (salonListRef.current) {
+      salonListRef.current.scrollIntoView({ behavior: "smooth" })
+    }
+  }
 
   // ✅ Get salons
   useEffect(() => {
@@ -92,6 +100,7 @@ const HomePage = () => {
           searchTerm={searchTerm}
           setSearchTerm={setSearchTerm}
           salonCount={filteredSalons.length}
+          onExploreClick={scrollToSalonList}
         />
       </div>
 
@@ -124,6 +133,10 @@ const HomePage = () => {
       {/* Desktop content */}
       <div className="max-w-7xl mx-auto px-4 py-8 flex flex-col">
         <div className="order-2 lg:order-1 mb-8">
+           <div
+              ref={salonListRef}   // 👈 attach ref here
+              className="order-2 lg:order-1 mb-8"
+            ></div>
           <SalonList
             filteredSalons={filteredSalons}
             isLoading={isLoading}
