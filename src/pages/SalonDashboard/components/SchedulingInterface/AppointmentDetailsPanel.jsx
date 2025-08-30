@@ -267,7 +267,7 @@ const AppointmentDetailsPanel = ({
                       className="text-xs"
                       style={{ color: COLORS.textLight }}
                     >
-                      {service.duration} minutes • ${service.price}
+                      {service.duration} minutes • Rs. {service.price}
                     </div>
                   </div>
                 );
@@ -281,8 +281,7 @@ const AppointmentDetailsPanel = ({
                   color: COLORS.text,
                 }}
               >
-                Total: $
-                {appointment.services.reduce((total, serviceId) => {
+                Total: Rs. {appointment.services.reduce((total, serviceId) => {
                   const service = getServiceById(serviceId);
                   return total + service.price;
                 }, 0)}

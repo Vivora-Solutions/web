@@ -71,7 +71,7 @@ const ServicesModal = ({
                   </label>
                 </div>
                 <span className="font-semibold text-green-600 text-sm sm:text-base">
-                  ${service.price}
+                  Rs. {service.price}
                 </span>
               </div>
             ))}

@@ -374,7 +374,7 @@ const WorkStationManagement = () => {
                                 {serviceData.service.service_name}
                               </h6>
                               <p className="text-slate-500 text-xs mt-1">
-                                ${serviceData.service.price} •{" "}
+                                Rs. {serviceData.service.price} •{" "}
                                 {serviceData.service.duration_minutes} min
                               </p>
                             </div>
@@ -447,7 +447,7 @@ const WorkStationManagement = () => {
                             {service.service_name}
                           </h4>
                           <p className="text-sm text-slate-500">
-                            ${service.price} • {service.duration_minutes} min
+                            Rs. {service.price} • {service.duration_minutes} min
                           </p>
                         </div>
                       </div>
