@@ -1,21 +1,75 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import EditableField from "./components/EditableField";
 import { ProtectedAPI } from "../../utils/api";
-import supabase from "../../utils/supabaseClient"; // Add this import
+import supabase from "../../utils/supabaseClient";
+import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
+import { parseWKBHexToLatLng } from "../../utils/wkbToLatLng";
+
+// Google Maps container style
+const containerStyle = {
+  width: "100%",
+  height: "100%",
+};
+
+// Default center (Sri Lanka)
+const defaultCenter = {
+  lat: 7.8731,
+  lng: 80.7718,
+};
 
 const SalonInfo = () => {
   const [salon, setSalon] = useState(null);
   const [formData, setFormData] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [uploading, setUploading] = useState(false); // Add uploading state
+  const [uploading, setUploading] = useState(false);
+
+  // Load Google Maps script
+  const { isLoaded } = useJsApiLoader({
+    id: "google-map-script",
+    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
+    mapIds: [import.meta.env.VITE_GOOGLE_MAP_ID || ""],
+  });
 
   useEffect(() => {
     const fetchSalon = async () => {
       try {
         const res = await ProtectedAPI.get("/salon-admin/my");
-        setSalon(res.data);
-        setFormData(res.data);
+        const salonData = res.data;
+
+        // Parse location from WKB format if it exists
+        let parsedLocation = defaultCenter;
+        if (salonData.location) {
+          try {
+            parsedLocation = parseWKBHexToLatLng(salonData.location);
+          } catch (error) {
+            console.error("Error parsing location:", error);
+            // If no valid location exists, try to get user's current location
+            if (navigator.geolocation) {
+              navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                  const { latitude, longitude } = pos.coords;
+                  parsedLocation = { lat: latitude, lng: longitude };
+                },
+                (err) => {
+                  console.warn("Geolocation error:", err.message);
+                },
+                { enableHighAccuracy: true }
+              );
+            }
+          }
+        }
+
+        const processedData = {
+          ...salonData,
+          location: {
+            latitude: parsedLocation.lat,
+            longitude: parsedLocation.lng,
+          },
+        };
+
+        setSalon(processedData);
+        setFormData(processedData);
       } catch (err) {
         console.error("Failed to fetch salon info:", err);
       } finally {
@@ -28,6 +82,31 @@ const SalonInfo = () => {
   const handleChange = (key, value) => {
     setFormData((prev) => ({ ...prev, [key]: value }));
   };
+
+  // Handle map clicks (update marker)
+  const onMapClick = useCallback(
+    (e) => {
+      if (!isEditing) return; // Extra safety check
+
+      const newLocation = {
+        latitude: e.latLng.lat(),
+        longitude: e.latLng.lng(),
+      };
+
+      setFormData((prev) => ({
+        ...prev,
+        location: newLocation,
+      }));
+
+      // Optional: Show a brief confirmation
+      console.log(
+        `Location updated to: ${newLocation.latitude.toFixed(
+          4
+        )}, ${newLocation.longitude.toFixed(4)}`
+      );
+    },
+    [isEditing]
+  );
 
   // Add logo upload handler
   const handleLogoUpload = async (e) => {
@@ -79,14 +158,22 @@ const SalonInfo = () => {
         salon_address: formData.salon_address,
         salon_contact_number: formData.salon_contact_number,
         salon_logo_link: formData.salon_logo_link,
+        location: formData.location, // Include location in update
       };
-      await ProtectedAPI.put("/salon-admin/update", payload);
+
+      console.log("Updating salon with payload:", payload);
+      const response = await ProtectedAPI.put("/salon-admin/update", payload);
+      console.log("Update response:", response.data);
+
       setSalon((prev) => ({ ...prev, ...payload }));
       setIsEditing(false);
+
       alert("Salon updated successfully!");
     } catch (err) {
       console.error("Update failed:", err.response?.data || err.message);
-      alert("Failed to update salon");
+      alert(
+        `Failed to update salon: ${err.response?.data?.error || err.message}`
+      );
     }
   };
 
@@ -292,6 +379,93 @@ const SalonInfo = () => {
               onChange={(v) => handleChange("salon_contact_number", v)}
               disabled={!isEditing}
             />
+          </div>
+
+          {/* Location Section */}
+          <div className="group">
+            <label className="block text-sm font-semibold text-slate-700 mb-2">
+              🗺️ Salon Location
+            </label>
+            <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 group-hover:border-indigo-200 transition-colors duration-200">
+              <div
+                className={`h-64 rounded-xl overflow-hidden border-2 border-gray-200 shadow-md mb-3 ${
+                  isEditing ? "cursor-crosshair" : "cursor-default"
+                }`}
+              >
+                {isLoaded && formData.location && (
+                  <GoogleMap
+                    mapContainerStyle={containerStyle}
+                    center={{
+                      lat: formData.location.latitude,
+                      lng: formData.location.longitude,
+                    }}
+                    zoom={14}
+                    onClick={isEditing ? onMapClick : undefined}
+                    options={{
+                      mapId: import.meta.env.VITE_GOOGLE_MAP_ID || undefined,
+                      streetViewControl: false,
+                      mapTypeControl: false,
+                      fullscreenControl: false,
+                      gestureHandling: "greedy",
+                    }}
+                  >
+                    <Marker
+                      position={{
+                        lat: formData.location.latitude,
+                        lng: formData.location.longitude,
+                      }}
+                    />
+                  </GoogleMap>
+                )}
+                {!isLoaded && (
+                  <div className="h-full flex items-center justify-center bg-gray-100">
+                    <div className="animate-spin h-12 w-12 border-b-2 border-indigo-600 rounded-full"></div>
+                  </div>
+                )}
+              </div>
+
+              <div className="bg-gray-50 p-3 rounded-lg text-sm">
+                {isEditing && (
+                  <p className="text-indigo-600 mb-2 font-medium">
+                    📍 Click on the map to update your salon's location
+                  </p>
+                )}
+                <p className="font-medium text-gray-800">
+                  Current coordinates: (
+                  {formData.location?.latitude?.toFixed(4) || "N/A"},{" "}
+                  {formData.location?.longitude?.toFixed(4) || "N/A"})
+                </p>
+                {isEditing && (
+                  <div className="mt-2 flex gap-2">
+                    <button
+                      onClick={() => {
+                        if (navigator.geolocation) {
+                          navigator.geolocation.getCurrentPosition(
+                            (pos) => {
+                              const { latitude, longitude } = pos.coords;
+                              setFormData((prev) => ({
+                                ...prev,
+                                location: { latitude, longitude },
+                              }));
+                            },
+                            (err) => {
+                              console.warn("Geolocation error:", err.message);
+                              alert(
+                                "Unable to get your current location. Please click on the map to set the location manually."
+                              );
+                            },
+                            { enableHighAccuracy: true }
+                          );
+                        }
+                      }}
+                      className="px-3 py-1 bg-blue-50 text-blue-600 border border-blue-200 rounded text-xs hover:bg-blue-100 transition-colors"
+                    >
+                      📍 Use Current Location
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         </div>
 
