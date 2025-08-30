@@ -1,134 +1,149 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+﻿﻿<?xml version="1.0" encoding="UTF-8"?>
 		<!--	created with www.mysitemapgenerator.com	-->
 		<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <url>
-	<loc>https://www.salondora.com/</loc>
-	<lastmod>2025-08-26T10:53:51+01:00</lastmod>
+	<loc>https://salondora.com/</loc>
+	<lastmod>2025-08-30T19:15:22+01:00</lastmod>
 	<priority>1.0</priority>
 </url>
 <url>
-	<loc>https://www.salondora.com/login</loc>
-	<lastmod>2025-08-26T10:53:51+01:00</lastmod>
+	<loc>https://salondora.com/login</loc>
+	<lastmod>2025-08-30T19:15:22+01:00</lastmod>
 	<priority>1.0</priority>
 </url>
 <url>
-	<loc>https://www.salondora.com/salon-register</loc>
-	<lastmod>2025-08-26T10:53:51+01:00</lastmod>
+	<loc>https://salondora.com/salon-register</loc>
+	<lastmod>2025-08-30T19:15:22+01:00</lastmod>
 	<priority>1.0</priority>
 </url>
 <url>
-	<loc>https://www.salondora.com/admin</loc>
-	<lastmod>2025-08-26T10:53:51+01:00</lastmod>
+	<loc>https://salondora.com/admin</loc>
+	<lastmod>2025-08-30T19:15:22+01:00</lastmod>
 	<priority>1.0</priority>
 </url>
 <url>
-	<loc>https://www.salondora.com/admin/opening-hours</loc>
-	<lastmod>2025-08-26T10:53:51+01:00</lastmod>
+	<loc>https://salondora.com/admin/opening-hours</loc>
+	<lastmod>2025-08-30T19:15:22+01:00</lastmod>
 	<priority>0.8</priority>
 </url>
 <url>
-	<loc>https://www.salondora.com/admin/gallery</loc>
-	<lastmod>2025-08-26T10:53:51+01:00</lastmod>
+	<loc>https://salondora.com/admin/gallery</loc>
+	<lastmod>2025-08-30T19:15:22+01:00</lastmod>
 	<priority>0.8</priority>
 </url>
 <url>
-	<loc>https://www.salondora.com/admin/services</loc>
-	<lastmod>2025-08-26T10:53:51+01:00</lastmod>
+	<loc>https://salondora.com/admin/services</loc>
+	<lastmod>2025-08-30T19:15:22+01:00</lastmod>
 	<priority>0.8</priority>
 </url>
 <url>
-	<loc>https://www.salondora.com/admin/stylists</loc>
-	<lastmod>2025-08-26T10:53:51+01:00</lastmod>
+	<loc>https://salondora.com/admin/stylists</loc>
+	<lastmod>2025-08-30T19:15:22+01:00</lastmod>
 	<priority>0.8</priority>
 </url>
 <url>
-	<loc>https://www.salondora.com/admin/workstations</loc>
-	<lastmod>2025-08-26T10:53:51+01:00</lastmod>
+	<loc>https://salondora.com/admin/workstations</loc>
+	<lastmod>2025-08-30T19:15:22+01:00</lastmod>
 	<priority>0.8</priority>
 </url>
 <url>
-	<loc>https://www.salondora.com/admin/booking-schedules</loc>
-	<lastmod>2025-08-26T10:53:51+01:00</lastmod>
+	<loc>https://salondora.com/admin/booking-schedules</loc>
+	<lastmod>2025-08-30T19:15:22+01:00</lastmod>
 	<priority>0.8</priority>
 </url>
 <url>
-	<loc>https://www.salondora.com/my-bookings</loc>
-	<lastmod>2025-08-26T10:53:51+01:00</lastmod>
+	<loc>https://salondora.com/my-bookings</loc>
+	<lastmod>2025-08-30T19:15:22+01:00</lastmod>
 	<priority>1.0</priority>
 </url>
 <url>
-	<loc>https://www.salondora.com/about</loc>
-	<lastmod>2025-08-26T10:53:51+01:00</lastmod>
+	<loc>https://salondora.com/about</loc>
+	<lastmod>2025-08-30T19:15:22+01:00</lastmod>
 	<priority>1.0</priority>
 </url>
 <url>
-	<loc>https://www.salondora.com/signup</loc>
-	<lastmod>2025-08-26T10:53:51+01:00</lastmod>
+	<loc>https://salondora.com/signup</loc>
+	<lastmod>2025-08-30T19:15:22+01:00</lastmod>
 	<priority>1.0</priority>
 </url>
 <url>
-	<loc>https://www.salondora.com/super-admin</loc>
-	<lastmod>2025-08-26T10:53:51+01:00</lastmod>
+	<loc>https://salondora.com/privacy-policy</loc>
+	<lastmod>2025-08-30T19:15:22+01:00</lastmod>
 	<priority>1.0</priority>
 </url>
 <url>
-	<loc>https://www.salondora.com/oauth-callback</loc>
-	<lastmod>2025-08-26T10:53:51+01:00</lastmod>
+	<loc>https://salondora.com/terms-and-conditions-for-clients</loc>
+	<lastmod>2025-08-30T19:15:22+01:00</lastmod>
 	<priority>1.0</priority>
 </url>
 <url>
-	<loc>https://www.salondora.com/schedule</loc>
-	<lastmod>2025-08-26T10:53:51+01:00</lastmod>
+	<loc>https://salondora.com/terms-and-conditions-for-salons</loc>
+	<lastmod>2025-08-30T19:15:22+01:00</lastmod>
 	<priority>1.0</priority>
 </url>
 <url>
-	<loc>https://www.salondora.com/profile</loc>
-	<lastmod>2025-08-26T10:53:51+01:00</lastmod>
+	<loc>https://salondora.com/super-admin</loc>
+	<lastmod>2025-08-30T19:15:22+01:00</lastmod>
 	<priority>1.0</priority>
 </url>
 <url>
-	<loc>https://www.salondora.com/booking-confirm</loc>
-	<lastmod>2025-08-26T10:53:51+01:00</lastmod>
+	<loc>https://salondora.com/oauth-callback</loc>
+	<lastmod>2025-08-30T19:15:22+01:00</lastmod>
 	<priority>1.0</priority>
 </url>
 <url>
-	<loc>https://www.salondora.com/salon-info</loc>
-	<lastmod>2025-08-26T10:53:51+01:00</lastmod>
+	<loc>https://salondora.com/schedule</loc>
+	<lastmod>2025-08-30T19:15:22+01:00</lastmod>
 	<priority>1.0</priority>
 </url>
 <url>
-	<loc>https://www.salondora.com/opening-hours</loc>
-	<lastmod>2025-08-26T10:53:51+01:00</lastmod>
+	<loc>https://salondora.com/profile</loc>
+	<lastmod>2025-08-30T19:15:22+01:00</lastmod>
 	<priority>1.0</priority>
 </url>
 <url>
-	<loc>https://www.salondora.com/gallery</loc>
-	<lastmod>2025-08-26T10:53:51+01:00</lastmod>
+	<loc>https://salondora.com/booking-confirm</loc>
+	<lastmod>2025-08-30T19:15:22+01:00</lastmod>
 	<priority>1.0</priority>
 </url>
 <url>
-	<loc>https://www.salondora.com/services</loc>
-	<lastmod>2025-08-26T10:53:51+01:00</lastmod>
+	<loc>https://salondora.com/salon-info</loc>
+	<lastmod>2025-08-30T19:15:22+01:00</lastmod>
 	<priority>1.0</priority>
 </url>
 <url>
-	<loc>https://www.salondora.com/stylists</loc>
-	<lastmod>2025-08-26T10:53:51+01:00</lastmod>
+	<loc>https://salondora.com/opening-hours</loc>
+	<lastmod>2025-08-30T19:15:22+01:00</lastmod>
 	<priority>1.0</priority>
 </url>
 <url>
-	<loc>https://www.salondora.com/workstations</loc>
-	<lastmod>2025-08-26T10:53:51+01:00</lastmod>
+	<loc>https://salondora.com/gallery</loc>
+	<lastmod>2025-08-30T19:15:22+01:00</lastmod>
 	<priority>1.0</priority>
 </url>
 <url>
-	<loc>https://www.salondora.com/booking-schedules</loc>
-	<lastmod>2025-08-26T10:53:51+01:00</lastmod>
+	<loc>https://salondora.com/services</loc>
+	<lastmod>2025-08-30T19:15:22+01:00</lastmod>
 	<priority>1.0</priority>
 </url>
 <url>
-	<loc>https://www.salondora.com/all-salons</loc>
-	<lastmod>2025-08-26T10:53:51+01:00</lastmod>
+	<loc>https://salondora.com/stylists</loc>
+	<lastmod>2025-08-30T19:15:22+01:00</lastmod>
+	<priority>1.0</priority>
+</url>
+<url>
+	<loc>https://salondora.com/workstations</loc>
+	<lastmod>2025-08-30T19:15:22+01:00</lastmod>
+	<priority>1.0</priority>
+</url>
+<url>
+	<loc>https://salondora.com/booking-schedules</loc>
+	<lastmod>2025-08-30T19:15:22+01:00</lastmod>
+	<priority>1.0</priority>
+</url>
+<url>
+	<loc>https://salondora.com/all-salons</loc>
+	<lastmod>2025-08-30T19:15:22+01:00</lastmod>
 	<priority>1.0</priority>
 </url>
 </urlset>
