@@ -117,8 +117,8 @@ const CalendarView = ({
               alignItems: "center",
               justifyContent: "center",
               fontWeight: "700",
-              color: COLORS.text,
-              background: "#edf2f7",
+              color: "white",
+              background: `linear-gradient(135deg, ${COLORS.info}, #3182ce)`,
               borderBottom: `2px solid ${COLORS.border}`,
               fontSize: "12px",
             }}
@@ -133,7 +133,7 @@ const CalendarView = ({
               justifyContent: "center",
               fontWeight: "700",
               color: COLORS.text,
-              background: "#edf2f7",
+              background: "rgba(255, 255, 255, 0.8)",
               borderBottom: `2px solid ${COLORS.border}`,
               fontSize: "12px",
             }}
@@ -248,9 +248,26 @@ const CalendarView = ({
                         fontSize: "10px",
                         color: "white",
                         boxShadow: "0 2px 8px rgba(0, 0, 0, 0.2)",
+                        overflow: "hidden",
                       }}
                     >
-                      {hasAnyLeave ? <Plane size={12} /> : stylist.avatar}
+                      {hasAnyLeave ? (
+                        <Plane size={12} />
+                      ) : stylist.avatar &&
+                        stylist.avatar.startsWith("http") ? (
+                        <img
+                          src={stylist.avatar}
+                          alt={stylist.name}
+                          style={{
+                            width: "100%",
+                            height: "100%",
+                            objectFit: "cover",
+                            borderRadius: "50%",
+                          }}
+                        />
+                      ) : (
+                        stylist.avatar || <User size={12} />
+                      )}
                     </div>
                     <span style={{ color: COLORS.text }}>
                       {stylist.name.split(" ")[0]}
