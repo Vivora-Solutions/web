@@ -27,7 +27,7 @@ const AddServiceModal = ({
     const { name, value, type, checked } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: type === "checkbox" ? checked : value,
     }));
   };
 
@@ -195,7 +195,8 @@ const AddServiceModal = ({
             </select>
           </div>
 
-          {/* Service Image */}
+          {/* Service Image - Commented out (not needed currently) */}
+          {/* 
           <div>
             <label className="block font-semibold text-gray-700 mb-1 text-sm">
               Service Image
@@ -245,13 +246,14 @@ const AddServiceModal = ({
               Optional: Add an image to showcase your service
             </p>
           </div>
+          */}
 
           {/* Options */}
           <div className="space-y-3">
             <label className="block font-semibold text-gray-700 text-sm">
               Service Options
             </label>
-            
+
             <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
               <input
                 type="checkbox"
@@ -261,7 +263,10 @@ const AddServiceModal = ({
                 className="w-4 h-4 accent-blue-500"
                 id="is_available"
               />
-              <label htmlFor="is_available" className="text-sm text-gray-700 cursor-pointer">
+              <label
+                htmlFor="is_available"
+                className="text-sm text-gray-700 cursor-pointer"
+              >
                 Service is currently available for booking
               </label>
             </div>
@@ -275,7 +280,10 @@ const AddServiceModal = ({
                 className="w-4 h-4 accent-blue-500"
                 id="show_price"
               />
-              <label htmlFor="show_price" className="text-sm text-gray-700 cursor-pointer">
+              <label
+                htmlFor="show_price"
+                className="text-sm text-gray-700 cursor-pointer"
+              >
                 Display price to customers
               </label>
             </div>
@@ -289,12 +297,15 @@ const AddServiceModal = ({
             disabled={loading || uploading}
             className="w-full py-3 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-xl font-semibold shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all disabled:opacity-60 disabled:cursor-not-allowed text-sm sm:text-base"
           >
-            {loading 
-              ? (isEditing ? "Updating..." : "Adding...") 
-              : uploading 
-                ? "Uploading..." 
-                : (isEditing ? "Update Service" : "Add Service")
-            }
+            {loading
+              ? isEditing
+                ? "Updating..."
+                : "Adding..."
+              : uploading
+              ? "Uploading..."
+              : isEditing
+              ? "Update Service"
+              : "Add Service"}
           </button>
         </div>
       </div>
