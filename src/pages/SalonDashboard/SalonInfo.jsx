@@ -99,11 +99,11 @@ const SalonInfo = () => {
       }));
 
       // Optional: Show a brief confirmation
-      console.log(
-        `Location updated to: ${newLocation.latitude.toFixed(
-          4
-        )}, ${newLocation.longitude.toFixed(4)}`
-      );
+      //console.log(
+      //  `Location updated to: ${newLocation.latitude.toFixed(
+      //    4
+      //  )}, ${newLocation.longitude.toFixed(4)}`
+      //);
     },
     [isEditing]
   );
@@ -161,9 +161,9 @@ const SalonInfo = () => {
         location: formData.location, // Include location in update
       };
 
-      console.log("Updating salon with payload:", payload);
+      //console.log("Updating salon with payload:", payload);
       const response = await ProtectedAPI.put("/salon-admin/update", payload);
-      console.log("Update response:", response.data);
+      //console.log("Update response:", response.data);
 
       setSalon((prev) => ({ ...prev, ...payload }));
       setIsEditing(false);
