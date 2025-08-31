@@ -12,7 +12,7 @@ const Footer = () => {
           <div>
             <h3 className="flex items-center space-x-2 text-lg font-bold mb-4">
               <img 
-                src="/logo.png" 
+                src="/company-logo.png" 
                 alt="Vivora Logo" 
                 className="h-8 w-8 object-contain"
               />
