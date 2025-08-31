@@ -28,86 +28,47 @@ const AppointmentDetailsPanel = ({
     <>
       {/* Overlay */}
       <div
-        style={{
-          position: "fixed",
-          inset: 0,
-          background: "rgba(0, 0, 0, 0.5)",
-          backdropFilter: "blur(4px)",
-          zIndex: 50,
-        }}
+        className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50"
         onClick={onClose}
       />
 
       {/* Panel */}
       <div
-        style={{
-          position: "fixed",
-          right: 0,
-
-
-          top: "60px",
-          height: "calc(100vh - 60px)",
-          width: window.innerWidth <= 768 ? "90%" : "450px",
-
-
-          background: COLORS.cardBg,
-          boxShadow: "-10px 0 40px rgba(0, 0, 0, 0.2)",
-          zIndex: 51,
-          overflowY: "auto",
-        }}
+        className="fixed right-0 top-[60px] h-[calc(100vh-60px)] w-[90%] md:w-[450px] z-51 flex flex-col shadow-2xl"
+        style={{ background: COLORS.cardBg }}
       >
         {/* Header */}
         <div
-          className="flex items-center justify-between px-6 py-6 border-b-2"
+          className="flex items-center justify-between px-4 md:px-8 py-4 md:py-6 border-b-2 text-white"
           style={{
-            padding: window.innerWidth <= 768 ? "20px 16px" : "28px 32px",
             borderBottom: `2px solid ${COLORS.border}`,
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
             background: `linear-gradient(135deg, ${
               getStylistById(appointment.stylistId).color
             }, ${getStylistById(appointment.stylistId).color}dd)`,
-            color: "white",
           }}
         >
           <div>
-            <h2
-              style={{
-                fontSize: window.innerWidth <= 768 ? "18px" : "22px",
-                fontWeight: "800",
-                margin: 0,
-                marginBottom: "4px",
-              }}
-            >
+            <h2 className="text-lg md:text-xl font-extrabold mb-1">
               Appointment Details
             </h2>
-            <p
-              style={{
-                fontSize: window.innerWidth <= 768 ? "12px" : "14px",
-                opacity: 0.9,
-                margin: 0,
-              }}
-            >
+            <p className="text-xs md:text-sm opacity-90">
               {appointment.clientName}
             </p>
           </div>
           <button
             onClick={onClose}
-            className="w-10 h-10 rounded-full flex items-center justify-center bg-white/20 text-white hover:bg-white/30 transition"
+            className="w-10 h-10 rounded-full flex items-center justify-center bg-white/20 hover:bg-white/30 transition"
           >
             <X size={22} />
           </button>
         </div>
 
         {/* Body */}
-        <div
-          style={{ padding: window.innerWidth <= 768 ? "20px 16px" : "32px" }}
-        >
+        <div className="flex-1 overflow-y-auto px-4 md:px-8 py-5 space-y-6">
           {/* Status Badge */}
           <div className="text-center">
             <div
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full font-bold text-sm capitalize"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full font-bold text-sm capitalize text-white"
               style={{
                 background:
                   appointment.status === "confirmed"
@@ -117,7 +78,6 @@ const AppointmentDetailsPanel = ({
                     : appointment.status === "cancelled"
                     ? COLORS.danger
                     : COLORS.info,
-                color: "white",
               }}
             >
               {appointment.status === "confirmed" && <CheckCircle2 size={16} />}
@@ -127,41 +87,31 @@ const AppointmentDetailsPanel = ({
             </div>
           </div>
 
-          {/* Client Information */}
-          <div style={{ marginBottom: "24px" }}>
+          {/* Client Info */}
+          <div>
             <h3
-              style={{
-                fontSize: "18px",
-                fontWeight: "700",
-                color: COLORS.text,
-                marginBottom: "16px",
-              }}
+              className="text-lg font-bold mb-4"
+              style={{ color: COLORS.text }}
             >
               Client Information
             </h3>
-            <div
-              style={{ display: "flex", flexDirection: "column", gap: "12px" }}
-            >
-              <div
-                style={{ display: "flex", alignItems: "center", gap: "12px" }}
-              >
+            <div className="flex flex-col gap-3">
+              <div className="flex items-center gap-3">
                 <User size={18} color={COLORS.textLight} />
-                <span style={{ fontWeight: "600", color: COLORS.text }}>
+                <span className="font-semibold" style={{ color: COLORS.text }}>
                   {appointment.clientName}
                 </span>
                 {appointment.isWalkIn && (
                   <span
-                    className="text-xs px-2 py-1 rounded-full font-semibold"
-                    style={{ background: COLORS.warning, color: "white" }}
+                    className="text-xs px-2 py-1 rounded-full font-semibold text-white"
+                    style={{ background: COLORS.warning }}
                   >
                     Walk-in
                   </span>
                 )}
               </div>
               {appointment.clientPhone && (
-                <div
-                  style={{ display: "flex", alignItems: "center", gap: "12px" }}
-                >
+                <div className="flex items-center gap-3">
                   <Phone size={18} color={COLORS.textLight} />
                   <span style={{ color: COLORS.text }}>
                     {appointment.clientPhone}
@@ -171,33 +121,23 @@ const AppointmentDetailsPanel = ({
             </div>
           </div>
 
-          {/* Appointment Information */}
-          <div style={{ marginBottom: "24px" }}>
+          {/* Appointment Info */}
+          <div>
             <h3
-              style={{
-                fontSize: "18px",
-                fontWeight: "700",
-                color: COLORS.text,
-                marginBottom: "16px",
-              }}
+              className="text-lg font-bold mb-4"
+              style={{ color: COLORS.text }}
             >
               Appointment Information
             </h3>
-            <div
-              style={{ display: "flex", flexDirection: "column", gap: "12px" }}
-            >
-              <div
-                style={{ display: "flex", alignItems: "center", gap: "12px" }}
-              >
+            <div className="flex flex-col gap-3">
+              <div className="flex items-center gap-3">
                 <User size={18} color={COLORS.textLight} />
                 <span style={{ color: COLORS.text }}>
                   <strong>Stylist:</strong>{" "}
                   {getStylistById(appointment.stylistId).name}
                 </span>
               </div>
-              <div
-                style={{ display: "flex", alignItems: "center", gap: "12px" }}
-              >
+              <div className="flex items-center gap-3">
                 <Calendar size={18} color={COLORS.textLight} />
                 <span style={{ color: COLORS.text }}>
                   <strong>Date:</strong>{" "}
@@ -209,9 +149,7 @@ const AppointmentDetailsPanel = ({
                   })}
                 </span>
               </div>
-              <div
-                style={{ display: "flex", alignItems: "center", gap: "12px" }}
-              >
+              <div className="flex items-center gap-3">
                 <Clock size={18} color={COLORS.textLight} />
                 <span style={{ color: COLORS.text }}>
                   <strong>Time:</strong> {appointment.startTime} -{" "}
@@ -219,9 +157,7 @@ const AppointmentDetailsPanel = ({
                 </span>
               </div>
               {appointment.workstation && (
-                <div
-                  style={{ display: "flex", alignItems: "center", gap: "12px" }}
-                >
+                <div className="flex items-center gap-3">
                   <MapPin size={18} color={COLORS.textLight} />
                   <span style={{ color: COLORS.text }}>
                     <strong>Workstation:</strong>{" "}
@@ -233,20 +169,14 @@ const AppointmentDetailsPanel = ({
           </div>
 
           {/* Services */}
-          <div style={{ marginBottom: "24px" }}>
+          <div>
             <h3
-              style={{
-                fontSize: "18px",
-                fontWeight: "700",
-                color: COLORS.text,
-                marginBottom: "16px",
-              }}
+              className="text-lg font-bold mb-4"
+              style={{ color: COLORS.text }}
             >
               Services
             </h3>
-            <div
-              style={{ display: "flex", flexDirection: "column", gap: "8px" }}
-            >
+            <div className="flex flex-col gap-2">
               {appointment.services.map((serviceId) => {
                 const service = getServiceById(serviceId);
                 return (
@@ -259,11 +189,8 @@ const AppointmentDetailsPanel = ({
                     }}
                   >
                     <div
-                      style={{
-                        fontWeight: "600",
-                        color: COLORS.text,
-                        marginBottom: "4px",
-                      }}
+                      className="font-semibold mb-1"
+                      style={{ color: COLORS.text }}
                     >
                       {service.name}
                     </div>
@@ -277,15 +204,13 @@ const AppointmentDetailsPanel = ({
                 );
               })}
             </div>
-            <div style={{ marginTop: "12px", textAlign: "right" }}>
+            <div className="mt-3 text-right">
               <span
-                style={{
-                  fontSize: "16px",
-                  fontWeight: "700",
-                  color: COLORS.text,
-                }}
+                className="text-base font-bold"
+                style={{ color: COLORS.text }}
               >
-                Total: Rs. {appointment.services.reduce((total, serviceId) => {
+                Total: Rs.{" "}
+                {appointment.services.reduce((total, serviceId) => {
                   const service = getServiceById(serviceId);
                   return total + service.price;
                 }, 0)}
@@ -295,14 +220,10 @@ const AppointmentDetailsPanel = ({
 
           {/* Notes */}
           {appointment.notes && (
-            <div style={{ marginBottom: "24px" }}>
+            <div>
               <h3
-                style={{
-                  fontSize: "18px",
-                  fontWeight: "700",
-                  color: COLORS.text,
-                  marginBottom: "16px",
-                }}
+                className="text-lg font-bold mb-4"
+                style={{ color: COLORS.text }}
               >
                 Notes
               </h3>
@@ -321,26 +242,14 @@ const AppointmentDetailsPanel = ({
 
           {/* Action Buttons */}
           {appointment.status !== "completed" && (
-            <div
-              style={{ display: "flex", flexDirection: "column", gap: "12px" }}
-            >
+            <div className="flex flex-col gap-3">
               <button
                 onClick={() => handleCompleteAppointment(appointment.id)}
+                className="w-full rounded-md font-bold flex items-center justify-center gap-2 text-white transition"
                 style={{
-                  width: "100%",
-                  padding: window.innerWidth <= 768 ? "12px 16px" : "14px 20px",
-                  background: `#5ece31ff`,
-                  color: "white",
-                  border: "none",
-                  borderRadius: "8px",
-                  fontWeight: "700",
-                  fontSize: window.innerWidth <= 768 ? "14px" : "16px",
-                  cursor: "pointer",
-                  transition: "all 0.2s ease",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: "8px",
+                  background: "#5ece31ff",
+                  padding: "12px 16px",
+                  fontSize: "14px",
                 }}
               >
                 <Edit size={16} />
@@ -349,24 +258,13 @@ const AppointmentDetailsPanel = ({
               <button
                 onClick={() => handleDeleteAppointment(appointment.id)}
                 disabled={loading}
-                className="w-full py-3 rounded-md font-bold flex items-center justify-center gap-2 text-white transition disabled:cursor-not-allowed"
+                className="w-full rounded-md font-bold flex items-center justify-center gap-2 text-white transition disabled:cursor-not-allowed"
                 style={{
-                  width: "100%",
-                  padding: window.innerWidth <= 768 ? "12px 16px" : "14px 20px",
                   background: loading
                     ? COLORS.textLight
                     : `linear-gradient(135deg, ${COLORS.danger}, #c53030)`,
-                  color: "white",
-                  border: "none",
-                  borderRadius: "8px",
-                  fontWeight: "700",
-                  fontSize: window.innerWidth <= 768 ? "14px" : "16px",
-                  cursor: loading ? "not-allowed" : "pointer",
-                  transition: "all 0.2s ease",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: "8px",
+                  padding: "12px 16px",
+                  fontSize: "14px",
                 }}
               >
                 <Trash2 size={16} />
