@@ -1,4 +1,4 @@
-import { Plane, CheckCircle } from "lucide-react";
+import { Plane, CheckCircle, Plus } from "lucide-react";
 
 const DaySelectionView = ({
   weekDates,
@@ -6,6 +6,9 @@ const DaySelectionView = ({
   handleDayClick,
   COLORS,
   selectedLeaveDays = [],
+  selectedStylists = [],
+  onQuickAddLeave,
+  loading = false
 }) => {
   return (
     <div className="p-6">
@@ -96,20 +99,56 @@ const DaySelectionView = ({
             })}
           </div>
 
-          {/* Selection Summary */}
+          {/* Selection Summary and Quick Action */}
           {selectedLeaveDays.length > 0 && (
-            <div className="mt-8 p-5 rounded-xl border-2 text-center max-w-md mx-auto bg-red-50 border-red-200">
-              <h3
-                className="text-lg font-semibold mb-2"
-                style={{ color: COLORS.leave }}
-              >
-                {selectedLeaveDays.length} Day
-                {selectedLeaveDays.length !== 1 ? "s" : ""} Selected
-              </h3>
-              <p className="text-sm text-red-700">
-                These days will be marked as leave for all selected staff
-                members
-              </p>
+            <div className="mt-8 space-y-4 max-w-md mx-auto">
+              {/* Summary Info */}
+              <div className="p-5 rounded-xl border-2 text-center bg-red-50 border-red-200">
+                <h3
+                  className="text-lg font-semibold mb-2"
+                  style={{ color: COLORS.leave }}
+                >
+                  {selectedLeaveDays.length} Day
+                  {selectedLeaveDays.length !== 1 ? "s" : ""} Selected
+                </h3>
+                <p className="text-sm text-red-700">
+                  These days will be marked as leave for all selected staff
+                  members
+                </p>
+              </div>
+
+              {/* Quick Action Button */}
+              {selectedStylists.length > 0 && onQuickAddLeave && (
+                <div className="text-center">
+                  <button
+                    onClick={onQuickAddLeave}
+                    disabled={loading}
+                    className="inline-flex items-center gap-3 px-6 py-4 rounded-xl font-bold text-white text-base transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+                    style={{
+                      background: `linear-gradient(135deg, ${COLORS.leave}, #c53030)`,
+                      boxShadow: `0 4px 15px ${COLORS.leave}40`
+                    }}
+                  >
+                    {loading ? (
+                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    ) : (
+                      <Plane size={20} className="shrink-0" />
+                    )}
+                    <span>
+                      Add {selectedLeaveDays.length} Leave Day{selectedLeaveDays.length !== 1 ? "s" : ""}
+                    </span>
+                    {selectedStylists.length > 1 && (
+                      <span className="text-sm opacity-80 bg-white/20 px-2 py-1 rounded-lg">
+                        {selectedStylists.length} staff
+                      </span>
+                    )}
+                  </button>
+                  
+                  <p className="text-xs text-gray-600 mt-2">
+                    This will add leave for {selectedStylists.length} staff member{selectedStylists.length !== 1 ? "s" : ""}
+                  </p>
+                </div>
+              )}
             </div>
           )}
         </div>

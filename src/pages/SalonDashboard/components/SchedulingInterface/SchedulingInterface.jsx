@@ -10,6 +10,7 @@ import Notification from "./Notification";
 import Header from "./Header";
 import FiltersRow from "./FiltersRow";
 import LoadingSpinner from "./LoadingSpinner";
+import FloatingActionButton from "./FloatingActionButton";
 import { useState, useEffect, useRef, useMemo, useCallback, memo } from "react";
 import { Coffee, Plane, CheckCircle } from "lucide-react";
 
@@ -24,6 +25,7 @@ const MemoizedSelectionInfo = memo(SelectionInfo);
 const MemoizedAppointmentPanel = memo(AppointmentPanel);
 const MemoizedAppointmentDetailsPanel = memo(AppointmentDetailsPanel);
 const MemoizedScheduleManagementPanel = memo(ScheduleManagementPanel);
+const MemoizedFloatingActionButton = memo(FloatingActionButton);
 
 const SchedulingInterface = () => {
   // State management
@@ -1074,6 +1076,117 @@ const SchedulingInterface = () => {
     });
   }, []);
 
+  // Cancel selection function
+  const handleCancelSelection = useCallback(() => {
+    setSelectedTimeSlots([]);
+    setSelectedBreakSlots([]);
+    setSelectedLeaveDays([]);
+    setIsDragging(false);
+    setSelectionActive(false);
+    document.body.classList.remove('selection-mode');
+  }, []);
+
+  // Quick action functions for inline break and leave creation
+  const handleQuickAddBreak = useCallback(async () => {
+    if (selectedTimeSlots.length === 0 || selectedStylists.length === 0) {
+      showNotification("Please select time slots and staff members", "error");
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      // Create break slots for each selected stylist
+      for (const stylistId of selectedStylists) {
+        for (const breakSlot of selectedBreakSlots) {
+          const data = {
+            stylist_id: stylistId,
+            date: breakSlot[2],
+            leave_start_time: breakSlot[0],
+            leave_end_time: breakSlot[1],
+          };
+          await ApiService.createLeave(data);
+        }
+      }
+
+      showNotification(
+        `Break added successfully! ${selectedBreakSlots.length} break slot(s) scheduled for ${selectedStylists.length} staff member(s).`,
+        "success"
+      );
+
+      // Clear selections
+      setSelectedTimeSlots([]);
+      setSelectedBreakSlots([]);
+
+      // Reload data to reflect changes
+      await loadData();
+    } catch (error) {
+      console.error("Error adding break:", error);
+      let errorMessage = "Error adding break. Please try again.";
+
+      if (error.response?.data?.error) {
+        errorMessage = error.response.data.error;
+      } else if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+
+      showNotification(errorMessage, "error");
+    } finally {
+      setLoading(false);
+    }
+  }, [selectedTimeSlots, selectedStylists, selectedBreakSlots, showNotification, loadData]);
+
+  const handleQuickAddLeave = useCallback(async () => {
+    if (selectedLeaveDays.length === 0 || selectedStylists.length === 0) {
+      showNotification("Please select leave days and staff members", "error");
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      // Create leave days for each selected stylist
+      for (const dateStr of selectedLeaveDays) {
+        for (const stylistId of selectedStylists) {
+          await ApiService.createLeave({
+            stylist_id: stylistId,
+            date: dateStr,
+            leave_start_time: `${dateStr}T00:00:00Z`,
+            leave_end_time: `${dateStr}T23:59:59Z`,
+          });
+        }
+      }
+
+      showNotification(
+        `Leave added successfully! ${selectedLeaveDays.length} day(s) marked for leave for ${selectedStylists.length} staff member(s).`,
+        "success"
+      );
+
+      // Clear selections
+      setSelectedLeaveDays([]);
+
+      // Reload data to reflect changes
+      await loadData();
+    } catch (error) {
+      console.error("Error adding leave:", error);
+      let errorMessage = "Error adding leave. Please try again.";
+
+      if (error.response?.data?.error) {
+        errorMessage = error.response.data.error;
+      } else if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+
+      showNotification(errorMessage, "error");
+    } finally {
+      setLoading(false);
+    }
+  }, [selectedLeaveDays, selectedStylists, showNotification, loadData]);
+
   // Schedule management
   const handleSaveSchedule = useCallback(async () => {
     try {
@@ -1262,15 +1375,22 @@ const SchedulingInterface = () => {
     selectedLeaveDays,
     scheduleType,
     COLORS,
-    selectedStylistsData
-  }), [selectedTimeSlots, selectedLeaveDays, scheduleType, selectedStylistsData]);
+    selectedStylists,
+    onQuickAddBreak: handleQuickAddBreak,
+    onQuickAddLeave: handleQuickAddLeave,
+    loading
+  }), [selectedTimeSlots, selectedLeaveDays, scheduleType, selectedStylists, handleQuickAddBreak, handleQuickAddLeave, loading]);
 
   const daySelectionViewProps = useMemo(() => ({
     weekDates,
     isDaySelected,
     handleDayClick,
-    COLORS
-  }), [weekDates, isDaySelected, handleDayClick]);
+    COLORS,
+    selectedLeaveDays,
+    selectedStylists,
+    onQuickAddLeave: handleQuickAddLeave,
+    loading
+  }), [weekDates, isDaySelected, handleDayClick, selectedLeaveDays, selectedStylists, handleQuickAddLeave, loading]);
 
   const calendarViewProps = useMemo(() => ({
     selectedStylists,
@@ -1364,6 +1484,21 @@ const SchedulingInterface = () => {
     getStylistById, getUpcomingLeaves, loading
   ]);
 
+  const floatingActionButtonProps = useMemo(() => ({
+    scheduleType,
+    selectedTimeSlots,
+    selectedLeaveDays,
+    selectedStylists,
+    onQuickAddBreak: handleQuickAddBreak,
+    onQuickAddLeave: handleQuickAddLeave,
+    onCancel: handleCancelSelection,
+    loading,
+    COLORS
+  }), [
+    scheduleType, selectedTimeSlots, selectedLeaveDays, selectedStylists,
+    handleQuickAddBreak, handleQuickAddLeave, handleCancelSelection, loading
+  ]);
+
   return (
     <div className="flex flex-col h-screen font-sans bg-gradient-to-br from-[#f0f4ff] to-[#e2e8ff]">
       {notification && (
@@ -1404,6 +1539,7 @@ const SchedulingInterface = () => {
         <MemoizedAppointmentPanel {...appointmentPanelProps} />
         <MemoizedAppointmentDetailsPanel {...appointmentDetailsPanelProps} />
         <MemoizedScheduleManagementPanel {...scheduleManagementPanelProps} />
+        <MemoizedFloatingActionButton {...floatingActionButtonProps} />
       </div>
     </div>
   );
