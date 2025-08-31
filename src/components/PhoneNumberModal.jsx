@@ -29,7 +29,7 @@ const PhoneNumberModal = ({ isOpen, onClose, onSuccess }) => {
         phone_number: phoneNumber.trim(),
       });
 
-      console.log("Phone updated successfully:", response.data);
+      //console.log("Phone updated successfully:", response.data);
       onSuccess(phoneNumber.trim());
       onClose();
     } catch (error) {
