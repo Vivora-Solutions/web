@@ -1,14 +1,14 @@
 import { Coffee, Plane, Plus } from "lucide-react";
 
-const SelectionInfo = ({ 
-  selectedTimeSlots, 
-  selectedLeaveDays, 
-  scheduleType, 
+const SelectionInfo = ({
+  selectedTimeSlots,
+  selectedLeaveDays,
+  scheduleType,
   COLORS,
   selectedStylists = [],
   onQuickAddBreak,
   onQuickAddLeave,
-  loading = false
+  loading = false,
 }) => {
   if (!selectedTimeSlots.length && !selectedLeaveDays.length) return null;
 
@@ -22,9 +22,13 @@ const SelectionInfo = ({
 
   const getActionButtonText = () => {
     if (scheduleType === "leave") {
-      return `Add ${selectedLeaveDays.length} Leave Day${selectedLeaveDays.length !== 1 ? "s" : ""}`;
+      return `Add ${selectedLeaveDays.length} Leave Day${
+        selectedLeaveDays.length !== 1 ? "s" : ""
+      }`;
     } else if (scheduleType === "break") {
-      return `Add ${selectedTimeSlots.length} Break Slot${selectedTimeSlots.length !== 1 ? "s" : ""}`;
+      return `Add ${selectedTimeSlots.length} Break Slot${
+        selectedTimeSlots.length !== 1 ? "s" : ""
+      }`;
     }
     return null;
   };
@@ -47,23 +51,23 @@ const SelectionInfo = ({
     return COLORS.info;
   };
 
-  const canShowQuickAction = (scheduleType === "leave" || scheduleType === "break") && 
-                           selectedStylists.length > 0 && 
-                           (onQuickAddBreak || onQuickAddLeave);
+  const canShowQuickAction =
+    (scheduleType === "leave" || scheduleType === "break") &&
+    selectedStylists.length > 0 &&
+    (onQuickAddBreak || onQuickAddLeave);
 
   return (
     <div className="flex items-center gap-4 flex-wrap">
       {/* Selection Info */}
-      <div className="rounded-xl px-5 py-3 shadow-md"
+      <div
+        className="rounded-xl px-5 py-3 shadow-md"
         style={{
           background: "rgba(66, 153, 225, 0.1)",
           border: "2px solid rgba(66, 153, 225, 0.2)",
-          boxShadow: "0 4px 15px rgba(66, 153, 225, 0.1)"
+          boxShadow: "0 4px 15px rgba(66, 153, 225, 0.1)",
         }}
       >
-        <span className="text-[15px] font-bold"
-          style={{ color: "#2c5282" }}
-        >
+        <span className="text-[15px] font-bold" style={{ color: "#2c5282" }}>
           {scheduleType === "leave"
             ? `${selectedLeaveDays.length} days selected for leave`
             : `${selectedTimeSlots.length} slots selected for ${scheduleType}`}
@@ -78,7 +82,7 @@ const SelectionInfo = ({
           className="flex items-center gap-2 px-4 py-3 rounded-xl font-semibold text-white text-sm transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
           style={{
             background: `linear-gradient(135deg, ${getActionColor()}, ${getActionColor()}dd)`,
-            boxShadow: `0 4px 15px ${getActionColor()}40`
+            boxShadow: `0 4px 15px ${getActionColor()}40`,
           }}
         >
           {loading ? (

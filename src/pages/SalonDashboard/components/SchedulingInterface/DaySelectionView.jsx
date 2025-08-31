@@ -8,7 +8,7 @@ const DaySelectionView = ({
   selectedLeaveDays = [],
   selectedStylists = [],
   onQuickAddLeave,
-  loading = false
+  loading = false,
 }) => {
   return (
     <div className="p-6">
@@ -126,7 +126,7 @@ const DaySelectionView = ({
                     className="inline-flex items-center gap-3 px-6 py-4 rounded-xl font-bold text-white text-base transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
                     style={{
                       background: `linear-gradient(135deg, ${COLORS.leave}, #c53030)`,
-                      boxShadow: `0 4px 15px ${COLORS.leave}40`
+                      boxShadow: `0 4px 15px ${COLORS.leave}40`,
                     }}
                   >
                     {loading ? (
@@ -135,7 +135,8 @@ const DaySelectionView = ({
                       <Plane size={20} className="shrink-0" />
                     )}
                     <span>
-                      Add {selectedLeaveDays.length} Leave Day{selectedLeaveDays.length !== 1 ? "s" : ""}
+                      Add {selectedLeaveDays.length} Leave Day
+                      {selectedLeaveDays.length !== 1 ? "s" : ""}
                     </span>
                     {selectedStylists.length > 1 && (
                       <span className="text-sm opacity-80 bg-white/20 px-2 py-1 rounded-lg">
@@ -143,9 +144,10 @@ const DaySelectionView = ({
                       </span>
                     )}
                   </button>
-                  
+
                   <p className="text-xs text-gray-600 mt-2">
-                    This will add leave for {selectedStylists.length} staff member{selectedStylists.length !== 1 ? "s" : ""}
+                    This will add leave for {selectedStylists.length} staff
+                    member{selectedStylists.length !== 1 ? "s" : ""}
                   </p>
                 </div>
               )}

@@ -9,7 +9,7 @@ const FloatingActionButton = ({
   onQuickAddLeave,
   onCancel,
   loading = false,
-  COLORS
+  COLORS,
 }) => {
   // Don't show if no selection or no staff selected
   if (
@@ -28,18 +28,22 @@ const FloatingActionButton = ({
     if (scheduleType === "leave") {
       return {
         icon: <Plane size={20} className="shrink-0" />,
-        text: `Add ${selectedLeaveDays.length} Leave Day${selectedLeaveDays.length !== 1 ? "s" : ""}`,
+        text: `Add ${selectedLeaveDays.length} Leave Day${
+          selectedLeaveDays.length !== 1 ? "s" : ""
+        }`,
         color: COLORS.leave,
         action: onQuickAddLeave,
-        count: selectedLeaveDays.length
+        count: selectedLeaveDays.length,
       };
     } else if (scheduleType === "break") {
       return {
         icon: <Coffee size={20} className="shrink-0" />,
-        text: `Add ${selectedTimeSlots.length} Break Slot${selectedTimeSlots.length !== 1 ? "s" : ""}`,
+        text: `Add ${selectedTimeSlots.length} Break Slot${
+          selectedTimeSlots.length !== 1 ? "s" : ""
+        }`,
         color: COLORS.break,
         action: onQuickAddBreak,
-        count: selectedTimeSlots.length
+        count: selectedTimeSlots.length,
       };
     }
     return null;
@@ -65,7 +69,7 @@ const FloatingActionButton = ({
         className="flex items-center gap-3 px-6 py-4 rounded-full font-bold text-white text-base transition-all duration-200 shadow-xl hover:shadow-2xl transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
         style={{
           background: `linear-gradient(135deg, ${actionData.color}, ${actionData.color}dd)`,
-          boxShadow: `0 8px 25px ${actionData.color}50`
+          boxShadow: `0 8px 25px ${actionData.color}50`,
         }}
       >
         {loading ? (
