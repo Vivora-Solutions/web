@@ -213,6 +213,10 @@ const CalendarView = ({
             >
               {selectedStylistsData.map((stylist) => {
                 const hasAnyLeave = hasLeaveOnDate(stylist.id, date);
+                const showAvatarAndName = selectedStylistsData.length <= 3;
+                const showAvatarOnly = selectedStylistsData.length > 3 && selectedStylistsData.length <= 6;
+                const showInitialsOnly = selectedStylistsData.length > 6;
+                
                 return (
                   <div
                     key={stylist.id}
@@ -221,56 +225,75 @@ const CalendarView = ({
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      gap: "6px",
-                      padding: "4px 8px",
+                      gap: showAvatarAndName ? "6px" : "2px",
+                      padding: showAvatarAndName ? "4px 8px" : "2px 4px",
                       borderRight: `1px solid ${COLORS.border}`,
                       borderTop: `4px solid ${
                         hasAnyLeave ? COLORS.leave : stylist.color
                       }`,
-                      fontSize: "11px",
+                      fontSize: showAvatarAndName ? "11px" : "10px",
                       fontWeight: "700",
                       background: hasAnyLeave
                         ? "rgba(239, 68, 68, 0.1)"
                         : "rgba(255, 255, 255, 0.8)",
+                      overflow: "hidden",
                     }}
                   >
-                    <div
-                      style={{
-                        width: "24px",
-                        height: "24px",
-                        borderRadius: "50%",
-                        backgroundColor: hasAnyLeave
-                          ? COLORS.leave
-                          : stylist.color,
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        fontSize: "10px",
-                        color: "white",
-                        boxShadow: "0 2px 8px rgba(0, 0, 0, 0.2)",
+                    {/* Show avatar only if space allows or if showing initials only */}
+                    {(showAvatarAndName || showAvatarOnly) && (
+                      <div
+                        style={{
+                          width: showAvatarAndName ? "24px" : "20px",
+                          height: showAvatarAndName ? "24px" : "20px",
+                          borderRadius: "50%",
+                          backgroundColor: hasAnyLeave
+                            ? COLORS.leave
+                            : stylist.color,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          fontSize: "10px",
+                          color: "white",
+                          boxShadow: "0 2px 8px rgba(0, 0, 0, 0.2)",
+                          overflow: "hidden",
+                          flexShrink: 0,
+                        }}
+                      >
+                        {hasAnyLeave ? (
+                          <Plane size={showAvatarAndName ? 12 : 10} />
+                        ) : stylist.avatar &&
+                          stylist.avatar.startsWith("http") ? (
+                          <img
+                            src={stylist.avatar}
+                            alt={stylist.name}
+                            style={{
+                              width: "100%",
+                              height: "100%",
+                              objectFit: "cover",
+                              borderRadius: "50%",
+                            }}
+                          />
+                        ) : (
+                          stylist.avatar || <User size={showAvatarAndName ? 12 : 10} />
+                        )}
+                      </div>
+                    )}
+                    
+                    {/* Show name or initials based on available space */}
+                    <span 
+                      style={{ 
+                        color: COLORS.text,
                         overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap",
+                        minWidth: 0,
                       }}
+                      title={stylist.name} // Show full name on hover
                     >
-                      {hasAnyLeave ? (
-                        <Plane size={12} />
-                      ) : stylist.avatar &&
-                        stylist.avatar.startsWith("http") ? (
-                        <img
-                          src={stylist.avatar}
-                          alt={stylist.name}
-                          style={{
-                            width: "100%",
-                            height: "100%",
-                            objectFit: "cover",
-                            borderRadius: "50%",
-                          }}
-                        />
-                      ) : (
-                        stylist.avatar || <User size={12} />
-                      )}
-                    </div>
-                    <span style={{ color: COLORS.text }}>
-                      {stylist.name.split(" ")[0]}
+                      {showInitialsOnly 
+                        ? stylist.name.split(" ").map(n => n[0]).join("").substring(0, 2)
+                        : stylist.name.split(" ")[0]
+                      }
                     </span>
                   </div>
                 );
