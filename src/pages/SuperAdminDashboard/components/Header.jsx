@@ -39,7 +39,7 @@ const Header = () => {
     <header className="fixed top-0 left-0 right-0 z-50 bg-white shadow-md px-6 py-4 flex justify-between items-center w-full">
       {/* Logo */}
       <Link to="/" className="flex items-center">
-        <h1
+        {/* <h1
           className="font-bold text-[2.5rem] leading-none select-none"
           style={{
             fontFamily: '"Italiana", sans-serif',
@@ -53,7 +53,12 @@ const Header = () => {
           }}
         >
           VIVORA
-        </h1>
+        </h1> */}
+        <img 
+          src="logo.png"
+          alt="Logo"
+          className="w-12 h-12 rounded-full"
+        />
       </Link>
 
       {/* Navigation */}

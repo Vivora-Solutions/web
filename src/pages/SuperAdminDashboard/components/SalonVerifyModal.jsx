@@ -76,7 +76,7 @@ const SalonVerifyModal = ({ salon, onClose, onAction }) => {
         {/* Owner Info */}
         <div className="px-4 sm:px-6 pb-4 text-sm text-gray-700">
           <p><strong>Owner:</strong> {salon.owner_name}</p>
-          <p className="text-gray-600">📞 {salon.owner_phone}</p>
+          <p className="text-gray-800">📞 {salon.owner_phone}</p>
         </div>
 
         {/* Actions */}
@@ -89,7 +89,7 @@ const SalonVerifyModal = ({ salon, onClose, onAction }) => {
           </button>
           <button
             onClick={() => onAction("decline", salon.salon_id)}
-            className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition w-full sm:w-auto"
+            className="bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-600 transition w-full sm:w-auto"
           >
             Decline
           </button>
