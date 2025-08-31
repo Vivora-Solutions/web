@@ -10,10 +10,20 @@ import Notification from "./Notification";
 import Header from "./Header";
 import FiltersRow from "./FiltersRow";
 import LoadingSpinner from "./LoadingSpinner";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo, useCallback, memo } from "react";
 import { Coffee, Plane, CheckCircle } from "lucide-react";
 
 import { ProtectedAPI } from "../../../../utils/api";
+
+// Memoize child components to prevent unnecessary re-renders
+const MemoizedDaySelectionView = memo(DaySelectionView);
+const MemoizedCalendarView = memo(CalendarView);
+const MemoizedHeader = memo(Header);
+const MemoizedFiltersRow = memo(FiltersRow);
+const MemoizedSelectionInfo = memo(SelectionInfo);
+const MemoizedAppointmentPanel = memo(AppointmentPanel);
+const MemoizedAppointmentDetailsPanel = memo(AppointmentDetailsPanel);
+const MemoizedScheduleManagementPanel = memo(ScheduleManagementPanel);
 
 const SchedulingInterface = () => {
   // State management
@@ -48,10 +58,8 @@ const SchedulingInterface = () => {
 
   // Panel states
   const [showAddAppointmentPanel, setShowAddAppointmentPanel] = useState(false);
-  const [showAppointmentDetailsPanel, setShowAppointmentDetailsPanel] =
-    useState(false);
-  const [showScheduleManagementPanel, setShowScheduleManagementPanel] =
-    useState(false);
+  const [showAppointmentDetailsPanel, setShowAppointmentDetailsPanel] = useState(false);
+  const [showScheduleManagementPanel, setShowScheduleManagementPanel] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState(null);
   const [isEditingAppointment, setIsEditingAppointment] = useState(false);
   const [selectedLeavesToDelete, setSelectedLeavesToDelete] = useState([]);
@@ -77,9 +85,11 @@ const SchedulingInterface = () => {
 
   // Refs and constants
   const gridRef = useRef(null);
-  const hours = Array.from({ length: 24 }, (_, i) => i);
-  const dayFilters = [1, 2, 3, 5];
-  const scheduleTypes = [
+  
+  // Use constants outside of render cycle
+  const hours = useMemo(() => Array.from({ length: 24 }, (_, i) => i), []);
+  const dayFilters = useMemo(() => [1, 2, 3, 5], []);
+  const scheduleTypes = useMemo(() => [
     {
       value: "available",
       label: "Available",
@@ -88,13 +98,22 @@ const SchedulingInterface = () => {
     },
     { value: "break", label: "Break", icon: Coffee, color: COLORS.break },
     { value: "leave", label: "Leave", icon: Plane, color: COLORS.leave },
-  ];
+  ], []);
 
-  // Notification system
-  const showNotification = (message, type = "success") => {
+  // Memoize selected stylists data to avoid recalculation on each render
+  const selectedStylistsData = useMemo(() => 
+    stylists.filter(s => selectedStylists.includes(s.id)),
+    [stylists, selectedStylists]
+  );
+
+  // Memoize display hours calculation which is expensive
+  const displayHours = useMemo(() => getDisplayHours(), [salonOpeningHours, weekDates]);
+
+  // Notification system - use useCallback to avoid recreation
+  const showNotification = useCallback((message, type = "success") => {
     setNotification({ message, type });
     setTimeout(() => setNotification(null), 3000);
-  };
+  }, []);
 
   // Initialize data
   useEffect(() => {
@@ -107,7 +126,6 @@ const SchedulingInterface = () => {
       if (touchHoldTimer) {
         clearTimeout(touchHoldTimer);
       }
-      // Always unlock scrolling on cleanup
       document.body.classList.remove('selection-mode');
     };
   }, [touchHoldTimer]);
@@ -120,19 +138,47 @@ const SchedulingInterface = () => {
       document.body.classList.remove('selection-mode');
     }
     
-    // Cleanup on unmount
     return () => {
       document.body.classList.remove('selection-mode');
     };
   }, [selectionActive, isDragging]);
 
-  const loadData = async () => {
+  // Global mouse and touch event listeners - use cleanup properly
+  useEffect(() => {
+    const handleGlobalMouseMove = (e) => handleMouseMove(e);
+    const handleGlobalMouseUp = () => handleMouseUp();
+    const handleGlobalTouchMove = (e) => handleTouchMove(e);
+    const handleGlobalTouchEnd = (e) => handleTouchEnd(e);
+
+    if (isDragging || initialTouchPosition || inHoldPeriod || selectionActive) {
+      document.addEventListener("mousemove", handleGlobalMouseMove);
+      document.addEventListener("mouseup", handleGlobalMouseUp);
+      document.addEventListener("touchmove", handleGlobalTouchMove, { passive: false });
+      document.addEventListener("touchend", handleGlobalTouchEnd, { passive: false });
+      document.addEventListener("touchcancel", handleGlobalTouchEnd, { passive: false });
+    }
+
+    return () => {
+      document.removeEventListener("mousemove", handleGlobalMouseMove);
+      document.removeEventListener("mouseup", handleGlobalMouseUp);
+      document.removeEventListener("touchmove", handleGlobalTouchMove);
+      document.removeEventListener("touchend", handleGlobalTouchEnd);
+      document.removeEventListener("touchcancel", handleGlobalTouchEnd);
+    };
+  }, [isDragging, dragStart, initialTouchPosition, selectionActive, inHoldPeriod]);
+
+  // Generate week dates effect
+  useEffect(() => {
+    generateWeekDates();
+  }, [selectedDate, maxDays]);
+
+  // Convert expensive functions to useCallback to prevent recreation
+  const loadData = useCallback(async () => {
     try {
       setLoading(true);
 
       // Fetch appointments
       const appointmentsData = await ApiService.getAppointments();
-      console.log("Raw appointments data:", appointmentsData);
 
       if (appointmentsData && appointmentsData.length > 0) {
         const transformedAppointments = appointmentsData.map((appointment) => ({
@@ -165,13 +211,12 @@ const SchedulingInterface = () => {
           originalData: appointment,
         }));
 
-        console.log("Transformed appointments:", transformedAppointments);
         setAppointments(transformedAppointments);
       } else {
         setAppointments([]);
       }
 
-      // Load all data from API
+      // Load all data in parallel
       const [stylistsData, servicesData, leavesData] = await Promise.all([
         ApiService.getStylists(),
         ApiService.getServices(),
@@ -184,7 +229,7 @@ const SchedulingInterface = () => {
         setSalonOpeningHours(openingHoursResponse.days || []);
       } catch (error) {
         console.error("Error fetching opening hours:", error);
-        // Set default opening hours if fetch fails (9 AM to 6 PM)
+        // Set default opening hours
         const defaultHours = Array(7).fill().map((_, index) => ({
           day_of_week: index,
           is_open: true,
@@ -209,29 +254,26 @@ const SchedulingInterface = () => {
         schedule: stylist.schedule,
       }));
 
-      // ✅ FIXED: Only set default selection if no stylists are currently selected
+      // Set default stylist selection only if needed
       if (selectedStylists.length === 0) {
         const firstActiveStylist = transformedStylists.find(
           (stylist) => stylist.isActive
         );
 
-        // Set the first active stylist as selected if one exists
         if (firstActiveStylist) {
           setSelectedStylists([firstActiveStylist.id]);
         }
       } else {
-        // ✅ ADDED: Validate that currently selected stylists still exist and are active
+        // Validate currently selected stylists
         const validSelectedStylists = selectedStylists.filter((stylistId) => {
           const stylist = transformedStylists.find((s) => s.id === stylistId);
           return stylist && stylist.isActive;
         });
 
-        // If some selected stylists are no longer valid, update the selection
         if (validSelectedStylists.length !== selectedStylists.length) {
           if (validSelectedStylists.length > 0) {
             setSelectedStylists(validSelectedStylists);
           } else {
-            // If no selected stylists are valid, fall back to first active stylist
             const firstActiveStylist = transformedStylists.find(
               (stylist) => stylist.isActive
             );
@@ -261,14 +303,10 @@ const SchedulingInterface = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedStylists, showNotification]);
 
-  useEffect(() => {
-    generateWeekDates();
-  }, [selectedDate, maxDays]);
-
-  // Helper functions
-  const generateWeekDates = () => {
+  // Helper functions - convert to useCallback to prevent recreation
+  const generateWeekDates = useCallback(() => {
     const startDate = new Date(selectedDate);
     const dates = [];
     for (let i = 0; i < maxDays; i++) {
@@ -277,51 +315,49 @@ const SchedulingInterface = () => {
       dates.push(date);
     }
     setWeekDates(dates);
-  };
+  }, [selectedDate, maxDays]);
 
-  // Helper function to format date consistently without timezone issues
-  const formatDateToString = (date) => {
+  const formatDateToString = useCallback((date) => {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, "0");
     const day = String(date.getDate()).padStart(2, "0");
     return `${year}-${month}-${day}`;
-  };
+  }, []);
 
-  const formatTime = (hour, minute = 0) => {
+  const formatTime = useCallback((hour, minute = 0) => {
     return `${hour.toString().padStart(2, "0")}:${minute
       .toString()
       .padStart(2, "0")}`;
-  };
+  }, []);
 
-  const formatDate = (date) => {
+  const formatDate = useCallback((date) => {
     return date.toLocaleDateString("en-US", {
       weekday: "short",
       month: "short",
       day: "numeric",
     });
-  };
+  }, []);
 
   // Helper functions for salon opening hours
-  const getSalonHoursForDate = (date) => {
-    const dayOfWeek = date.getDay(); // 0 = Sunday, 1 = Monday, etc.
+  const getSalonHoursForDate = useCallback((date) => {
+    const dayOfWeek = date.getDay();
     const dayHours = salonOpeningHours.find(h => h.day_of_week === dayOfWeek);
     
     if (!dayHours || !dayHours.is_open) {
-      return null; // Salon is closed this day
+      return null; 
     }
     
     return {
       openingTime: dayHours.opening_time,
       closingTime: dayHours.closing_time
     };
-  };
+  }, [salonOpeningHours]);
 
-  const getDisplayHours = () => {
+  function getDisplayHours() {
     if (salonOpeningHours.length === 0) {
-      return Array.from({ length: 24 }, (_, i) => i); // Default to all 24 hours if no data
+      return Array.from({ length: 24 }, (_, i) => i);
     }
 
-    // For weekly view, get hours that cover all dates in the current view
     if (weekDates.length === 0) {
       return Array.from({ length: 24 }, (_, i) => i);
     }
@@ -349,61 +385,56 @@ const SchedulingInterface = () => {
     });
 
     if (hoursSet.size === 0) {
-      return []; // No open hours for any day in the view
+      return [];
     }
 
-    // Convert to sorted array
     return Array.from(hoursSet).sort((a, b) => a - b);
-  };
+  }
 
-  // Get display hours for specific date - only show hours if salon is open that day
-  const getDisplayHoursForDate = (date) => {
+  const getDisplayHoursForDate = useCallback((date) => {
     if (salonOpeningHours.length === 0) {
-      return Array.from({ length: 24 }, (_, i) => i); // Default to all 24 hours if no data
+      return Array.from({ length: 24 }, (_, i) => i);
     }
 
-    const dayOfWeek = date.getDay(); // 0 = Sunday, 1 = Monday, etc.
+    const dayOfWeek = date.getDay();
     const dayHours = salonOpeningHours.find(h => h.day_of_week === dayOfWeek);
     
     if (!dayHours || !dayHours.is_open) {
-      return []; // Salon is closed this day - return empty array
+      return [];
     }
     
     const openTime = parseInt(dayHours.opening_time.split(':')[0]);
     const closeTime = parseInt(dayHours.closing_time.split(':')[0]);
     
-    // Create array of hours from opening to closing time
     const hours = [];
     for (let hour = openTime; hour <= closeTime; hour++) {
       hours.push(hour);
     }
     
     return hours;
-  };
+  }, [salonOpeningHours]);
 
-  const parseTimeToMinutes = (timeStr) => {
+  const parseTimeToMinutes = useCallback((timeStr) => {
     const [hours, minutes] = timeStr.split(":").map(Number);
     return hours * 60 + minutes;
-  };
+  }, []);
 
-  const calculateSlotPosition = (startTime, endTime) => {
+  const calculateSlotPosition = useCallback((startTime, endTime) => {
     const startMinutes = parseTimeToMinutes(startTime);
     const endMinutes = parseTimeToMinutes(endTime);
     const duration = endMinutes - startMinutes;
     const hourHeight = 64;
     
-    // Calculate position relative to the display hours
-    const displayHours = getDisplayHours();
     const firstDisplayHour = displayHours.length > 0 ? displayHours[0] : 0;
     const adjustedStartMinutes = startMinutes - (firstDisplayHour * 60);
     
     const top = Math.max(0, (adjustedStartMinutes / 60) * hourHeight);
     const height = (duration / 60) * hourHeight;
     return { top, height };
-  };
+  }, [parseTimeToMinutes, displayHours]);
 
   // Drag and selection functions
-  const getCellPosition = (e) => {
+  const getCellPosition = useCallback((e) => {
     if (!gridRef.current) return null;
     const rect = gridRef.current.getBoundingClientRect();
     const x = e.clientX - rect.left;
@@ -413,10 +444,8 @@ const SchedulingInterface = () => {
 
     if (y < headerHeight || x < timeColumnWidth) return null;
 
-    const displayHours = getDisplayHours();
     const availableWidth = rect.width - timeColumnWidth;
-    const cellWidth =
-      availableWidth / (weekDates.length * selectedStylists.length);
+    const cellWidth = availableWidth / (weekDates.length * selectedStylists.length);
     const cellHeight = 64;
     const totalCellIndex = Math.floor((x - timeColumnWidth) / cellWidth);
     const hourIndex = Math.floor((y - headerHeight) / cellHeight);
@@ -438,57 +467,49 @@ const SchedulingInterface = () => {
       return null;
     }
 
-    // Convert hourIndex (position in displayHours array) to actual hour
     const actualHour = displayHours[hourIndex];
 
     return {
       dateIndex,
       stylistIndex,
-      hourIndex: actualHour, // Use the actual hour value
+      hourIndex: actualHour,
       minute,
       stylistId: selectedStylists[stylistIndex],
       date: weekDates[dateIndex],
     };
-  };
+  }, [displayHours, weekDates, selectedStylists]);
 
-  const handleMouseDown = (e) => {
+  const handleMouseDown = useCallback((e) => {
     if (scheduleType === "leave") return;
     const position = getCellPosition(e);
     if (!position) return;
-
-    console.log("Mouse down - position:", position); // Debug log
 
     setIsDragging(true);
     setDragStart(position);
     setDragEnd(position);
     setSelectedTimeSlots([]);
     
-    // Immediately update selection with initial position
     updateSelection(position, position);
-    
-    // Lock scrolling during mouse drag as well
     document.body.classList.add('selection-mode');
     
     e.preventDefault();
-  };
+  }, [scheduleType, getCellPosition]);
 
-  const handleMouseMove = (e) => {
+  const handleMouseMove = useCallback((e) => {
     if (!isDragging || !dragStart || scheduleType === "leave") return;
     const position = getCellPosition(e);
     if (!position) return;
 
     setDragEnd(position);
     updateSelection(dragStart, position);
-  };
+  }, [isDragging, dragStart, scheduleType, getCellPosition]);
 
-  const handleMouseUp = () => {
+  const handleMouseUp = useCallback(() => {
     setIsDragging(false);
-    // Unlock body scrolling in case it was locked
     document.body.classList.remove('selection-mode');
-  };
+  }, []);
 
-  // Simplified and working touch event handlers
-  const handleTouchStart = (e) => {
+  const handleTouchStart = useCallback((e) => {
     if (scheduleType === "leave") return;
 
     const touch = e.touches[0];
@@ -500,9 +521,6 @@ const SchedulingInterface = () => {
     const position = getCellPosition(mockEvent);
     if (!position) return;
 
-    console.log("Touch start - position:", position); // Debug log
-
-    // Store initial touch info
     setInitialTouchPosition({
       x: touch.clientX,
       y: touch.clientY,
@@ -513,15 +531,11 @@ const SchedulingInterface = () => {
     setSelectionActive(false);
     setInHoldPeriod(true);
 
-    // Clear any existing timer
     if (touchHoldTimer) {
       clearTimeout(touchHoldTimer);
     }
 
-    // Set timer for hold detection - 400ms for better responsiveness
     const timer = setTimeout(() => {
-      console.log("Hold timer triggered - starting selection"); // Debug log
-      // Start selection mode
       setIsHolding(true);
       setSelectionActive(true);
       setIsDragging(true);
@@ -530,22 +544,18 @@ const SchedulingInterface = () => {
       setSelectedTimeSlots([]);
       setInHoldPeriod(false);
 
-      // Immediately update selection with initial position
       updateSelection(position, position);
-
-      // Lock body scrolling
       document.body.classList.add('selection-mode');
 
-      // Haptic feedback
       if (navigator.vibrate) {
         navigator.vibrate([50]);
       }
     }, 400);
 
     setTouchHoldTimer(timer);
-  };
+  }, [scheduleType, getCellPosition]);
 
-  const handleTouchMove = (e) => {
+  const handleTouchMove = useCallback((e) => {
     if (!initialTouchPosition) return;
 
     const touch = e.touches[0];
@@ -553,9 +563,7 @@ const SchedulingInterface = () => {
     const deltaY = Math.abs(touch.clientY - initialTouchPosition.y);
     const totalMovement = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
     
-    // If already in selection mode, handle drag selection
     if (selectionActive && isDragging && dragStart) {
-      console.log("Touch move - in selection mode"); // Debug log
       const mockEvent = {
         clientX: touch.clientX,
         clientY: touch.clientY,
@@ -567,15 +575,12 @@ const SchedulingInterface = () => {
         updateSelection(dragStart, position);
       }
       
-      // Always prevent scrolling during selection
       e.preventDefault();
       e.stopPropagation();
       return;
     }
 
-    // If in hold period and user moves significantly, cancel hold and allow scrolling
     if (inHoldPeriod && totalMovement > 25) {
-      console.log("Touch move - canceling hold due to movement:", totalMovement); // Debug log
       if (touchHoldTimer) {
         clearTimeout(touchHoldTimer);
         setTouchHoldTimer(null);
@@ -583,19 +588,16 @@ const SchedulingInterface = () => {
       setInitialTouchPosition(null);
       setIsHolding(false);
       setInHoldPeriod(false);
-      // Allow normal scrolling
       return;
     }
 
-    // If in hold period with minimal movement, prevent scrolling
     if (inHoldPeriod) {
       e.preventDefault();
       e.stopPropagation();
     }
-  };
+  }, [initialTouchPosition, selectionActive, isDragging, dragStart, inHoldPeriod, touchHoldTimer, getCellPosition]);
 
-  const handleTouchEnd = (e) => {
-    // Clear the hold timer
+  const handleTouchEnd = useCallback((e) => {
     if (touchHoldTimer) {
       clearTimeout(touchHoldTimer);
       setTouchHoldTimer(null);
@@ -603,25 +605,21 @@ const SchedulingInterface = () => {
 
     const wasInSelectionMode = selectionActive;
 
-    // Reset all touch-related state
     setIsDragging(false);
     setInitialTouchPosition(null);
     setIsHolding(false);
     setSelectionActive(false);
     setInHoldPeriod(false);
 
-    // Unlock body scrolling
     document.body.classList.remove('selection-mode');
 
-    // Prevent default only if we were in selection mode
     if (wasInSelectionMode) {
       e.preventDefault();
       e.stopPropagation();
     }
-  };
+  }, [touchHoldTimer, selectionActive]);
 
-  const updateSelection = (start, end) => {
-    console.log("updateSelection called with:", start, end); // Debug log
+  const updateSelection = useCallback((start, end) => {
     const slots = [];
     const breakSlots = [];
 
@@ -639,8 +637,6 @@ const SchedulingInterface = () => {
       end.hourIndex * 60 + end.minute
     );
 
-    console.log("Selection boundaries:", { minDateIndex, maxDateIndex, minStylistIndex, maxStylistIndex, minTime, maxTime }); // Debug log
-
     // Helper function to format time consistently
     const formatDateTime = (date, totalMinutes) => {
       const hour = Math.floor(totalMinutes / 60);
@@ -655,11 +651,7 @@ const SchedulingInterface = () => {
 
     // Generate all selected slots
     for (let dateIdx = minDateIndex; dateIdx <= maxDateIndex; dateIdx++) {
-      for (
-        let stylistIdx = minStylistIndex;
-        stylistIdx <= maxStylistIndex;
-        stylistIdx++
-      ) {
+      for (let stylistIdx = minStylistIndex; stylistIdx <= maxStylistIndex; stylistIdx++) {
         const stylistId = selectedStylists[stylistIdx];
         const date = formatDateToString(weekDates[dateIdx]);
         const groupKey = `${stylistId}-${date}`;
@@ -674,11 +666,7 @@ const SchedulingInterface = () => {
         }
 
         // Add all 15-minute slots in the time range
-        for (
-          let totalMinutes = minTime;
-          totalMinutes <= maxTime;
-          totalMinutes += 15
-        ) {
+        for (let totalMinutes = minTime; totalMinutes <= maxTime; totalMinutes += 15) {
           const hour = Math.floor(totalMinutes / 60);
           const minute = totalMinutes % 60;
 
@@ -728,24 +716,22 @@ const SchedulingInterface = () => {
       ]);
     });
 
-    console.log("Generated slots:", slots.length); // Debug log
     setSelectedBreakSlots(breakSlots);
     setSelectedTimeSlots(slots);
-  };
+  }, [selectedStylists, weekDates, formatDateToString]);
 
-  const isSlotSelected = (stylistId, date, hour, minute = 0) => {
+  const isSlotSelected = useCallback((stylistId, date, hour, minute = 0) => {
     const slotId = `${stylistId}-${formatDateToString(date)}-${hour}-${minute}`;
     return selectedTimeSlots.includes(slotId);
-  };
+  }, [selectedTimeSlots, formatDateToString]);
 
-  // Check if a time slot is within stylist's working schedule AND salon is open
-  const isTimeSlotAvailable = (stylistId, date, hour, minute = 0) => {
+  const isTimeSlotAvailable = useCallback((stylistId, date, hour, minute = 0) => {
     // First check if salon is open at this time for this date
-    const dayOfWeek = date.getDay(); // 0 = Sunday, 1 = Monday, etc.
+    const dayOfWeek = date.getDay();
     const salonHours = salonOpeningHours.find(h => h.day_of_week === dayOfWeek);
     
     if (!salonHours || !salonHours.is_open || !salonHours.opening_time || !salonHours.closing_time) {
-      return false; // Salon is closed this day or hours not configured
+      return false;
     }
     
     // Check if time falls within salon opening hours
@@ -757,7 +743,7 @@ const SchedulingInterface = () => {
       const salonCloseMinutes = parseInt(closingTimeParts[0]) * 60 + parseInt(closingTimeParts[1] || '0');
       
       if (currentTimeMinutes < salonOpenMinutes || currentTimeMinutes >= salonCloseMinutes) {
-        return false; // Outside salon hours
+        return false;
       }
     } catch (err) {
       console.error('Error parsing salon hours:', err);
@@ -767,7 +753,7 @@ const SchedulingInterface = () => {
     // Then check stylist availability
     const stylist = stylists.find((s) => s.id === stylistId);
     if (!stylist || !stylist.schedule || stylist.schedule.length === 0) {
-      return true; // If no stylist schedule defined, but salon is open, assume available
+      return true;
     }
 
     // Check if the stylist has any schedule for this day of week
@@ -776,7 +762,7 @@ const SchedulingInterface = () => {
     );
 
     if (daySchedules.length === 0) {
-      return false; // No stylist schedule for this day = not available
+      return false;
     }
 
     // Check if current time falls within any of the stylist's scheduled time ranges for this day
@@ -784,23 +770,19 @@ const SchedulingInterface = () => {
       try {
         const startTimeParts = schedule.start_time_daily.split(":");
         const endTimeParts = schedule.end_time_daily.split(":");
-        const startMinutes =
-          parseInt(startTimeParts[0]) * 60 + parseInt(startTimeParts[1] || '0');
-        const endMinutes =
-          parseInt(endTimeParts[0]) * 60 + parseInt(endTimeParts[1] || '0');
+        const startMinutes = parseInt(startTimeParts[0]) * 60 + parseInt(startTimeParts[1] || '0');
+        const endMinutes = parseInt(endTimeParts[0]) * 60 + parseInt(endTimeParts[1] || '0');
 
-        return (
-          currentTimeMinutes >= startMinutes && currentTimeMinutes < endMinutes
-        );
+        return (currentTimeMinutes >= startMinutes && currentTimeMinutes < endMinutes);
       } catch (err) {
         console.error('Error parsing stylist schedule times:', err);
         return false;
       }
     });
-  };
+  }, [salonOpeningHours, stylists]);
 
   // Leave day selection
-  const handleDayClick = (date) => {
+  const handleDayClick = useCallback((date) => {
     if (scheduleType !== "leave") return;
     const dateStr = formatDateToString(date);
     setSelectedLeaveDays((prev) => {
@@ -810,23 +792,23 @@ const SchedulingInterface = () => {
         return [...prev, dateStr];
       }
     });
-  };
+  }, [scheduleType, formatDateToString]);
 
-  const isDaySelected = (date) => {
+  const isDaySelected = useCallback((date) => {
     const dateStr = formatDateToString(date);
     return selectedLeaveDays.includes(dateStr);
-  };
+  }, [selectedLeaveDays, formatDateToString]);
 
   // Check if stylist has leave on a specific date
-  const hasLeaveOnDate = (stylistId, date) => {
+  const hasLeaveOnDate = useCallback((stylistId, date) => {
     const dateStr = formatDateToString(date);
     return leaves.some(
       (leave) => leave.stylist_id === stylistId && leave.date === dateStr
     );
-  };
+  }, [leaves, formatDateToString]);
 
   // Check if stylist has leave on a specific time slot
-  const hasLeaveAtTimeSlot = (stylistId, date, hour, minute = 0) => {
+  const hasLeaveAtTimeSlot = useCallback((stylistId, date, hour, minute = 0) => {
     const currentSlotStart = `${formatDateToString(date)}T${hour
       .toString()
       .padStart(2, "0")}:${minute.toString().padStart(2, "0")}:00+00:00`;
@@ -851,10 +833,10 @@ const SchedulingInterface = () => {
       // Check if there's any overlap between leave period and current time slot
       return leaveStart < slotEnd && leaveEnd > slotStart;
     });
-  };
+  }, [leaves, formatDateToString]);
 
   // Stylist management
-  const handleStylistToggle = (stylistId) => {
+  const handleStylistToggle = useCallback((stylistId) => {
     setSelectedStylists((prev) => {
       if (prev.includes(stylistId)) {
         return prev.filter((id) => id !== stylistId);
@@ -862,15 +844,16 @@ const SchedulingInterface = () => {
         return [...prev, stylistId];
       }
     });
-  };
+  }, []);
+
   // Appointment management
-  const handleAppointmentClick = (appointment) => {
+  const handleAppointmentClick = useCallback((appointment) => {
     setSelectedAppointment(appointment);
     setShowAppointmentDetailsPanel(true);
     setIsEditingAppointment(false);
-  };
+  }, []);
 
-  const handleAddAppointment = () => {
+  const handleAddAppointment = useCallback(() => {
     const today = new Date();
     const localDate = formatDateToString(today);
     setNewAppointment({
@@ -886,13 +869,13 @@ const SchedulingInterface = () => {
       notes: "",
       status: "confirmed",
     });
-    setAvailableTimeSlots([]); // Reset available time slots
+    setAvailableTimeSlots([]);
     setShowAddAppointmentPanel(true);
     setIsEditingAppointment(false);
-  };
+  }, [selectedStylists, formatDateToString]);
 
   // Check availability function
-  const handleCheckAvailability = async () => {
+  const handleCheckAvailability = useCallback(async () => {
     if (
       !newAppointment.stylistId ||
       !newAppointment.date ||
@@ -908,22 +891,19 @@ const SchedulingInterface = () => {
     setLoading(true);
     try {
       // Prepare the API request data
-      console.log("Checking availability for appointment:", stylists[0]);
       const requestData = {
         service_ids: newAppointment.services,
         stylist_id: newAppointment.stylistId,
-        salon_id: salonId, // Use actual salon ID from context
+        salon_id: salonId,
         date: newAppointment.date,
       };
-
-      console.log("Checking availability with data:", requestData);
 
       // Call the backend API to get available time slots
       const response = await ProtectedAPI.post(
         "/salons/available-time-slots-sithum",
         requestData
       );
-      console.log("Availability response:", response.data);
+      
       if (response.data.success && response.data.data) {
         const slots = response.data.data.map((slot) => ({
           startTime: slot.start,
@@ -950,7 +930,6 @@ const SchedulingInterface = () => {
     } catch (error) {
       console.error("Error checking availability:", error);
 
-      // Handle different types of errors
       if (error.response?.status === 400) {
         showNotification(
           error.response.data.error || "Invalid request data",
@@ -972,9 +951,9 @@ const SchedulingInterface = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [newAppointment, salonId, showNotification]);
 
-  const handleSaveAppointment = async () => {
+  const handleSaveAppointment = useCallback(async () => {
     try {
       setLoading(true);
 
@@ -1001,30 +980,20 @@ const SchedulingInterface = () => {
           apt.id !== newAppointment.id &&
           apt.stylistId === newAppointment.stylistId &&
           apt.date === newAppointment.date &&
-          ((parseTimeToMinutes(newAppointment.startTime) >=
-            parseTimeToMinutes(apt.startTime) &&
-            parseTimeToMinutes(newAppointment.startTime) <
-              parseTimeToMinutes(apt.endTime)) ||
-            (parseTimeToMinutes(newAppointment.endTime) >
-              parseTimeToMinutes(apt.startTime) &&
-              parseTimeToMinutes(newAppointment.endTime) <=
-                parseTimeToMinutes(apt.endTime)))
+          ((parseTimeToMinutes(newAppointment.startTime) >= parseTimeToMinutes(apt.startTime) &&
+            parseTimeToMinutes(newAppointment.startTime) < parseTimeToMinutes(apt.endTime)) ||
+            (parseTimeToMinutes(newAppointment.endTime) > parseTimeToMinutes(apt.startTime) &&
+              parseTimeToMinutes(newAppointment.endTime) <= parseTimeToMinutes(apt.endTime)))
       );
 
       if (conflictingAppointment) {
-        showNotification(
-          "Time slot conflicts with existing appointment",
-          "error"
-        );
+        showNotification("Time slot conflicts with existing appointment", "error");
         return;
       }
 
       let result;
       if (isEditingAppointment) {
-        result = await ApiService.updateAppointment(
-          newAppointment.id,
-          newAppointment
-        );
+        result = await ApiService.updateAppointment(newAppointment.id, newAppointment);
         showNotification("Appointment updated successfully!");
       } else {
         newAppointment.isWalkIn = true;
@@ -1040,7 +1009,6 @@ const SchedulingInterface = () => {
     } catch (error) {
       console.error("Error saving appointment:", error);
 
-      // Show more specific error messages from backend
       if (error.response?.data?.error) {
         showNotification(error.response.data.error, "error");
       } else if (error.response?.data?.message) {
@@ -1048,17 +1016,14 @@ const SchedulingInterface = () => {
       } else if (error.message) {
         showNotification(error.message, "error");
       } else {
-        showNotification(
-          "Error saving appointment. Please try again.",
-          "error"
-        );
+        showNotification("Error saving appointment. Please try again.", "error");
       }
     } finally {
       setLoading(false);
     }
-  };
+  }, [newAppointment, isEditingAppointment, appointments, parseTimeToMinutes, loadData, showNotification]);
 
-  const handleDeleteAppointment = async (appointmentId) => {
+  const handleDeleteAppointment = useCallback(async (appointmentId) => {
     if (!confirm("Are you sure you want to delete this appointment?")) return;
 
     try {
@@ -1072,16 +1037,13 @@ const SchedulingInterface = () => {
       await loadData();
     } catch (error) {
       console.error("Error deleting appointment:", error);
-      showNotification(
-        "Error deleting appointment. Please try again.",
-        "error"
-      );
+      showNotification("Error deleting appointment. Please try again.", "error");
     } finally {
       setLoading(false);
     }
-  };
+  }, [loadData, showNotification]);
 
-  const handleCompleteAppointment = async (appointmentId) => {
+  const handleCompleteAppointment = useCallback(async (appointmentId) => {
     try {
       await ApiService.completeAppointment(appointmentId);
       setShowAppointmentDetailsPanel(false);
@@ -1092,14 +1054,11 @@ const SchedulingInterface = () => {
       await loadData();
     } catch (error) {
       console.error("Error completing appointment:", error);
-      showNotification(
-        "Error completing appointment. Please try again.",
-        "error"
-      );
+      showNotification("Error completing appointment. Please try again.", "error");
     }
-  };
+  }, [loadData, showNotification]);
 
-  const resetAppointmentForm = () => {
+  const resetAppointmentForm = useCallback(() => {
     setNewAppointment({
       id: "",
       clientName: "",
@@ -1113,10 +1072,10 @@ const SchedulingInterface = () => {
       notes: "",
       status: "confirmed",
     });
-  };
+  }, []);
 
   // Schedule management
-  const handleSaveSchedule = async () => {
+  const handleSaveSchedule = useCallback(async () => {
     try {
       setLoading(true);
 
@@ -1132,53 +1091,42 @@ const SchedulingInterface = () => {
             });
           }
         }
-        showNotification(
-          `Leave saved! ${selectedLeaveDays.length} day(s) marked for leave.`
-        );
+        showNotification(`Leave saved! ${selectedLeaveDays.length} day(s) marked for leave.`);
         setSelectedLeaveDays([]);
       } else if (scheduleType === "break") {
         for (const stylistId of selectedStylists) {
           for (const dateStr of selectedBreakSlots) {
             const data = {
               stylist_id: stylistId,
-              date: dateStr[2], // Extract date from slot ID
+              date: dateStr[2],
               leave_start_time: dateStr[0],
               leave_end_time: dateStr[1],
             };
-            console.log("Creating break leave with data:", data);
             await ApiService.createLeave(data);
           }
         }
-        showNotification(
-          `Leave saved! ${selectedLeaveDays.length} day(s) marked for leave.`
-        );
-        setSelectedLeaveDays([]);
+        showNotification(`Break saved! ${selectedBreakSlots.length} break(s) scheduled.`);
+        setSelectedBreakSlots([]);
       } else {
         // Save schedule slots
         await ApiService.updateStylistSchedule(selectedStylists, {
           type: scheduleType,
           slots: selectedTimeSlots,
         });
-        showNotification(
-          `Schedule saved! ${selectedTimeSlots.length} time slot(s) marked as ${scheduleType}.`
-        );
+        showNotification(`Schedule saved! ${selectedTimeSlots.length} time slot(s) marked as ${scheduleType}.`);
         setSelectedTimeSlots([]);
       }
 
       // Reload data to reflect changes
       await loadData();
     } catch (error) {
-      // Extract specific error messages from backend response
       let errorMessage = "Error saving schedule. Please try again.";
 
       if (error.response?.data?.error) {
-        // Backend sends error in { error: "message" } format
         errorMessage = error.response.data.error;
       } else if (error.response?.data?.message) {
-        // Alternative message field
         errorMessage = error.response.data.message;
       } else if (error.message) {
-        // JavaScript error message
         errorMessage = error.message;
       }
 
@@ -1186,18 +1134,17 @@ const SchedulingInterface = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [scheduleType, selectedLeaveDays, selectedStylists, selectedBreakSlots, selectedTimeSlots, loadData, showNotification]);
 
   // Navigation
-  const navigateDateRange = (direction) => {
+  const navigateDateRange = useCallback((direction) => {
     const newDate = new Date(selectedDate);
     newDate.setDate(newDate.getDate() + direction * maxDays);
     setSelectedDate(newDate);
-  };
+  }, [selectedDate, maxDays]);
 
   // Get appointments for display
-  const getAppointmentsForDate = (date, stylistId) => {
-    // Use local date string to avoid timezone issues
+  const getAppointmentsForDate = useCallback((date, stylistId) => {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, "0");
     const day = String(date.getDate()).padStart(2, "0");
@@ -1206,9 +1153,9 @@ const SchedulingInterface = () => {
     return appointments.filter(
       (apt) => apt.date === dateStr && apt.stylistId === stylistId
     );
-  };
+  }, [appointments]);
 
-  const getStylistById = (id) => {
+  const getStylistById = useCallback((id) => {
     return (
       stylists.find((s) => s.id === id) || {
         id,
@@ -1217,9 +1164,9 @@ const SchedulingInterface = () => {
         avatar: "👤",
       }
     );
-  };
+  }, [stylists]);
 
-  const getServiceById = (id) => {
+  const getServiceById = useCallback((id) => {
     return (
       services.find((s) => s.id === id) || {
         id,
@@ -1228,17 +1175,17 @@ const SchedulingInterface = () => {
         price: 0,
       }
     );
-  };
+  }, [services]);
 
   // Helper function to get upcoming leaves
-  const getUpcomingLeaves = () => {
+  const getUpcomingLeaves = useCallback(() => {
     const today = new Date();
     const localToday = formatDateToString(today);
     return leaves.filter((leave) => leave.date >= localToday);
-  };
+  }, [leaves, formatDateToString]);
 
   // Helper function to handle leave selection for deletion
-  const handleLeaveSelection = (leaveId) => {
+  const handleLeaveSelection = useCallback((leaveId) => {
     setSelectedLeavesToDelete((prev) => {
       if (prev.includes(leaveId)) {
         return prev.filter((id) => id !== leaveId);
@@ -1246,18 +1193,13 @@ const SchedulingInterface = () => {
         return [...prev, leaveId];
       }
     });
-  };
+  }, []);
 
   // Helper function to handle bulk leave deletion
-  const handleDeleteSelectedLeaves = async () => {
+  const handleDeleteSelectedLeaves = useCallback(async () => {
     if (selectedLeavesToDelete.length === 0) return;
 
-    if (
-      !confirm(
-        `Are you sure you want to delete ${selectedLeavesToDelete.length} leave(s)?`
-      )
-    )
-      return;
+    if (!confirm(`Are you sure you want to delete ${selectedLeavesToDelete.length} leave(s)?`)) return;
 
     try {
       setLoading(true);
@@ -1272,214 +1214,196 @@ const SchedulingInterface = () => {
         }
       }
 
-      // Remove deleted leaves from state
-      setLeaves((prev) =>
+      setLeaves((prev) => 
         prev.filter((leave) => !selectedLeavesToDelete.includes(leave.leave_id))
       );
       setSelectedLeavesToDelete([]);
-      showNotification(
-        `Successfully deleted ${selectedLeavesToDelete.length} leave(s)!`
-      );
+      showNotification(`Successfully deleted ${selectedLeavesToDelete.length} leave(s)!`);
     } catch (error) {
       console.error("Error deleting leaves:", error);
       showNotification("Error deleting leaves. Please try again.", "error");
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedLeavesToDelete, leaves, showNotification]);
 
-  // Global mouse and touch event listeners
-  useEffect(() => {
-    const handleGlobalMouseMove = (e) => handleMouseMove(e);
-    const handleGlobalMouseUp = () => handleMouseUp();
-    const handleGlobalTouchMove = (e) => handleTouchMove(e);
-    const handleGlobalTouchEnd = (e) => handleTouchEnd(e);
+  // Create stable props objects for child components
+  const headerProps = useMemo(() => ({
+    title: "Salon Scheduler",
+    subtitle: "Unified scheduling system for appointments and staff schedules",
+    COLORS,
+    navigateDateRange,
+    weekDates,
+    maxDays,
+    formatDate,
+    setShowScheduleManagementPanel,
+    setSelectedLeavesToDelete,
+    handleAddAppointment
+  }), [navigateDateRange, weekDates, maxDays, formatDate, handleAddAppointment]);
 
-    if (isDragging || initialTouchPosition || inHoldPeriod || selectionActive) {
-      // Mouse events for desktop
-      document.addEventListener("mousemove", handleGlobalMouseMove);
-      document.addEventListener("mouseup", handleGlobalMouseUp);
+  const filtersRowProps = useMemo(() => ({
+    maxDays,
+    setMaxDays,
+    dayFilters,
+    scheduleType,
+    setScheduleType,
+    setSelectedTimeSlots,
+    setSelectedLeaveDays,
+    scheduleTypes,
+    stylists,
+    selectedStylists,
+    setSelectedStylists,
+    handleStylistToggle,
+    COLORS
+  }), [maxDays, dayFilters, scheduleType, scheduleTypes, stylists, selectedStylists, handleStylistToggle]);
 
-      // Touch events for mobile - passive: false allows preventDefault
-      document.addEventListener("touchmove", handleGlobalTouchMove, {
-        passive: false,
-      });
-      document.addEventListener("touchend", handleGlobalTouchEnd, {
-        passive: false,
-      });
-      document.addEventListener("touchcancel", handleGlobalTouchEnd, {
-        passive: false,
-      });
-    }
+  const selectionInfoProps = useMemo(() => ({
+    selectedTimeSlots,
+    selectedLeaveDays,
+    scheduleType,
+    COLORS,
+    selectedStylistsData
+  }), [selectedTimeSlots, selectedLeaveDays, scheduleType, selectedStylistsData]);
 
-    return () => {
-      // Clean up all event listeners
-      document.removeEventListener("mousemove", handleGlobalMouseMove);
-      document.removeEventListener("mouseup", handleGlobalMouseUp);
-      document.removeEventListener("touchmove", handleGlobalTouchMove);
-      document.removeEventListener("touchend", handleGlobalTouchEnd);
-      document.removeEventListener("touchcancel", handleGlobalTouchEnd);
-    };
-  }, [isDragging, dragStart, initialTouchPosition, selectionActive, inHoldPeriod]);
+  const daySelectionViewProps = useMemo(() => ({
+    weekDates,
+    isDaySelected,
+    handleDayClick,
+    COLORS
+  }), [weekDates, isDaySelected, handleDayClick]);
 
-  const selectedStylistsData = stylists.filter((s) =>
-    selectedStylists.includes(s.id)
-  );
+  const calendarViewProps = useMemo(() => ({
+    selectedStylists,
+    selectedStylistsData,
+    weekDates,
+    stylists,
+    appointments,
+    isDragging,
+    selectionActive,
+    inHoldPeriod,
+    gridRef,
+    handleMouseDown,
+    handleTouchStart,
+    isSlotSelected,
+    hasLeaveOnDate,
+    hasLeaveAtTimeSlot,
+    isTimeSlotAvailable,
+    getAppointmentsForDate,
+    calculateSlotPosition,
+    handleAppointmentClick,
+    COLORS,
+    formatTime,
+    formatDateToString,
+    displayHours,
+    getSalonHoursForDate
+  }), [
+    selectedStylists, selectedStylistsData, weekDates, stylists, appointments, 
+    isDragging, selectionActive, inHoldPeriod, handleMouseDown, handleTouchStart,
+    isSlotSelected, hasLeaveOnDate, hasLeaveAtTimeSlot, isTimeSlotAvailable,
+    getAppointmentsForDate, calculateSlotPosition, handleAppointmentClick,
+    formatTime, formatDateToString, displayHours, getSalonHoursForDate
+  ]);
+
+  const appointmentPanelProps = useMemo(() => ({
+    showAddAppointmentPanel,
+    setShowAddAppointmentPanel,
+    isEditingAppointment,
+    newAppointment,
+    setNewAppointment,
+    availableTimeSlots,
+    setAvailableTimeSlots,
+    loading,
+    stylists,
+    services,
+    handleCheckAvailability,
+    handleSaveAppointment,
+    COLORS
+  }), [
+    showAddAppointmentPanel, isEditingAppointment, newAppointment, availableTimeSlots,
+    loading, stylists, services, handleCheckAvailability, handleSaveAppointment
+  ]);
+
+  const appointmentDetailsPanelProps = useMemo(() => ({
+    show: showAppointmentDetailsPanel,
+    onClose: () => setShowAppointmentDetailsPanel(false),
+    appointment: selectedAppointment,
+    COLORS,
+    getStylistById,
+    getServiceById,
+    handleDeleteAppointment,
+    handleCompleteAppointment,
+    loading
+  }), [
+    showAppointmentDetailsPanel, selectedAppointment,
+    getStylistById, getServiceById, handleDeleteAppointment,
+    handleCompleteAppointment, loading
+  ]);
+
+  const scheduleManagementPanelProps = useMemo(() => ({
+    showScheduleManagementPanel,
+    setShowScheduleManagementPanel,
+    scheduleType,
+    setScheduleType,
+    scheduleTypes,
+    selectedTimeSlots,
+    selectedLeaveDays,
+    selectedBreakSlots,
+    selectedLeavesToDelete,
+    setSelectedLeavesToDelete,
+    selectedStylists,
+    handleSaveSchedule,
+    handleDeleteSelectedLeaves,
+    handleLeaveSelection,
+    getStylistById,
+    getUpcomingLeaves,
+    loading
+  }), [
+    showScheduleManagementPanel, scheduleType, scheduleTypes, selectedTimeSlots,
+    selectedLeaveDays, selectedBreakSlots, selectedLeavesToDelete, selectedStylists,
+    handleSaveSchedule, handleDeleteSelectedLeaves, handleLeaveSelection,
+    getStylistById, getUpcomingLeaves, loading
+  ]);
 
   return (
-    <div className="flex flex-col h-screen font-sans bg-gradient-to-br from-[${COLORS.primary}] to-[${COLORS.secondary}]">
-      {/* Notification */}
-      <Notification
-        message={notification?.message}
-        type={notification?.type}
-        COLORS={COLORS}
-      />
+    <div className="flex flex-col h-screen font-sans bg-gradient-to-br from-[#f0f4ff] to-[#e2e8ff]">
+      {notification && (
+        <Notification
+          message={notification.message}
+          type={notification.type}
+          COLORS={COLORS}
+        />
+      )}
 
-      {/* Main Container */}
-      <div className="flex-1 flex flex-col bg-[${COLORS.background}] z-10 w-full">
-        {/* Enhanced Header with Filters */}
-        <div className="p-4 sm:p-6 md:p-8 bg-white/95 backdrop-blur-lg border-b border-[${COLORS.border}] shadow-sm shrink-0 w-full">
-          {/* Title Section */}
-          <Header
-            title="Salon Scheduler"
-            subtitle="Unified scheduling system for appointments and staff schedules"
-            COLORS={COLORS}
-            navigateDateRange={navigateDateRange}
-            weekDates={weekDates}
-            maxDays={maxDays}
-            formatDate={formatDate}
-            setShowScheduleManagementPanel={setShowScheduleManagementPanel}
-            setSelectedLeavesToDelete={setSelectedLeavesToDelete}
-            handleAddAppointment={handleAddAppointment}
-          />
+      <div className="flex-1 flex flex-col bg-[#fcfcff] z-10 w-full">
+        <div className="p-4 sm:p-6 md:p-8 bg-white/95 backdrop-blur-lg border-b border-[#e0e0e8] shadow-sm shrink-0 w-full">
+          <MemoizedHeader {...headerProps} />
 
-          {/* Filters Row */}
           <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 md:gap-8 mt-6 w-full overflow-x-auto">
-            <FiltersRow
-              maxDays={maxDays}
-              setMaxDays={setMaxDays}
-              dayFilters={dayFilters}
-              scheduleType={scheduleType}
-              setScheduleType={setScheduleType}
-              setSelectedTimeSlots={setSelectedTimeSlots}
-              setSelectedLeaveDays={setSelectedLeaveDays}
-              scheduleTypes={scheduleTypes}
-              stylists={stylists}
-              selectedStylists={selectedStylists}
-              setSelectedStylists={setSelectedStylists}
-              handleStylistToggle={handleStylistToggle}
-              COLORS={COLORS}
-            />
+            <MemoizedFiltersRow {...filtersRowProps} />
           </div>
         </div>
 
-        {/* Main Content - Fixed Layout */}
-        <div className="flex-1 flex flex-col bg-[${COLORS.background}] z-10">
-          {/* Enhanced Calendar Controls */}
-          <div className="bg-gray-50 border-b border-[${COLORS.border}] p-5 md:p-8 shrink-0">
+        <div className="flex-1 flex flex-col bg-[#fcfcff] z-10">
+          <div className="bg-gray-50 border-b border-[#e0e0e8] p-5 md:p-8 shrink-0">
             <div className="flex justify-between items-center">
-              {/* Selection Info */}
-              <SelectionInfo
-                selectedTimeSlots={selectedTimeSlots}
-                selectedLeaveDays={selectedLeaveDays}
-                scheduleType={scheduleType}
-                COLORS={COLORS}
-                selectedStylistsData={selectedStylistsData}
-              />
+              <MemoizedSelectionInfo {...selectionInfoProps} />
             </div>
           </div>
 
-          {/* Content Area - Embedded Calendar */}
           <div className="flex-1 overflow-auto">
             {loading ? (
               <LoadingSpinner COLORS={COLORS} />
             ) : scheduleType === "leave" ? (
-              <DaySelectionView
-                weekDates={weekDates}
-                isDaySelected={isDaySelected}
-                handleDayClick={handleDayClick}
-                COLORS={COLORS}
-              />
+              <MemoizedDaySelectionView {...daySelectionViewProps} />
             ) : (
-              <CalendarView
-                selectedStylists={selectedStylists}
-                selectedStylistsData={selectedStylistsData}
-                weekDates={weekDates}
-                stylists={stylists}
-                appointments={appointments}
-                isDragging={isDragging}
-                selectionActive={selectionActive}
-                inHoldPeriod={inHoldPeriod}
-                gridRef={gridRef}
-                handleMouseDown={handleMouseDown}
-                handleTouchStart={handleTouchStart}
-                isSlotSelected={isSlotSelected}
-                hasLeaveOnDate={hasLeaveOnDate}
-                hasLeaveAtTimeSlot={hasLeaveAtTimeSlot}
-                isTimeSlotAvailable={isTimeSlotAvailable}
-                getAppointmentsForDate={getAppointmentsForDate}
-                calculateSlotPosition={calculateSlotPosition}
-                handleAppointmentClick={handleAppointmentClick}
-                COLORS={COLORS}
-                formatTime={formatTime}
-                formatDateToString={formatDateToString}
-                displayHours={getDisplayHours()}
-                getSalonHoursForDate={getSalonHoursForDate}
-              />
+              <MemoizedCalendarView {...calendarViewProps} />
             )}
           </div>
         </div>
 
-        {/* Enhanced Add/Edit Appointment Panel */}
-        <AppointmentPanel
-          showAddAppointmentPanel={showAddAppointmentPanel}
-          setShowAddAppointmentPanel={setShowAddAppointmentPanel}
-          isEditingAppointment={isEditingAppointment}
-          newAppointment={newAppointment}
-          setNewAppointment={setNewAppointment}
-          availableTimeSlots={availableTimeSlots}
-          setAvailableTimeSlots={setAvailableTimeSlots}
-          loading={loading}
-          stylists={stylists}
-          services={services}
-          handleCheckAvailability={handleCheckAvailability}
-          handleSaveAppointment={handleSaveAppointment}
-          COLORS={COLORS}
-        />
-
-        {/* Enhanced Appointment Details Panel */}
-        <AppointmentDetailsPanel
-          show={showAppointmentDetailsPanel}
-          onClose={() => setShowAppointmentDetailsPanel(false)}
-          appointment={selectedAppointment}
-          COLORS={COLORS}
-          getStylistById={getStylistById}
-          getServiceById={getServiceById}
-          handleDeleteAppointment={handleDeleteAppointment}
-          handleCompleteAppointment={handleCompleteAppointment}
-          loading={loading}
-        />
-
-        {/* Enhanced Schedule Management Panel */}
-        <ScheduleManagementPanel
-          showScheduleManagementPanel={showScheduleManagementPanel}
-          setShowScheduleManagementPanel={setShowScheduleManagementPanel}
-          scheduleType={scheduleType}
-          setScheduleType={setScheduleType}
-          scheduleTypes={scheduleTypes}
-          selectedTimeSlots={selectedTimeSlots}
-          selectedLeaveDays={selectedLeaveDays}
-          selectedBreakSlots={selectedBreakSlots}
-          selectedLeavesToDelete={selectedLeavesToDelete}
-          setSelectedLeavesToDelete={setSelectedLeavesToDelete}
-          selectedStylists={selectedStylists}
-          handleSaveSchedule={handleSaveSchedule}
-          handleDeleteSelectedLeaves={handleDeleteSelectedLeaves}
-          handleLeaveSelection={handleLeaveSelection}
-          getStylistById={getStylistById}
-          getUpcomingLeaves={getUpcomingLeaves}
-          loading={loading}
-        />
+        <MemoizedAppointmentPanel {...appointmentPanelProps} />
+        <MemoizedAppointmentDetailsPanel {...appointmentDetailsPanelProps} />
+        <MemoizedScheduleManagementPanel {...scheduleManagementPanelProps} />
       </div>
     </div>
   );

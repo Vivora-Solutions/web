@@ -1,4 +1,4 @@
-import { Calendar } from 'lucide-react';
+import { Calendar } from "lucide-react";
 
 const ScheduleTypeSelector = ({
   scheduleType,
@@ -6,17 +6,27 @@ const ScheduleTypeSelector = ({
   setSelectedTimeSlots,
   setSelectedLeaveDays,
   scheduleTypes,
-  COLORS
+  COLORS,
 }) => {
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+    <div className="flex flex-col gap-3">
+      {/* Header */}
+      <div className="flex items-center gap-2">
         <Calendar size={18} color={COLORS.text} />
-        <h3 style={{ fontSize: "16px", fontWeight: "700", color: COLORS.text, margin: 0 }}>Schedule Type</h3>
+        <h3
+          className="text-base font-bold m-0"
+          style={{ color: COLORS.text }}
+        >
+          Schedule Type
+        </h3>
       </div>
-      <div style={{ display: "flex", gap: "8px" }}>
+
+      {/* Buttons */}
+      <div className="flex gap-2">
         {scheduleTypes.map((type) => {
           const IconComponent = type.icon;
+          const isActive = scheduleType === type.value;
+
           return (
             <button
               key={type.value}
@@ -25,20 +35,16 @@ const ScheduleTypeSelector = ({
                 setSelectedTimeSlots([]);
                 setSelectedLeaveDays([]);
               }}
+              className="px-4 py-3 rounded-xl font-semibold text-sm flex items-center gap-2 cursor-pointer transition-all duration-300"
               style={{
-                padding: "12px 16px",
-                background: scheduleType === type.value ? `linear-gradient(135deg, ${type.color}, #38a169)` : COLORS.cardBg,
-                border: `2px solid ${scheduleType === type.value ? type.color : COLORS.border}`,
-                borderRadius: "12px",
-                fontWeight: "600",
-                color: scheduleType === type.value ? "white" : COLORS.text,
-                cursor: "pointer",
-                transition: "all 0.3s ease",
-                boxShadow: scheduleType === type.value ? `0 6px 20px ${type.color}50` : "0 2px 8px rgba(0, 0, 0, 0.1)",
-                fontSize: "14px",
-                display: "flex",
-                alignItems: "center",
-                gap: "8px",
+                background: isActive
+                  ? `linear-gradient(135deg, ${type.color}, #38a169)`
+                  : COLORS.cardBg,
+                border: `2px solid ${isActive ? type.color : COLORS.border}`,
+                color: isActive ? "white" : COLORS.text,
+                boxShadow: isActive
+                  ? `0 6px 20px ${type.color}50`
+                  : "0 2px 8px rgba(0, 0, 0, 0.1)",
               }}
             >
               <IconComponent size={16} />
