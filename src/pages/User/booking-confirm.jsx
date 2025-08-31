@@ -118,9 +118,9 @@ useEffect(() => {
     };
 
     try {
-      console.log("Booking payload:", payload)
+      //console.log("Booking payload:", payload)
       const response = await ProtectedAPI.post("/bookings", payload);
-      console.log("Booking response:", response.data);
+      //console.log("Booking response:", response.data);
       if (response.data.booking_id) {
         clearBookingDetails();
         setConfirmed(true);

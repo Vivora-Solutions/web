@@ -1,0 +1,238 @@
+/* Simple Calendar Styles */
+.container {
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.header {
+  padding: 32px;
+  text-align: center;
+  color: white;
+}
+
+.calendarWrapper {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Override react-calendar default styles */
+.calendarWrapper :global(.react-calendar) {
+  width: 100%;
+  background: white;
+  border: none;
+  font-family: inherit;
+  line-height: 1.125em;
+}
+
+.calendarWrapper :global(.react-calendar__navigation) {
+  display: flex;
+  height: 60px;
+  margin-bottom: 1em;
+  background: #f8fafc;
+  border-radius: 12px;
+  padding: 0 12px;
+}
+
+.calendarWrapper :global(.react-calendar__navigation button) {
+  min-width: 44px;
+  background: none;
+  border: none;
+  font-size: 16px;
+  font-weight: 600;
+  color: #374151;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.calendarWrapper :global(.react-calendar__navigation button:hover) {
+  background-color: #e5e7eb;
+}
+
+.calendarWrapper :global(.react-calendar__navigation button:disabled) {
+  background-color: transparent;
+  color: #9ca3af;
+}
+
+.calendarWrapper :global(.react-calendar__navigation__label) {
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.calendarWrapper :global(.react-calendar__month-view__weekdays) {
+  text-align: center;
+  text-transform: uppercase;
+  font-weight: bold;
+  font-size: 12px;
+  color: #6b7280;
+  margin-bottom: 8px;
+}
+
+.calendarWrapper :global(.react-calendar__month-view__weekdays__weekday) {
+  padding: 8px;
+}
+
+.calendarWrapper :global(.react-calendar__tile) {
+  max-width: 100%;
+  padding: 12px 8px;
+  background: none;
+  border: none;
+  text-align: center;
+  line-height: 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.calendarWrapper :global(.react-calendar__tile:hover) {
+  background-color: #f3f4f6;
+  transform: scale(1.05);
+}
+
+.calendarWrapper :global(.react-calendar__tile:disabled) {
+  background-color: transparent;
+  color: #d1d5db;
+  cursor: not-allowed;
+}
+
+.calendarWrapper :global(.react-calendar__tile:disabled:hover) {
+  transform: none;
+}
+
+.calendarWrapper
+  :global(.react-calendar__month-view__days__day--neighboringMonth) {
+  color: #d1d5db;
+}
+
+/* Custom tile styles */
+.selectedDay {
+  background: linear-gradient(135deg, #ef4444, #c53030) !important;
+  color: white !important;
+  font-weight: 700;
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+.selectedDay:hover {
+  background: linear-gradient(135deg, #dc2626, #b91c1c) !important;
+  transform: scale(1.1);
+}
+
+.today {
+  background: linear-gradient(135deg, #3b82f6, #1e40af);
+  color: white;
+  font-weight: 600;
+}
+
+.today:hover {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+}
+
+.pastDate {
+  color: #9ca3af;
+  background-color: #f9fafb;
+}
+
+.pastDate:hover {
+  background-color: #f3f4f6;
+  transform: none;
+}
+
+.selectedMarker {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  color: white;
+  z-index: 1;
+}
+
+/* Selection Summary */
+.selectionSummary {
+  padding: 24px;
+  background: #fef2f2;
+  border: 2px solid #fecaca;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.clearButton {
+  padding: 8px;
+  color: #dc2626;
+  background: #fee2e2;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.clearButton:hover {
+  background: #fecaca;
+  transform: scale(1.1);
+}
+
+.dateTag {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  background: #fee2e2;
+  color: #b91c1c;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.addLeaveButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 24px;
+  border: none;
+  border-radius: 12px;
+  color: white;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.addLeaveButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.addLeaveButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid white;
+  border-top: 2px solid transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.staffCount {
+  font-size: 12px;
+  opacity: 0.8;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 4px 8px;
+  border-radius: 8px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

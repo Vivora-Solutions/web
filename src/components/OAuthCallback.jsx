@@ -33,7 +33,7 @@ const OAuthCallback = () => {
       error,
     } = await supabase.auth.getSession();
 
-    console.log("🔐 Supabase Session:", session);
+    //console.log("🔐 Supabase Session:", session);
 
     if (error) throw { message: "Session error", redirect: "/login?error=session_failed" };
     if (!session) throw { message: "No session found", redirect: "/login?error=no_session" };
@@ -47,7 +47,7 @@ const OAuthCallback = () => {
       error,
     } = await supabase.auth.getUser();
 
-    console.log("👤 Supabase User:", user);
+    //console.log("👤 Supabase User:", user);
 
     if (error || !user) throw { message: "User error", redirect: "/login?error=user_failed" };
     return user;
@@ -58,7 +58,7 @@ const OAuthCallback = () => {
       await loginWithGoogle(session.access_token);
     } catch (loginError) {
       if (loginError.response?.data?.error?.includes("not found in system")) {
-        console.log("🔄 User not found, registering...");
+        //console.log("🔄 User not found, registering...");
         await registerAndLogin(user, session);
       } else {
         console.error("OAuth login failed:", loginError);
@@ -72,7 +72,7 @@ const OAuthCallback = () => {
       await PublicAPI.post("/auth/google-oauth-login", { access_token: accessToken })
     ).data;
 
-    console.log("✅ OAuth login successful!", { access_token, customRole });
+    //console.log("✅ OAuth login successful!", { access_token, customRole });
 
     storeAuthData(access_token, customRole);
     enforceCustomerRole(customRole);
@@ -89,11 +89,11 @@ const OAuthCallback = () => {
       contact_number: null,
     };
 
-    console.log("📦 Registration Payload:", payload);
+    //console.log("📦 Registration Payload:", payload);
 
     await PublicAPI.post("/auth/register-customer-google", payload);
 
-    console.log("✅ OAuth registration successful!");
+    //console.log("✅ OAuth registration successful!");
     await loginWithGoogle(session.access_token);
   };
 

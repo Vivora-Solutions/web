@@ -209,7 +209,7 @@ const StylistManagement = ({ onOpenSchedule }) => {
       }
 
       if (removedServices.length > 0) {
-        console.log("Removing services:", removedServices);
+        //console.log("Removing services:", removedServices);
         await ProtectedAPI.put(
           `/salon-admin/stylist/${selectedStylist.stylist_id}/disable-services`,
           {
