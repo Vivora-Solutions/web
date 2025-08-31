@@ -1,4 +1,4 @@
-import { X, Save, Trash2, Plane } from "lucide-react"
+import { X, Save, Trash2, Plane } from "lucide-react";
 import { COLORS } from "./utils/colors";
 
 // Tailwind helper for conditional classes
@@ -25,7 +25,7 @@ const ScheduleManagementPanel = ({
   getUpcomingLeaves,
   loading,
 }) => {
-  if (!showScheduleManagementPanel) return null
+  if (!showScheduleManagementPanel) return null;
 
   return (
     <>
@@ -33,21 +33,21 @@ const ScheduleManagementPanel = ({
       <div
         className="fixed inset-0 z-[50] bg-black/50 backdrop-blur-sm"
         onClick={() => {
-          setShowScheduleManagementPanel(false)
-          setSelectedLeavesToDelete([])
+          setShowScheduleManagementPanel(false);
+          setSelectedLeavesToDelete([]);
         }}
       />
 
       {/* Panel */}
-     <div
-  className="
+      <div
+        className="
     fixed right-0 top-[60px]           /* offset to stay below header (adjust if header height differs) */
     h-[calc(100vh-60px)]              /* full height minus header */
     w-[90%] sm:w-[450px]              /* take 90% on mobile, 450px on sm+ */
     bg-white shadow-2xl z-[51] 
     overflow-y-auto flex flex-col
   "
->
+      >
         {/* Header */}
         <div
           className="flex justify-between items-center px-6 py-7 border-b-2"
@@ -58,13 +58,15 @@ const ScheduleManagementPanel = ({
           }}
         >
           <div>
-            <h2 className="text-[22px] font-extrabold mb-1">Schedule Management</h2>
+            <h2 className="text-[22px] font-extrabold mb-1">
+              Schedule Management
+            </h2>
             <p className="text-[14px] opacity-90 m-0"> staff schedules</p>
           </div>
           <button
             onClick={() => {
-              setShowScheduleManagementPanel(false)
-              setSelectedLeavesToDelete([])
+              setShowScheduleManagementPanel(false);
+              setSelectedLeavesToDelete([]);
             }}
             className="bg-white/20 border-none text-white text-[24px] w-10 h-10 rounded-full flex items-center justify-center transition-all duration-300 hover:bg-white/30"
           >
@@ -81,7 +83,7 @@ const ScheduleManagementPanel = ({
             </label>
             <div className="flex flex-col gap-3">
               {scheduleTypes.map((type) => {
-                const Icon = type.icon
+                const Icon = type.icon;
                 return (
                   <button
                     key={type.value}
@@ -90,19 +92,31 @@ const ScheduleManagementPanel = ({
                       "flex items-center gap-3 px-5 py-4 border-2 rounded-xl font-semibold text-[15px] transition-all duration-300 shadow-sm",
                       scheduleType === type.value
                         ? "bg-opacity-10 border-3 shadow-lg"
-                        : "bg-transparent border-3",
+                        : "bg-transparent border-3"
                     )}
                     style={{
-                      backgroundColor: scheduleType === type.value ? `${type.color}20` : "transparent",
-                      borderColor: scheduleType === type.value ? type.color : COLORS.border,
-                      color: scheduleType === type.value ? type.color : COLORS.textLight,
-                      boxShadow: scheduleType === type.value ? `0 6px 20px ${type.color}30` : "none",
+                      backgroundColor:
+                        scheduleType === type.value
+                          ? `${type.color}20`
+                          : "transparent",
+                      borderColor:
+                        scheduleType === type.value
+                          ? type.color
+                          : COLORS.border,
+                      color:
+                        scheduleType === type.value
+                          ? type.color
+                          : COLORS.textLight,
+                      boxShadow:
+                        scheduleType === type.value
+                          ? `0 6px 20px ${type.color}30`
+                          : "none",
                     }}
                   >
                     <Icon size={18} />
                     {type.label}
                   </button>
-                )
+                );
               })}
             </div>
           </div>
@@ -140,19 +154,26 @@ const ScheduleManagementPanel = ({
 
             {getUpcomingLeaves().length === 0 ? (
               <div className="rounded-xl p-4 text-center border-2 bg-gray-200/30 border-gray-300">
-                <p className="text-gray-400 text-[14px] m-0">No upcoming leaves found</p>
+                <p className="text-gray-400 text-[14px] m-0">
+                  No upcoming leaves found
+                </p>
               </div>
             ) : (
               <>
                 <div className="rounded-xl max-h-[200px] overflow-y-auto mb-4 border-2 bg-red-100/20 border-red-200">
                   {getUpcomingLeaves().map((leave) => {
-                    const stylist = getStylistById(leave.stylist_id)
-                    const isSelected = selectedLeavesToDelete.includes(leave.leave_id)
-                    const leaveDate = new Date(leave.date).toLocaleDateString("en-US", {
-                      weekday: "short",
-                      month: "short",
-                      day: "numeric",
-                    })
+                    const stylist = getStylistById(leave.stylist_id);
+                    const isSelected = selectedLeavesToDelete.includes(
+                      leave.leave_id
+                    );
+                    const leaveDate = new Date(leave.date).toLocaleDateString(
+                      "en-US",
+                      {
+                        weekday: "short",
+                        month: "short",
+                        day: "numeric",
+                      }
+                    );
 
                     return (
                       <div
@@ -162,7 +183,9 @@ const ScheduleManagementPanel = ({
                           "flex items-center px-4 py-3 border-b cursor-pointer transition-all duration-200",
                           isSelected ? "bg-red-100/40" : "bg-transparent"
                         )}
-                        style={{ borderBottom: "1px solid rgba(239, 68, 68, 0.1)" }}
+                        style={{
+                          borderBottom: "1px solid rgba(239, 68, 68, 0.1)",
+                        }}
                       >
                         <input
                           type="checkbox"
@@ -171,25 +194,42 @@ const ScheduleManagementPanel = ({
                           className="mr-3 scale-110 accent-red-500"
                         />
 
-                        <div
-                          className="w-8 h-8 rounded-full flex items-center justify-center mr-3 text-[14px] text-white shadow"
-                          style={{ backgroundColor: stylist.color }}
-                        >
-                          {stylist.avatar}
+                        <div className="w-8 h-8 rounded-full mr-3 shadow overflow-hidden">
+                          <img
+                            src={stylist.avatar}
+                            alt={stylist.name}
+                            className="w-full h-full object-cover rounded-full"
+                            onError={(e) => {
+                              // Fallback to colored div with initials if image fails to load
+                              e.target.style.display = "none";
+                              e.target.nextSibling.style.display = "flex";
+                            }}
+                          />
+                          <div
+                            className="w-8 h-8 rounded-full flex items-center justify-center text-[12px] font-bold text-white"
+                            style={{
+                              backgroundColor: stylist.color,
+                              display: "none",
+                            }}
+                          >
+                            {stylist.name?.charAt(0)?.toUpperCase() || "S"}
+                          </div>
                         </div>
 
                         <div className="flex-1">
                           <div className="font-semibold text-gray-800 text-[14px] mb-0.5">
                             {stylist.name}
                           </div>
-                          <div className="text-[12px] text-gray-400">{leaveDate}</div>
+                          <div className="text-[12px] text-gray-400">
+                            {leaveDate}
+                          </div>
                         </div>
 
                         <div className="px-2 py-1 bg-red-100 rounded text-[11px] font-semibold text-red-500">
                           Leave
                         </div>
                       </div>
-                    )
+                    );
                   })}
                 </div>
 
@@ -205,7 +245,9 @@ const ScheduleManagementPanel = ({
                     )}
                   >
                     <Trash2 size={16} />
-                    {loading ? "Deleting..." : `Delete ${selectedLeavesToDelete.length} Leave(s)`}
+                    {loading
+                      ? "Deleting..."
+                      : `Delete ${selectedLeavesToDelete.length} Leave(s)`}
                   </button>
                 )}
               </>
@@ -215,10 +257,15 @@ const ScheduleManagementPanel = ({
           {/* Save Button */}
           <button
             onClick={handleSaveSchedule}
-            disabled={loading || (selectedTimeSlots.length === 0 && selectedLeaveDays.length === 0)}
+            disabled={
+              loading ||
+              (selectedTimeSlots.length === 0 && selectedLeaveDays.length === 0)
+            }
             className={cn(
               "w-full py-4 rounded-xl font-bold text-[16px] flex items-center justify-center gap-2 shadow-lg transition-all duration-300",
-              loading || (selectedTimeSlots.length === 0 && selectedLeaveDays.length === 0)
+              loading ||
+                (selectedTimeSlots.length === 0 &&
+                  selectedLeaveDays.length === 0)
                 ? "bg-gray-300 cursor-not-allowed"
                 : "bg-gradient-to-tr from-green-500 to-green-700 hover:from-green-600 hover:to-green-800 cursor-pointer text-white"
             )}
@@ -236,7 +283,7 @@ const ScheduleManagementPanel = ({
         }
       `}</style>
     </>
-  )
-}
+  );
+};
 
-export default ScheduleManagementPanel
+export default ScheduleManagementPanel;
