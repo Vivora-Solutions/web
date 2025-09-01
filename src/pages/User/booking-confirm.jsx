@@ -44,52 +44,51 @@ const BookingConfirm = () => {
     }
   }, [hydrated, bookingDetails]);
 
-useEffect(() => {
-  restoreBookingDetails();
-}, []);
+  useEffect(() => {
+    restoreBookingDetails();
+  }, []);
 
-useEffect(() => {
-  if (!hydrated) return; 
+  useEffect(() => {
+    if (!hydrated) return;
 
-  // Redirect check
-  const invalidBooking =
-    !bookingDetails ||
-    !bookingDetails.serviceIds?.length ||
-    !bookingDetails.stylistId ||
-    !bookingDetails.date ||
-    !bookingDetails.timeSlot;
+    // Redirect check
+    const invalidBooking =
+      !bookingDetails ||
+      !bookingDetails.serviceIds?.length ||
+      !bookingDetails.stylistId ||
+      !bookingDetails.date ||
+      !bookingDetails.timeSlot;
 
-  if (!confirmed && invalidBooking) {
-    navigate("/");
-    return;
-  }
-}, [hydrated, bookingDetails, confirmed, navigate]);
-
-useEffect(() => {
-  if (!hydrated || !bookingDetails?.serviceIds?.length) return;
-
-  const fetchSalonAndServices = async () => {
-    try {
-      setLoading(true);
-      const serviceDetailsPromises = bookingDetails.serviceIds.map((id) =>
-        ProtectedAPI.get(`/salons/service-details?id=${id}`)
-      );
-      const responses = await Promise.all(serviceDetailsPromises);
-      const serviceData = responses.map((res) => res.data);
-      setServices(serviceData);
-      if (serviceData.length > 0) {
-        setSalonDetails(serviceData[0].salon);
-      }
-    } catch (error) {
-      console.error("Failed to load service details:", error);
-    } finally {
-      setLoading(false);
+    if (!confirmed && invalidBooking) {
+      navigate("/");
+      return;
     }
-  };
+  }, [hydrated, bookingDetails, confirmed, navigate]);
 
-  fetchSalonAndServices();
-}, [hydrated, bookingDetails]);
+  useEffect(() => {
+    if (!hydrated || !bookingDetails?.serviceIds?.length) return;
 
+    const fetchSalonAndServices = async () => {
+      try {
+        setLoading(true);
+        const serviceDetailsPromises = bookingDetails.serviceIds.map((id) =>
+          ProtectedAPI.get(`/salons/service-details?id=${id}`)
+        );
+        const responses = await Promise.all(serviceDetailsPromises);
+        const serviceData = responses.map((res) => res.data);
+        setServices(serviceData);
+        if (serviceData.length > 0) {
+          setSalonDetails(serviceData[0].salon);
+        }
+      } catch (error) {
+        console.error("Failed to load service details:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSalonAndServices();
+  }, [hydrated, bookingDetails]);
 
   const handleConfirmBooking = async () => {
     if (!bookingDetails) {
@@ -152,15 +151,22 @@ useEffect(() => {
   };
 
   if (loading || !bookingDetails || !salonDetails) {
-    return <div className="flex justify-center items-center h-screen">Loading...</div>;
+    return (
+      <div className="flex justify-center items-center h-screen">
+        Loading...
+      </div>
+    );
   }
-
 
   const { date, timeSlot } = bookingDetails;
 
   const formatTime = (isoString) => {
     const d = new Date(isoString);
-    return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", timeZone: "UTC" });
+    return d.toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+      timeZone: "UTC",
+    });
   };
 
   const formatDate = (isoString) => {
@@ -173,8 +179,10 @@ useEffect(() => {
   };
 
   const total = services.reduce((sum, s) => sum + s.price, 0);
-  const duration_minutes = services.reduce((sum, s) => sum + s.duration_minutes, 0);
-  
+  const duration_minutes = services.reduce(
+    (sum, s) => sum + s.duration_minutes,
+    0
+  );
 
   return (
     <div className="min-h-screen w-full bg-gradient-to-br from-gray-100 to-red-50 flex flex-col">
@@ -246,6 +254,25 @@ useEffect(() => {
                       Duration
                     </span>
                     <span>{duration_minutes} min</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="font-medium flex items-center gap-1 md:gap-2">
+                      <svg
+                        className="w-4 h-4 md:w-5 md:h-5 text-black"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                        />
+                      </svg>{" "}
+                      Stylist
+                    </span>
+                    <span>{bookingDetails.stylistName || "Assigned"}</span>
                   </div>
                   <div className="flex flex-col gap-1 md:gap-2 pt-2 md:pt-4 border-t border-gray-100">
                     <h3 className="font-semibold text-gray-800 mb-0 md:mb-1 text-sm md:text-base">

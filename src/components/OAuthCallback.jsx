@@ -35,6 +35,8 @@ const OAuthCallback = () => {
 
     //console.log("🔐 Supabase Session:", session);
 
+    //console.log("🔐 Supabase Session:", session);
+
     if (error) throw { message: "Session error", redirect: "/login?error=session_failed" };
     if (!session) throw { message: "No session found", redirect: "/login?error=no_session" };
 
@@ -67,6 +69,7 @@ const OAuthCallback = () => {
     }
   };
 
+    //console.log("✅ OAuth login successful!", { access_token, cust  const log
   const loginWithGoogle = async (accessToken) => {
     const { access_token, customRole } = (
       await PublicAPI.post("/auth/google-oauth-login", { access_token: accessToken })
@@ -133,7 +136,6 @@ const OAuthCallback = () => {
       <div className="text-center">
         <h2 className="text-xl font-semibold mb-4">Processing Google Sign-in...</h2>
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto"></div>
-        <p className="mt-4 text-sm text-gray-600">🔍 Check your browser console for detailed info.</p>
       </div>
     </div>
   );
