@@ -4,27 +4,27 @@
   "description": "Book top-rated salons instantly on Salondora. Skip the wait, choose your favorite salon, and enjoy the beauty you deserve.",
   "icons": [
     {
-      "src": "/android-chrome-192x192.png",
+      "src": "https://salondora.com/android-chrome-192x192.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "/android-chrome-512x512.png",
+      "src": "https://salondora.com/android-chrome-512x512.png",
       "sizes": "512x512",
       "type": "image/png"
     },
     {
-      "src": "/favicon-32x32.png",
+      "src": "https://salondora.com/favicon-32x32.png",
       "sizes": "32x32",
       "type": "image/png"
     },
     {
-      "src": "/favicon-16x16.png",
+      "src": "https://salondora.com/favicon-16x16.png",
       "sizes": "16x16",
       "type": "image/png"
     },
     {
-      "src": "/apple-touch-ico.png",
+      "src": "https://salondora.com/apple-touch-ico.png",
       "sizes": "180x180",
       "type": "image/png"
     }
