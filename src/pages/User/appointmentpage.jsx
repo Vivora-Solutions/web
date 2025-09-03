@@ -178,7 +178,7 @@ const AppointmentPage = () => {
             {/* Filters */}
             <div className="space-y-6">
               <div className="flex flex-wrap gap-4 justify-center md:justify-start">
-                {["All", "Men", "Female", "Children", "Unisex"].map((tag) => (
+                {["All", "Men", "Women", "Children", "Men & Women"].map((tag) => (
                   <button
                     key={tag}
                     onClick={() => setActiveCategory(tag)}
