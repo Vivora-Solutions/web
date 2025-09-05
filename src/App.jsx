@@ -28,6 +28,9 @@ import About from "./pages/User/about";
 import PrivacyPolicy from "./pages/User/privacy-policy";
 import TermsAndConditionsForSalons from "./pages/User/terms-and-conditions-for-salons";
 import TermsAndConditionsForClients from "./pages/User/terms-and-conditions-for-clients";
+
+import FAQSection from "./pages/User/faq";
+import Team from "./pages/User/our-team";
 //
 function App() {
   return (
@@ -42,7 +45,8 @@ function App() {
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route path="/terms-and-conditions-for-salons" element={<TermsAndConditionsForSalons />} />
         <Route path="/terms-and-conditions-for-clients" element={<TermsAndConditionsForClients />} />
-
+        <Route path="/faq" element={<FAQSection />} />
+        <Route path="/team" element={<Team />} />
 
 
         {/* PublicCustomerRoute Pages */}
