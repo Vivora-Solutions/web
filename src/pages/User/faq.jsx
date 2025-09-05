@@ -113,10 +113,7 @@ const faqData = [
         q: "How can I join SalonDora as a salon partner?",
         a: "Getting started is simple! Click 'Partner With Us', provide your salon details, upload required documents (business registration, health certificates), and our team will verify and activate your profile within 48 hours. No upfront costs or lengthy paperwork!"
       },
-      {
-        q: "What are the costs and commission structure?",
-        a: "Zero joining fees! We only earn when you earn - through a percentage-based commission capped at Rs. 250 per booking. This means even for your most expensive services, you'll never pay more than Rs. 250 commission per booking."
-      },
+    
       {
         q: "How does SalonDora help me grow my business?",
         a: "We're your digital growth partner! Get your personalized salon webpage, social media integration, customer analytics, automated appointment management, review management, promotional tools, and access to thousands of potential customers actively looking for your services."
@@ -154,7 +151,7 @@ const faqData = [
       },
       {
         q: "How do I contact SalonDora customer service?",
-        a: "Multiple ways to reach us: In-app live chat (fastest), WhatsApp at +94 77 XXX XXXX, email support@salondora.lk, or call our hotline 0117 XXX XXX. Average response time is under 5 minutes during business hours!"
+        a: "Multiple ways to reach us: In-app live chat (fastest), WhatsApp at +9471 572 9105 email contact@salondora.lk, or call our hotline 070 244 3978. Average response time is under 5 minutes during business hours!"
       }
     ]
   }
