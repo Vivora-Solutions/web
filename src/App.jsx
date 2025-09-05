@@ -30,6 +30,7 @@ import TermsAndConditionsForSalons from "./pages/User/terms-and-conditions-for-s
 import TermsAndConditionsForClients from "./pages/User/terms-and-conditions-for-clients";
 
 import FAQSection from "./pages/User/faq";
+import Team from "./pages/User/our-team";
 //
 function App() {
   return (
@@ -45,6 +46,7 @@ function App() {
         <Route path="/terms-and-conditions-for-salons" element={<TermsAndConditionsForSalons />} />
         <Route path="/terms-and-conditions-for-clients" element={<TermsAndConditionsForClients />} />
         <Route path="/faq" element={<FAQSection />} />
+        <Route path="/team" element={<Team />} />
 
 
         {/* PublicCustomerRoute Pages */}
