@@ -10,14 +10,19 @@ const Footer = () => {
           
           {/* Logo Section */}
           <div>
+            <a href="/team" className="hover:text-white transition-colors">
             <h3 className="flex items-center space-x-2 text-lg font-bold mb-4">
+
               <img 
                 src="/company-logo.png" 
                 alt="Vivora Logo" 
                 className="h-8 w-8 object-contain"
               />
+
               <span className="text-2xl font-bold">Vivora</span>
             </h3>
+            </a>
+            
             <p className="text-gray-400 text-sm">
               Your trusted partner for salon services and beauty experiences.
             </p>
@@ -30,6 +35,8 @@ const Footer = () => {
               <li><a href="/" className="hover:text-white transition-colors">Find Salons</a></li>
               <li><a href="/about" className="hover:text-white transition-colors">About Us</a></li>
               <li><a href="/salon-register" className="hover:text-white transition-colors">Register as a Salon</a></li>
+              <li><a href="/faq" className="hover:text-white transition-colors">FAQ</a></li>
+              <li><a href="/team" className="hover:text-white transition-colors">Our Team</a></li>
             </ul>
           </div>
 
@@ -40,6 +47,7 @@ const Footer = () => {
               <li><a href="/privacy-policy" className="hover:text-white transition-colors">Privacy Policy</a></li>
               <li><a href="/terms-and-conditions-for-clients" className="hover:text-white transition-colors">Terms & Conditions (Clients)</a></li>
               <li><a href="/terms-and-conditions-for-salons" className="hover:text-white transition-colors">Terms & Conditions (Salons)</a></li>
+              
             </ul>
           </div>
 
@@ -53,6 +61,7 @@ const Footer = () => {
                   <span>+94 71 572 9105</span>
                   <span>+94 76 678 7578</span>
                   <span>+94 70 244 3978</span>
+                  <a href="mailto:contact@salondora.com" className="hover:text-white transition-colors">contact@salondora.com</a>
                 </div>
               </div>
               <div className="flex items-center">
