@@ -473,7 +473,7 @@ const Schedule = () => {
                 </div>
               ) : (
                 <p className="text-gray-500">
-                  No slots available for this stylist on selected date.
+                  This stylist is fully booked on this date.
                 </p>
               )}
             </div>

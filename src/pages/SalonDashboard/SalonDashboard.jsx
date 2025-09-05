@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { Outlet, useLocation } from "react-router-dom";
-import { Info, Calendar, Image, Scissors, Users, Monitor } from "lucide-react";
+import { Info, Calendar, Image, Scissors, Users, Monitor, LogIn } from "lucide-react";
 import { ProtectedAPI } from "../../utils/api";
 import Header from "./components/Header";
 import Sidebar from "../../components/Sidebar";
 import SalonInfo from "./SalonInfo";
+import Login from "../Login/Login";
 
 const SECTIONS = [
   { label: "Salon Info", icon: <Info size={20} />, path: "/admin" },
@@ -51,25 +52,26 @@ const SalonDashboard = () => {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen flex flex-col bg-gradient-to-br from-white to-gray-100">
-        <Header />
-        <div className="flex-1 flex flex-col items-center justify-center text-center px-4 py-12">
-          <h1 className="text-5xl font-extrabold text-indigo-600 mb-4 drop-shadow-sm">
-            Welcome to <span className="text-gray-800">Salon Booking Platform</span>
-          </h1>
-          <p className="text-gray-600 mb-8 max-w-2xl text-lg">
-            Discover and manage your salon services, bookings, and more. Log in to get started.
-          </p>
-          <div className="relative w-full max-w-5xl">
-            <img
-              src="https://images.unsplash.com/photo-1588776814546-ec7d3fc94238?ixlib=rb-4.0.3&auto=format&fit=crop&w=1400&q=80"
-              alt="Banner"
-              className="rounded-3xl shadow-2xl w-full h-96 object-cover"
-            />
-            <div className="absolute inset-0 rounded-3xl ring-2 ring-indigo-200 blur-xl opacity-40"></div>
-          </div>
-        </div>
-      </div>
+      <Login />
+      // <div className="min-h-screen flex flex-col bg-gradient-to-br from-white to-gray-100">
+      //   <Header />
+      //   <div className="flex-1 flex flex-col items-center justify-center text-center px-4 py-12">
+      //     <h1 className="text-5xl font-extrabold text-indigo-600 mb-4 drop-shadow-sm">
+      //       Welcome to <span className="text-gray-800">Salon Booking Platform</span>
+      //     </h1>
+      //     <p className="text-gray-600 mb-8 max-w-2xl text-lg">
+      //       Discover and manage your salon services, bookings, and more. Log in to get started.
+      //     </p>
+      //     <div className="relative w-full max-w-5xl">
+      //       <img
+      //         src="https://images.unsplash.com/photo-1588776814546-ec7d3fc94238?ixlib=rb-4.0.3&auto=format&fit=crop&w=1400&q=80"
+      //         alt="Banner"
+      //         className="rounded-3xl shadow-2xl w-full h-96 object-cover"
+      //       />
+      //       <div className="absolute inset-0 rounded-3xl ring-2 ring-indigo-200 blur-xl opacity-40"></div>
+      //     </div>
+      //   </div>
+      // </div>
     );
   }
 
