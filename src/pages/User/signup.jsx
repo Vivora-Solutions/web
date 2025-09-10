@@ -5,6 +5,7 @@ import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Mail, Lock, User, Phone, Calendar, MapPin, Loader2, UserPlus, Sparkles } from 'lucide-react';
 import Header from './components/Header';
+import Footer from "./components/Footer";
 import { PublicAPI } from "../../utils/api";
 
 const LocationSelector = ({ setFormData }) => {
@@ -276,6 +277,7 @@ const RegisterCustomerForm = () => {
         </div>
       </div>
     </div>
+    <Footer />
     </div>
   );
 };

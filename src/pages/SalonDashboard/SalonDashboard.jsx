@@ -3,6 +3,7 @@ import { Outlet, useLocation } from "react-router-dom";
 import { Info, Calendar, Image, Scissors, Users, Monitor, LogIn } from "lucide-react";
 import { ProtectedAPI } from "../../utils/api";
 import Header from "./components/Header";
+import Footer from "../User/components/Footer";
 import Sidebar from "../../components/Sidebar";
 import SalonInfo from "./SalonInfo";
 import Login from "../Login/Login";
@@ -87,6 +88,7 @@ const SalonDashboard = () => {
             {isRootPath ? <SalonInfo /> : <Outlet />}
           </main>
         </div>
+        <Footer />
       </div>
   );
 };

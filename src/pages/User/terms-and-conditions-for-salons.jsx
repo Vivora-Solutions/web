@@ -1,7 +1,10 @@
 import Footer from "./components/Footer"
+import Header from "./components/Header"
 
 export default function TermsAndConditionsForSalons() {
   return (
+    <div>
+      <Header />
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-gray-50">
       <div className="max-w-4xl mx-auto px-6 py-12">
         {/* Header */}
@@ -364,7 +367,9 @@ export default function TermsAndConditionsForSalons() {
           </div>
         </div>
       </div>
-      <Footer />
+  
+    </div>
+    <Footer />
     </div>
   )
 }
