@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import useBookingStore from "../../store/bookingStore";
 import { ProtectedAPI } from "../../utils/api";
 import Header from "./components/Header";
+import Footer from "./components/Footer";
 import PhoneNumberModal from "../../components/PhoneNumberModal";
 import { CheckCircle, Calendar, Clock, Tag } from "lucide-react";
 
@@ -346,6 +347,7 @@ const BookingConfirm = () => {
           )}
         </div>
       </div>
+      <Footer />
     </div>
   );
 };

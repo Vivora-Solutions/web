@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import useBookingStore from "../../store/bookingStore";
 import Header from "./components/Header";
+import Footer from "./components/Footer";
 import { ProtectedAPI, PublicAPI } from "../../utils/api";
 import {
   ChevronLeft,
@@ -567,6 +568,7 @@ const Schedule = () => {
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 };

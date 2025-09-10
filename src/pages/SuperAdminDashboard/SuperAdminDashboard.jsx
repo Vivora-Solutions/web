@@ -5,6 +5,7 @@ import ChartCard from './components/ChartCard';
 import StatCard from './components/StatCard';
 import SalonVerifyModal from './components/SalonVerifyModal';
 import Header from "./components/Header";
+import Footer from '../User/components/Footer';
 
 const SuperAdminDashboard = () => {
   const navigate = useNavigate();
@@ -203,6 +204,7 @@ const SuperAdminDashboard = () => {
           <Outlet />
         )}
       </div>
+      <Footer />
     </div>
   );
 };

@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { ProtectedAPI } from "../../utils/api";
 import Header from "./components/Header";
+import Footer from "./components/Footer";
 import { CheckCircle, Clock, CalendarCheck2, Star } from "lucide-react";
 
 const MyBookingsPage = () => {
@@ -324,6 +325,7 @@ const MyBookingsPage = () => {
           </div>
         </div>
       )}
+      <Footer />
     </div>
   );
 };

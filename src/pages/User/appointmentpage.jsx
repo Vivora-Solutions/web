@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Star, MapPin, Clock, ReceiptText } from "lucide-react";
 
 import Header from "./components/Header";
+import Footer from "./components/Footer";
 import SalonImageGallery from "./components/SalonImageGallery";
 import { PublicAPI } from "../../utils/api";
 
@@ -375,6 +376,7 @@ const AppointmentPage = () => {
           </div>
         )}
       </div>
+      <Footer />
     </div>
   );
 };

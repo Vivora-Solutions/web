@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { ProtectedAPI } from '../../utils/api';
 import Header from './components/Header';
+import Footer from "./components/Footer";
 import toast from 'react-hot-toast';
 
 const UserProfile = () => {
@@ -201,6 +202,8 @@ const UserProfile = () => {
           )}
         </div>
       </div>
+
+      <Footer />
     </div>
   );
 };
