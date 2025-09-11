@@ -18,6 +18,34 @@ const UserProfile = () => {
   const [loading, setLoading] = useState(true);
   const [showPopup, setShowPopup] = useState(false);
 
+  // helper utilities to normalize display values for fields like date_of_birth and contact_number
+  const isEmptyOrZeroDate = (val) => !val || val === '0000-00-00' || val === 'Not set yet';
+
+  const formatDateForDisplay = (val) => {
+    if (isEmptyOrZeroDate(val)) return 'Not set yet';
+    try {
+      const d = new Date(val);
+      if (isNaN(d)) return 'Not set yet';
+      return d.toISOString().split('T')[0];
+    } catch (e) {
+      return 'Not set yet';
+    }
+  };
+
+  const formatPhoneForDisplay = (val) => {
+    if (!val) return 'Not set yet';
+    const digits = String(val).replace(/\D/g, '');
+    if (digits.length !== 10) return 'Not set yet';
+    return val;
+  };
+
+  const formatField = (fieldName) => {
+    const value = userData?.customer?.[fieldName];
+    if (fieldName === 'date_of_birth') return formatDateForDisplay(value);
+    if (fieldName === 'contact_number') return formatPhoneForDisplay(value);
+    return value || 'Not set yet';
+  };
+
   const fetchUserData = useCallback(async () => {
     try {
       const res = await ProtectedAPI.get('/profile');
@@ -79,16 +107,18 @@ const UserProfile = () => {
 
     if (!validateFields()) return;
 
-    try {
-      const payload = {
-        userData: { email: userData.email },
-        customerData: {
-          first_name: userData.customer.first_name,
-          last_name: userData.customer.last_name,
-          contact_number: userData.customer.contact_number,
-          date_of_birth: userData.customer.date_of_birth,
-        },
-      };
+   try {
+  const payload = {
+    userData: { email: userData.email },
+    customerData: {
+      first_name: userData.customer.first_name,
+      last_name: userData.customer.last_name,
+      contact_number: userData.customer.contact_number,
+      date_of_birth: userData.customer.date_of_birth
+        ? userData.customer.date_of_birth
+        : "Not set yet",
+    },
+  };
       await ProtectedAPI.put('/profile', payload);
 
       setShowPopup(true);
@@ -134,10 +164,10 @@ const UserProfile = () => {
             <>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-gray-800">
                 {[
-                  { label: "Contact Number", value: userData.customer.contact_number },
-                  { label: "First Name", value: userData.customer.first_name },
-                  { label: "Last Name", value: userData.customer.last_name },
-                  { label: "Date of Birth", value: userData.customer.date_of_birth },
+                  { label: "Contact Number", value: formatField('contact_number') },
+                  { label: "First Name", value: formatField('first_name') },
+                  { label: "Last Name", value: formatField('last_name') },
+                  { label: "Date of Birth", value: formatField('date_of_birth') },
                 ].map((field, idx) => (
                   <div key={idx}>
                     <p className="font-semibold text-sm">{field.label}:</p>
@@ -165,6 +195,7 @@ const UserProfile = () => {
                   { label: "First Name", value: userData.customer.first_name, name: "first_name", type: "text", customerField: true },
                   { label: "Last Name", value: userData.customer.last_name, name: "last_name", type: "text", customerField: true },
                   { label: "Date of Birth", value: userData.customer.date_of_birth, name: "date_of_birth", type: "date", customerField: true },
+                  
                 ].map((field, idx) => (
                   <div className="space-y-1" key={idx}>
                     <label className="block font-medium text-gray-700 text-sm">
@@ -172,7 +203,11 @@ const UserProfile = () => {
                     </label>
                     <input
                       type={field.type}
-                      value={field.value || ''}
+                      value={
+                        field.name === 'date_of_birth'
+                          ? (isEmptyOrZeroDate(userData.customer.date_of_birth) ? '' : (userData.customer.date_of_birth ? new Date(userData.customer.date_of_birth).toISOString().split('T')[0] : ''))
+                          : (field.value || '')
+                      }
                       onChange={(e) =>
                         handleChange(e, field.name, field.customerField || false)
                       }

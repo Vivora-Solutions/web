@@ -163,12 +163,13 @@ const MyBookingsPage = () => {
             <strong>🕒 Start:</strong>{" "}
             {formatDateTime(booking.booking_start_datetime)}
           </p>
-          <p>
-            <strong>✅ End:</strong>{" "}
-            {formatDateTime(booking.booking_end_datetime)}
-          </p>
+     
           <p>
             <strong>⏳ Duration:</strong> {booking.total_duration_minutes} mins
+          </p>
+               <p>
+            <strong>✅ End:</strong>{" "}
+            {formatDateTime(booking.booking_end_datetime)}
           </p>
           <p>
             <strong>💰 Total Price:</strong> Rs. {booking.total_price}
