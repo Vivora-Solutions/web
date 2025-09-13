@@ -199,11 +199,29 @@ const SchedulingInterface = () => {
     try {
       setLoading(true);
 
-      // Fetch appointments
-      const appointmentsData = await ApiService.getAppointments();
+      // Use single API call to get all schedule overview data
+      const overviewResponse = await ApiService.getScheduleOverview();
+      // console.log("🔍 Overview API response:", overviewResponse);
+      // console.log("🔍 Bookings from overview:", overviewResponse.data.bookings);
+      if (
+        overviewResponse.data.bookings &&
+        overviewResponse.data.bookings.length > 0
+      ) {
+        // console.log(
+        //   "🔍 Sample booking structure:",
+        //   overviewResponse.data.bookings[0]
+        // );
+      }
+      const {
+        stylists: stylistsData,
+        services: servicesData,
+        openingHours,
+        bookings,
+      } = overviewResponse.data;
 
-      if (appointmentsData && appointmentsData.length > 0) {
-        const transformedAppointments = appointmentsData.map((appointment) => ({
+      // Transform appointments from the overview data
+      if (bookings && bookings.length > 0) {
+        const transformedAppointments = bookings.map((appointment) => ({
           id: appointment.booking_id,
           clientName: appointment.customer
             ? `${appointment.customer.first_name} ${appointment.customer.last_name}`
@@ -224,8 +242,10 @@ const SchedulingInterface = () => {
             .split("T")[1]
             .substring(0, 5),
           services:
-            appointment.booking_services?.map((bs) => bs.service.service_id) ||
-            [],
+            appointment.booking_services?.map((bs) => {
+              // console.log("🔧 Processing booking service:", bs);
+              return bs.service?.service_id || bs.service_id;
+            }) || [],
           isWalkIn: !appointment.user_id,
           notes: appointment.notes || "",
           status: appointment.status,
@@ -238,19 +258,10 @@ const SchedulingInterface = () => {
         setAppointments([]);
       }
 
-      // Load all data in parallel
-      const [stylistsData, servicesData, leavesData] = await Promise.all([
-        ApiService.getStylists(),
-        ApiService.getServices(),
-        ApiService.getLeaves(),
-      ]);
-
-      // Fetch salon opening hours
-      try {
-        const openingHoursResponse = await ApiService.getOpeningHours();
-        setSalonOpeningHours(openingHoursResponse.days || []);
-      } catch (error) {
-        console.error("Error fetching opening hours:", error);
+      // Set opening hours from overview data
+      if (openingHours && openingHours.length > 0) {
+        setSalonOpeningHours(openingHours);
+      } else {
         // Set default opening hours
         const defaultHours = Array(7)
           .fill()
@@ -319,11 +330,129 @@ const SchedulingInterface = () => {
 
       setStylists(transformedStylists);
       setServices(transformedServices);
-      setLeaves(leavesData);
+      setLeaves(overviewResponse.data.leaves || []);
       generateWeekDates();
     } catch (error) {
-      console.error("Error loading data:", error);
+      console.error("🚨 Error loading data with overview API:", error);
+      console.error("🚨 Error details:", JSON.stringify(error, null, 2));
       showNotification("Error loading data. Please try again.", "error");
+
+      // Fallback to individual API calls if overview fails
+      try {
+        // console.log("🔄 Falling back to individual API calls...");
+        const [appointmentsData, stylistsData, servicesData, leavesData] =
+          await Promise.all([
+            ApiService.getAppointments(),
+            ApiService.getStylists(),
+            ApiService.getServices(),
+            ApiService.getLeaves(),
+          ]);
+
+        // Transform appointments
+        if (appointmentsData && appointmentsData.length > 0) {
+          const transformedAppointments = appointmentsData.map(
+            (appointment) => ({
+              id: appointment.booking_id,
+              clientName: appointment.customer
+                ? `${appointment.customer.first_name} ${appointment.customer.last_name}`
+                : appointment.non_online_customer?.non_online_customer_name ||
+                  "Walk-in Customer",
+              clientPhone:
+                appointment.customer?.contact_number ||
+                appointment.non_online_customer
+                  ?.non_online_customer_mobile_number ||
+                "",
+              stylistId:
+                appointment.stylist?.stylist_id || appointment.stylist_id,
+              stylistName:
+                appointment.stylist?.stylist_name || "Unknown Stylist",
+              date: appointment.booking_start_datetime.split("T")[0],
+              startTime: appointment.booking_start_datetime
+                .split("T")[1]
+                .substring(0, 5),
+              endTime: appointment.booking_end_datetime
+                .split("T")[1]
+                .substring(0, 5),
+              services:
+                appointment.booking_services?.map(
+                  (bs) => bs.service.service_id
+                ) || [],
+              isWalkIn: !appointment.user_id,
+              notes: appointment.notes || "",
+              status: appointment.status,
+              workstation: appointment.workstation,
+              originalData: appointment,
+            })
+          );
+          setAppointments(transformedAppointments);
+        } else {
+          setAppointments([]);
+        }
+
+        // Transform stylists
+        const transformedStylists = stylistsData.map((stylist, index) => ({
+          id: stylist.stylist_id,
+          name: stylist.stylist_name,
+          color: COLORS.stylists[index % COLORS.stylists.length],
+          avatar: stylist.profile_pic_link || "👤",
+          isActive: stylist.is_active,
+          contactNumber: stylist.stylist_contact_number,
+          email: stylist.stylist_email,
+          bio: stylist.bio,
+          schedule: stylist.schedule,
+        }));
+
+        // Transform services
+        const transformedServices = servicesData.map((service) => ({
+          id: service.service_id,
+          name: service.service_name,
+          duration: service.duration_minutes,
+          price: service.price,
+          category: service.service_category,
+          description: service.service_description,
+        }));
+
+        setStylists(transformedStylists);
+        setServices(transformedServices);
+        setLeaves(leavesData);
+
+        // Set default stylist selection
+        if (selectedStylists.length === 0) {
+          const firstActiveStylist = transformedStylists.find(
+            (stylist) => stylist.isActive
+          );
+          if (firstActiveStylist) {
+            setSelectedStylists([firstActiveStylist.id]);
+          }
+        }
+
+        // Fetch salon opening hours
+        try {
+          const openingHoursResponse = await ApiService.getOpeningHours();
+          setSalonOpeningHours(openingHoursResponse.days || []);
+        } catch (error) {
+          console.error("Error fetching opening hours:", error);
+          // Set default opening hours
+          const defaultHours = Array(7)
+            .fill()
+            .map((_, index) => ({
+              day_of_week: index,
+              is_open: true,
+              opening_time: "09:00",
+              closing_time: "18:00",
+            }));
+          setSalonOpeningHours(defaultHours);
+        }
+
+        generateWeekDates();
+        showNotification("Data loaded successfully (fallback mode)", "success");
+      } catch (fallbackError) {
+        console.error("Fallback also failed:", fallbackError);
+        showNotification(
+          "Failed to load data. Please refresh the page.",
+          "error"
+        );
+      }
     } finally {
       setLoading(false);
     }
