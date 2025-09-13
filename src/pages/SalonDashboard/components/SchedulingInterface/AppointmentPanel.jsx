@@ -131,7 +131,7 @@ const AppointmentPanel = ({
                       onChange={(e) => {
                         newAppointment.stylistId = e.target.value;
                         setAvailableTimeSlots([]);
-                        console.log(`Selected stylist: ${newAppointment.stylistId}`);
+                        // console.log(`Selected stylist: ${newAppointment.stylistId}`);
                       }}
                       style={{
                         width: "100%",
@@ -199,7 +199,7 @@ const AppointmentPanel = ({
                             startTime,
                             endTime
                           });
-                          console.log(`Selected time slot: ${startTime} - ${endTime}`);
+                          // console.log(`Selected time slot: ${startTime} - ${endTime}`);
                         }}
                         style={{
                           width: "100%",

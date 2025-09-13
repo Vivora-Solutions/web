@@ -113,6 +113,12 @@ const SalonInfo = () => {
     const file = e.target.files[0];
     if (!file) return;
 
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    
+    console.log("Logged-in user UID (auth.uid()):", user?.id);
+
     if (!file.type.startsWith("image/")) {
       alert("Please select an image file");
       return;
