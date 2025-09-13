@@ -1,6 +1,7 @@
 // AppointmentPanel.jsx
-import React from 'react';
-import { X, Clock, Save } from 'lucide-react';
+import React from "react";
+import { X, Clock, Save } from "lucide-react";
+import { COLORS } from "./utils/colors";
 
 const AppointmentPanel = ({
   showAddAppointmentPanel,
@@ -15,7 +16,7 @@ const AppointmentPanel = ({
   services,
   handleCheckAvailability,
   handleSaveAppointment,
-  COLORS
+  // COLORS, // Using imported COLORS instead of prop
 }) => {
   // Tailwind helper for conditional classes
   function cn(...classes) {
@@ -25,13 +26,23 @@ const AppointmentPanel = ({
     <>
       {showAddAppointmentPanel && (
         <>
+          {/* Overlay */}
           <div
-            className="fixed inset-0 z-[50] bg-whitebackdrop-blur-sm"
+            className="fixed inset-0 z-[50] bg-black/50 backdrop-blur-sm"
             onClick={() => setShowAddAppointmentPanel(false)}
           />
+
+          {/* Panel */}
           <div
-            className="fixed right-0 top-0 h-screen w-full max-w-[500px] bg-white shadow-2xl z-[51] overflow-y-auto flex flex-col"
+            className="
+    fixed right-0 top-[60px]
+    h-[calc(100vh-60px)]
+    w-[90%] sm:w-[450px]
+    bg-white shadow-2xl z-[51] 
+    overflow-y-auto flex flex-col
+  "
           >
+            {/* Header */}
             <div
               className="flex justify-between items-center px-6 py-7 border-b-2"
               style={{
@@ -41,8 +52,16 @@ const AppointmentPanel = ({
               }}
             >
               <div>
-                <h2 className="text-[22px] font-extrabold mb-1">{isEditingAppointment ? "Edit Appointment" : "New Appointment"}</h2>
-                <p className="text-[14px] opacity-90 m-0">{isEditingAppointment ? "Update appointment details" : "Schedule a new appointment"}</p>
+                <h2 className="text-[22px] font-extrabold mb-1">
+                  {isEditingAppointment
+                    ? "Edit Appointment"
+                    : "New Appointment"}
+                </h2>
+                <p className="text-[14px] opacity-90 m-0">
+                  {isEditingAppointment
+                    ? "Update appointment details"
+                    : "Schedule a new appointment"}
+                </p>
               </div>
               <button
                 onClick={() => setShowAddAppointmentPanel(false)}
@@ -52,43 +71,74 @@ const AppointmentPanel = ({
               </button>
             </div>
 
+            {/* Content */}
             <div className="p-4 sm:p-8 flex-1 flex flex-col">
               {/* Client Information */}
               <div className="mb-6">
-                <h3 className="text-[18px] font-bold text-gray-800 mb-4">Client Information</h3>
+                <h3 className="text-[18px] font-bold text-gray-800 mb-4">
+                  Client Information
+                </h3>
                 <div className="flex flex-col gap-4">
                   <div>
-                    <label className="block font-semibold text-gray-800  mb-2">Client Name *</label>
+                    <label className="block font-semibold text-gray-800  mb-2">
+                      Client Name *
+                    </label>
                     <input
                       type="text"
                       value={newAppointment.clientName}
-                      onChange={(e) => setNewAppointment({ ...newAppointment, clientName: e.target.value })}
+                      onChange={(e) =>
+                        setNewAppointment({
+                          ...newAppointment,
+                          clientName: e.target.value,
+                        })
+                      }
                       placeholder="Enter client name"
                       disabled={isEditingAppointment}
                       className={cn(
                         "w-full px-4 py-3 border-2 rounded-lg text-[14px] font-normal outline-none transition-colors",
-                        isEditingAppointment ? "bg-gray-100 cursor-not-allowed" : "bg-white cursor-text"
+                        isEditingAppointment
+                          ? "bg-gray-100 cursor-not-allowed"
+                          : "bg-white cursor-text"
                       )}
                       style={{ borderColor: COLORS.border }}
-                      onFocus={e => !isEditingAppointment && (e.target.style.borderColor = COLORS.info)}
-                      onBlur={e => (e.target.style.borderColor = COLORS.border)}
+                      onFocus={(e) =>
+                        !isEditingAppointment &&
+                        (e.target.style.borderColor = COLORS.info)
+                      }
+                      onBlur={(e) =>
+                        (e.target.style.borderColor = COLORS.border)
+                      }
                     />
                   </div>
                   <div>
-                    <label className="block font-semibold text-gray-800  mb-2">Phone Number</label>
+                    <label className="block font-semibold text-gray-800  mb-2">
+                      Phone Number
+                    </label>
                     <input
                       type="tel"
                       value={newAppointment.clientPhone}
-                      onChange={(e) => setNewAppointment({ ...newAppointment, clientPhone: e.target.value })}
+                      onChange={(e) =>
+                        setNewAppointment({
+                          ...newAppointment,
+                          clientPhone: e.target.value,
+                        })
+                      }
                       placeholder="Enter phone number"
                       disabled={isEditingAppointment}
                       className={cn(
                         "w-full px-4 py-3 border-2 rounded-lg text-[14px] font-normal outline-none transition-colors",
-                        isEditingAppointment ? "bg-gray-100 cursor-not-allowed" : "bg-white cursor-text"
+                        isEditingAppointment
+                          ? "bg-gray-100 cursor-not-allowed"
+                          : "bg-white cursor-text"
                       )}
                       style={{ borderColor: COLORS.border }}
-                      onFocus={e => !isEditingAppointment && (e.target.style.borderColor = COLORS.info)}
-                      onBlur={e => (e.target.style.borderColor = COLORS.border)}
+                      onFocus={(e) =>
+                        !isEditingAppointment &&
+                        (e.target.style.borderColor = COLORS.info)
+                      }
+                      onBlur={(e) =>
+                        (e.target.style.borderColor = COLORS.border)
+                      }
                     />
                   </div>
                   <div className="flex items-center gap-3">
@@ -96,18 +146,27 @@ const AppointmentPanel = ({
                       type="checkbox"
                       id="walkIn"
                       checked={newAppointment.isWalkIn}
-                      onChange={(e) => setNewAppointment({ ...newAppointment, isWalkIn: e.target.checked })}
+                      onChange={(e) =>
+                        setNewAppointment({
+                          ...newAppointment,
+                          isWalkIn: e.target.checked,
+                        })
+                      }
                       disabled={isEditingAppointment}
                       className={cn(
                         "scale-110 accent-blue-500",
-                        isEditingAppointment ? "cursor-not-allowed" : "cursor-pointer"
+                        isEditingAppointment
+                          ? "cursor-not-allowed"
+                          : "cursor-pointer"
                       )}
                     />
                     <label
                       htmlFor="walkIn"
                       className={cn(
                         "font-semibold",
-                        isEditingAppointment ? "text-gray-400 cursor-not-allowed" : "text-gray-800  cursor-pointer"
+                        isEditingAppointment
+                          ? "text-gray-400 cursor-not-allowed"
+                          : "text-gray-800  cursor-pointer"
                       )}
                     >
                       Walk-in Customer
@@ -117,13 +176,13 @@ const AppointmentPanel = ({
               </div>
 
               {/* Appointment Details */}
-              <div style={{ marginBottom: "24px" }}>
-                <h3 style={{ fontSize: "18px", fontWeight: "700", color: COLORS.text, marginBottom: "16px" }}>
+              <div className="mb-6">
+                <h3 className="text-[18px] font-bold text-gray-800 mb-4">
                   Appointment Details
                 </h3>
-                <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+                <div className="flex flex-col gap-4">
                   <div>
-                    <label style={{ display: "block", fontWeight: "600", color: COLORS.text, marginBottom: "8px" }}>
+                    <label className="block font-semibold text-gray-800 mb-2">
                       Stylist *
                     </label>
                     <select
@@ -131,21 +190,18 @@ const AppointmentPanel = ({
                       onChange={(e) => {
                         newAppointment.stylistId = e.target.value;
                         setAvailableTimeSlots([]);
-                        // console.log(`Selected stylist: ${newAppointment.stylistId}`);
+                        console.log(
+                          `Selected stylist: ${newAppointment.stylistId}`
+                        );
                       }}
-                      style={{
-                        width: "100%",
-                        padding: "12px 16px",
-                        border: `2px solid ${COLORS.border}`,
-                        borderRadius: "8px",
-                        fontSize: "14px",
-                        fontFamily: "inherit",
-                        outline: "none",
-                        transition: "border-color 0.2s ease",
-                        backgroundColor: "white",
-                      }}
-                      onFocus={(e) => (e.target.style.borderColor = COLORS.info)}
-                      onBlur={(e) => (e.target.style.borderColor = COLORS.border)}
+                      className="w-full px-4 py-3 border-2 rounded-lg text-[14px] font-normal outline-none transition-colors bg-white"
+                      style={{ borderColor: COLORS.border }}
+                      onFocus={(e) =>
+                        (e.target.style.borderColor = COLORS.info)
+                      }
+                      onBlur={(e) =>
+                        (e.target.style.borderColor = COLORS.border)
+                      }
                     >
                       <option value="">Select a stylist</option>
                       {stylists
@@ -157,159 +213,63 @@ const AppointmentPanel = ({
                         ))}
                     </select>
                   </div>
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "12px" }}>
-                    <div>
-                      <label style={{ display: "block", fontWeight: "600", color: COLORS.text, marginBottom: "8px" }}>
-                        Date *
-                      </label>
-                      <input
-                        type="date"
-                        value={newAppointment.date}
-                        onChange={(e) => {
-                          setNewAppointment({ ...newAppointment, date: e.target.value });
-                          setAvailableTimeSlots([]);
-                        }}
-                        style={{
-                          width: "100%",
-                          padding: "12px 16px",
-                          border: `2px solid ${COLORS.border}`,
-                          borderRadius: "8px",
-                          fontSize: "14px",
-                          fontFamily: "inherit",
-                          outline: "none",
-                          transition: "border-color 0.2s ease",
-                        }}
-                        onFocus={(e) => (e.target.style.borderColor = COLORS.info)}
-                        onBlur={(e) => (e.target.style.borderColor = COLORS.border)}
-                      />
-                    </div>
+                  <div className="w-full">
+                    <label className="block font-semibold text-gray-800 mb-2">
+                      Date *
+                    </label>
+                    <input
+                      type="date"
+                      value={newAppointment.date}
+                      onChange={(e) => {
+                        setNewAppointment({
+                          ...newAppointment,
+                          date: e.target.value,
+                        });
+                        setAvailableTimeSlots([]);
+                      }}
+                      className="w-full px-4 py-3 border-2 rounded-lg text-[14px] font-normal outline-none transition-colors"
+                      style={{ borderColor: COLORS.border }}
+                      onFocus={(e) =>
+                        (e.target.style.borderColor = COLORS.info)
+                      }
+                      onBlur={(e) =>
+                        (e.target.style.borderColor = COLORS.border)
+                      }
+                    />
                   </div>
-
-                  {availableTimeSlots.length > 0 && (
-                    <div>
-                      <label style={{ display: "block", fontWeight: "600", color: COLORS.text, marginBottom: "8px" }}>
-                        Available Time Slots *
-                      </label>
-                      <select
-                        value={newAppointment.startTime && newAppointment.endTime ? `${newAppointment.startTime}|${newAppointment.endTime}` : ""}
-                        onChange={(e) => {
-                          const [startTime, endTime] = e.target.value.split('|');
-                          setNewAppointment({
-                            ...newAppointment,
-                            startTime,
-                            endTime
-                          });
-                          // console.log(`Selected time slot: ${startTime} - ${endTime}`);
-                        }}
-                        style={{
-                          width: "100%",
-                          padding: "12px 16px",
-                          border: `2px solid ${COLORS.border}`,
-                          borderRadius: "8px",
-                          fontSize: "14px",
-                          fontFamily: "inherit",
-                          outline: "none",
-                          transition: "border-color 0.2s ease",
-                          backgroundColor: "white",
-                        }}
-                        onFocus={(e) => (e.target.style.borderColor = COLORS.info)}
-                        onBlur={(e) => (e.target.style.borderColor = COLORS.border)}
-                      >
-                        <option value="">Select available time slot</option>
-                        {availableTimeSlots.map((slot, index) => {
-                          return (
-                            <option key={index} value={`${slot.startTime}|${slot.endTime}`}>
-                              {slot.startTime.split('T')[1].split(":").slice(0, 2).join(":")} - {slot.endTime.split('T')[1].split(":").slice(0, 2).join(":")}
-                            </option>
-                          );
-                        })}
-                      </select>
-                    </div>
-                  )}
-
-                  {availableTimeSlots.length === 0 && (
-                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
-                      <div>
-                        <label style={{ display: "block", fontWeight: "600", color: COLORS.text, marginBottom: "8px" }}>
-                          Start Time *
-                        </label>
-                        <input
-                          type="time"
-                          value={newAppointment.startTime}
-                          onChange={(e) => setNewAppointment({ ...newAppointment, startTime: e.target.value })}
-                          disabled={true}
-                          style={{
-                            width: "100%",
-                            padding: "12px 16px",
-                            border: `2px solid ${COLORS.border}`,
-                            borderRadius: "8px",
-                            fontSize: "14px",
-                            fontFamily: "inherit",
-                            outline: "none",
-                            transition: "border-color 0.2s ease",
-                            backgroundColor: "#f5f5f5",
-                            cursor: "not-allowed",
-                          }}
-                        />
-                      </div>
-                      <div>
-                        <label style={{ display: "block", fontWeight: "600", color: COLORS.text, marginBottom: "8px" }}>
-                          End Time *
-                        </label>
-                        <input
-                          type="time"
-                          value={newAppointment.endTime}
-                          onChange={(e) => setNewAppointment({ ...newAppointment, endTime: e.target.value })}
-                          disabled={true}
-                          style={{
-                            width: "100%",
-                            padding: "12px 16px",
-                            border: `2px solid ${COLORS.border}`,
-                            borderRadius: "8px",
-                            fontSize: "14px",
-                            fontFamily: "inherit",
-                            outline: "none",
-                            transition: "border-color 0.2s ease",
-                            backgroundColor: "#f5f5f5",
-                            cursor: "not-allowed",
-                          }}
-                        />
-                      </div>
-                    </div>
-                  )}
                 </div>
               </div>
 
               {/* Services */}
-              <div style={{ marginBottom: "24px" }}>
-                <h3 style={{ fontSize: "18px", fontWeight: "700", color: COLORS.text, marginBottom: "16px" }}>
+              <div className="mb-6">
+                <h3 className="text-lg font-bold text-gray-800 mb-4">
                   Services *
                 </h3>
-                <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                <div className="flex flex-col gap-3">
                   {services.map((service) => (
                     <div
                       key={service.id}
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        padding: "12px 16px",
-                        border: `2px solid ${newAppointment.services.includes(service.id) ? COLORS.info : COLORS.border}`,
-                        borderRadius: "8px",
-                        cursor: isEditingAppointment ? "not-allowed" : "pointer",
-                        transition: "all 0.2s ease",
-                        background: newAppointment.services.includes(service.id)
-                          ? "rgba(66, 153, 225, 0.1)"
-                          : isEditingAppointment
-                            ? "#f5f5f5"
-                            : "white",
-                        opacity: isEditingAppointment ? 0.7 : 1,
-                      }}
+                      className={cn(
+                        "flex items-center p-3 sm:p-4 border-2 rounded-lg cursor-pointer transition-all duration-200",
+                        newAppointment.services.includes(service.id)
+                          ? "border-blue-500 bg-blue-50"
+                          : "border-gray-300 bg-white hover:border-blue-400 hover:bg-blue-50",
+                        isEditingAppointment
+                          ? "cursor-not-allowed bg-gray-100 opacity-70"
+                          : "cursor-pointer"
+                      )}
                       onClick={() => {
                         if (!isEditingAppointment) {
-                          const updatedServices = newAppointment.services.includes(service.id)
-                            ? newAppointment.services.filter((id) => id !== service.id)
-                            : [...newAppointment.services, service.id];
-                          setNewAppointment({ ...newAppointment, services: updatedServices });
+                          const updatedServices =
+                            newAppointment.services.includes(service.id)
+                              ? newAppointment.services.filter(
+                                  (id) => id !== service.id
+                                )
+                              : [...newAppointment.services, service.id];
+                          setNewAppointment({
+                            ...newAppointment,
+                            services: updatedServices,
+                          });
                           setAvailableTimeSlots([]);
                         }
                       }}
@@ -319,23 +279,26 @@ const AppointmentPanel = ({
                         checked={newAppointment.services.includes(service.id)}
                         disabled={isEditingAppointment}
                         onChange={() => {}}
-                        style={{
-                          marginRight: "12px",
-                          accentColor: COLORS.info,
-                          transform: "scale(1.2)",
-                          cursor: isEditingAppointment ? "not-allowed" : "pointer",
-                        }}
+                        className={cn(
+                          "mr-3 scale-110 accent-blue-500",
+                          isEditingAppointment
+                            ? "cursor-not-allowed"
+                            : "cursor-pointer"
+                        )}
                       />
-                      <div style={{ flex: 1 }}>
-                        <div style={{
-                          fontWeight: "600",
-                          color: isEditingAppointment ? COLORS.textLight : COLORS.text,
-                          marginBottom: "4px"
-                        }}>
+                      <div className="flex-1">
+                        <div
+                          className={cn(
+                            "font-semibold mb-1 text-sm sm:text-base",
+                            isEditingAppointment
+                              ? "text-gray-400"
+                              : "text-gray-800"
+                          )}
+                        >
                           {service.name}
                         </div>
-                        <div style={{ fontSize: "12px", color: COLORS.textLight }}>
-                          {service.duration} min • ${service.price}
+                        <div className="text-xs sm:text-sm text-gray-500">
+                          {service.duration} min • Rs. {service.price}
                         </div>
                       </div>
                     </div>
@@ -344,36 +307,39 @@ const AppointmentPanel = ({
               </div>
 
               {/* Notes */}
-              <div style={{ marginBottom: "32px" }}>
-                <label style={{ display: "block", fontWeight: "600", color: COLORS.text, marginBottom: "8px" }}>
+              <div className="mb-8">
+                <label className="block font-semibold text-gray-800 mb-2">
                   Notes
                 </label>
                 <textarea
                   value={newAppointment.notes}
-                  onChange={(e) => setNewAppointment({ ...newAppointment, notes: e.target.value })}
+                  onChange={(e) =>
+                    setNewAppointment({
+                      ...newAppointment,
+                      notes: e.target.value,
+                    })
+                  }
                   placeholder="Add any special notes or requirements..."
                   rows={3}
                   disabled={isEditingAppointment}
-                  style={{
-                    width: "100%",
-                    padding: "12px 16px",
-                    border: `2px solid ${COLORS.border}`,
-                    borderRadius: "8px",
-                    fontSize: "14px",
-                    fontFamily: "inherit",
-                    outline: "none",
-                    transition: "border-color 0.2s ease",
-                    resize: "vertical",
-                    backgroundColor: isEditingAppointment ? "#f5f5f5" : "white",
-                    cursor: isEditingAppointment ? "not-allowed" : "text",
-                  }}
-                  onFocus={(e) => !isEditingAppointment && (e.target.style.borderColor = COLORS.info)}
+                  className={cn(
+                    "w-full px-4 py-3 border-2 rounded-lg text-sm outline-none transition-colors resize-y",
+                    isEditingAppointment
+                      ? "bg-gray-100 cursor-not-allowed"
+                      : "bg-white cursor-text"
+                  )}
+                  style={{ borderColor: COLORS.border }}
+                  onFocus={(e) =>
+                    !isEditingAppointment &&
+                    (e.target.style.borderColor = COLORS.info)
+                  }
                   onBlur={(e) => (e.target.style.borderColor = COLORS.border)}
                 />
               </div>
 
               {/* Action Buttons */}
-              <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+              <div className="flex flex-col gap-3">
+                {/* Check Availability Button - Show when required fields are filled but no slots available */}
                 {newAppointment.stylistId &&
                   newAppointment.date &&
                   newAppointment.services.length > 0 &&
@@ -381,20 +347,17 @@ const AppointmentPanel = ({
                     <button
                       onClick={handleCheckAvailability}
                       disabled={loading}
+                      className={cn(
+                        "w-full px-5 py-3.5 rounded-lg font-bold transition-all duration-200 flex items-center justify-center gap-2 text-sm sm:text-base",
+                        loading
+                          ? "bg-gray-400 cursor-not-allowed"
+                          : "bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 cursor-pointer"
+                      )}
                       style={{
-                        width: "100%",
-                        padding: "14px 20px",
-                        background: loading ? COLORS.textLight : `linear-gradient(135deg, ${COLORS.info}, #3182ce)`,
+                        background: loading
+                          ? COLORS.textLight
+                          : `linear-gradient(135deg, ${COLORS.info}, #3182ce)`,
                         color: "white",
-                        border: "none",
-                        borderRadius: "8px",
-                        fontWeight: "700",
-                        cursor: loading ? "not-allowed" : "pointer",
-                        transition: "all 0.2s ease",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        gap: "8px",
                       }}
                     >
                       <Clock size={16} />
@@ -402,72 +365,124 @@ const AppointmentPanel = ({
                     </button>
                   )}
 
-                {(availableTimeSlots.length > 0 && newAppointment.startTime && newAppointment.endTime) ||
-                  (!newAppointment.stylistId || !newAppointment.date || newAppointment.services.length === 0) ? (
-                  <div style={{ display: "flex", gap: "12px" }}>
+                {/* Available Time Slots - Show when slots are available */}
+                {availableTimeSlots.length > 0 && (
+                  <div className="mb-4">
+                    <h3 className="text-lg font-bold text-gray-800 mb-4">
+                      Available Time Slots
+                    </h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-64 sm:max-h-80 overflow-y-auto">
+                      {availableTimeSlots.map((slot, index) => {
+                        const isSelected =
+                          newAppointment.startTime === slot.startTime &&
+                          newAppointment.endTime === slot.endTime;
+                        return (
+                          <div
+                            key={index}
+                            onClick={() => {
+                              setNewAppointment({
+                                ...newAppointment,
+                                startTime: slot.startTime,
+                                endTime: slot.endTime,
+                              });
+                            }}
+                            className={cn(
+                              "p-3 sm:p-4 border-2 rounded-lg cursor-pointer transition-all duration-200 text-center flex flex-col items-center gap-1",
+                              isSelected
+                                ? "border-green-500 bg-green-50"
+                                : "border-gray-300 bg-white hover:border-blue-400 hover:bg-blue-50"
+                            )}
+                          >
+                            <div
+                              className={cn(
+                                "font-semibold text-sm",
+                                isSelected ? "text-green-600" : "text-gray-800"
+                              )}
+                            >
+                              {slot.startTime
+                                .split("T")[1]
+                                .split(":")
+                                .slice(0, 2)
+                                .join(":")}{" "}
+                              -{" "}
+                              {slot.endTime
+                                .split("T")[1]
+                                .split(":")
+                                .slice(0, 2)
+                                .join(":")}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {/* Save/Cancel Buttons */}
+                {(availableTimeSlots.length > 0 &&
+                  newAppointment.startTime &&
+                  newAppointment.endTime) ||
+                !newAppointment.stylistId ||
+                !newAppointment.date ||
+                newAppointment.services.length === 0 ? (
+                  <div className="flex flex-col sm:flex-row gap-3">
                     <button
                       onClick={() => setShowAddAppointmentPanel(false)}
-                      style={{
-                        flex: 1,
-                        padding: "14px 20px",
-                        background: "transparent",
-                        border: `2px solid ${COLORS.border}`,
-                        color: COLORS.text,
-                        borderRadius: "8px",
-                        fontWeight: "600",
-                        cursor: "pointer",
-                        transition: "all 0.2s ease",
-                      }}
+                      className="w-full sm:flex-1 px-5 py-3.5 bg-transparent border-2 text-gray-800 rounded-lg font-semibold cursor-pointer transition-all duration-200 hover:bg-gray-50 text-sm sm:text-base"
+                      style={{ borderColor: COLORS.border }}
                     >
                       Cancel
                     </button>
                     <button
                       onClick={handleSaveAppointment}
-                      disabled={loading || !newAppointment.clientName || !newAppointment.stylistId ||
-                        !newAppointment.date || !newAppointment.startTime || !newAppointment.endTime ||
-                        newAppointment.services.length === 0}
+                      disabled={
+                        loading ||
+                        !newAppointment.clientName ||
+                        !newAppointment.stylistId ||
+                        !newAppointment.date ||
+                        !newAppointment.startTime ||
+                        !newAppointment.endTime ||
+                        newAppointment.services.length === 0
+                      }
+                      className={cn(
+                        "w-full sm:flex-2 px-5 py-3.5 rounded-lg font-bold transition-all duration-200 flex items-center justify-center gap-2 text-sm sm:text-base",
+                        loading ||
+                          !newAppointment.clientName ||
+                          !newAppointment.stylistId ||
+                          !newAppointment.date ||
+                          !newAppointment.startTime ||
+                          !newAppointment.endTime ||
+                          newAppointment.services.length === 0
+                          ? "bg-gray-400 cursor-not-allowed"
+                          : "bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 cursor-pointer"
+                      )}
                       style={{
-                        flex: 2,
-                        padding: "14px 20px",
-                        background: loading || !newAppointment.clientName || !newAppointment.stylistId ||
-                          !newAppointment.date || !newAppointment.startTime || !newAppointment.endTime ||
+                        background:
+                          loading ||
+                          !newAppointment.clientName ||
+                          !newAppointment.stylistId ||
+                          !newAppointment.date ||
+                          !newAppointment.startTime ||
+                          !newAppointment.endTime ||
                           newAppointment.services.length === 0
-                          ? COLORS.textLight
-                          : `linear-gradient(135deg, ${COLORS.success}, #38a169)`,
+                            ? COLORS.textLight
+                            : `linear-gradient(135deg, ${COLORS.success}, #38a169)`,
                         color: "white",
-                        border: "none",
-                        borderRadius: "8px",
-                        fontWeight: "700",
-                        cursor: loading || !newAppointment.clientName || !newAppointment.stylistId ||
-                          !newAppointment.date || !newAppointment.startTime || !newAppointment.endTime ||
-                          newAppointment.services.length === 0
-                          ? "not-allowed"
-                          : "pointer",
-                        transition: "all 0.2s ease",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        gap: "8px",
                       }}
                     >
                       <Save size={16} />
-                      {loading ? "Saving..." : isEditingAppointment ? "Update Appointment" : "Create Appointment"}
+                      {loading
+                        ? "Saving..."
+                        : isEditingAppointment
+                        ? "Update Appointment"
+                        : "Create Appointment"}
                     </button>
                   </div>
                 ) : (
                   <button
                     onClick={() => setShowAddAppointmentPanel(false)}
-                    style={{
-                      width: "100%",
-                      padding: "14px 20px",
-                      background: "transparent",
-                      border: `2px solid ${COLORS.border}`,
-                      color: COLORS.text,
-                      borderRadius: "8px",
-                      fontWeight: "600",
-                      cursor: "pointer",
-                      transition: "all 0.2s ease",
-                    }}
+                    className="w-full px-5 py-3.5 bg-transparent border-2 text-gray-800 rounded-lg font-semibold cursor-pointer transition-all duration-200 hover:bg-gray-50 text-sm sm:text-base"
+                    style={{ borderColor: COLORS.border }}
                   >
                     Cancel
                   </button>
@@ -477,6 +492,13 @@ const AppointmentPanel = ({
           </div>
         </>
       )}
+      {/* Responsive: panel slides from right, full width on mobile */}
+      <style>{`
+        @media (max-width: 640px) {
+          .max-w-[450px] { max-width: 100vw !important; }
+          .sm\\:p-8 { padding: 1.25rem !important; }
+        }
+      `}</style>
     </>
   );
 };
