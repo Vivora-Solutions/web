@@ -1,7 +1,7 @@
-import { GoogleMap, InfoWindow, useLoadScript } from "@react-google-maps/api"
+import { GoogleMap, InfoWindow } from "@react-google-maps/api"
 import { useState, useMemo, useRef, useEffect } from "react"
-import defaultLogo from "../../../assets/weblogo-white1.png";
-const LIBRARIES = ["marker"]
+import defaultLogo from "../../../assets/weblogo-white1.png"
+import { useGoogleMapsLoader } from "../../../utils/googleMapsLoader"
 
 const containerStyle = {
   width: "100%",
@@ -16,12 +16,8 @@ export default function MapSection({
   className,
   userLocation,
 }) {
-  const { isLoaded, loadError } = useLoadScript({
-    googleMapsApiKey:
-      import.meta.env.VITE_GOOGLE_MAPS_API_KEY ||
-      process.env.REACT_APP_GOOGLE_MAPS_API_KEY,
-    libraries: LIBRARIES,
-  })
+  // Use shared Google Maps loader
+  const { isLoaded, loadError } = useGoogleMapsLoader()
 
   const [selectedSalon, setSelectedSalon] = useState(null)
   const mapRef = useRef(null)
@@ -39,7 +35,13 @@ export default function MapSection({
     markersRef.current.forEach((marker) => (marker.map = null))
     markersRef.current = []
 
-    // ✅ Add salon markers
+    // ✅ Ensure AdvancedMarkerElement exists
+    if (!google.maps.marker?.AdvancedMarkerElement) {
+      console.warn("AdvancedMarkerElement not available. Did you enable the 'marker' library?")
+      return
+    }
+
+    // Add salon markers
     filteredSalons.forEach((salon) => {
       if (!salon.coordinates?.lat || !salon.coordinates?.lng) return
 
@@ -52,28 +54,17 @@ export default function MapSection({
         title: salon.salon_name,
       })
 
-      // 🟢 Marker click → only open popup
-      marker.addListener("click", () => {
-        setSelectedSalon(salon)
-      })
-
-      // Keep hover behavior
-      marker.addListener("mouseover", () => {
-        setSelectedSalon(salon)
-      })
+      marker.addListener("click", () => setSelectedSalon(salon))
+      marker.addListener("mouseover", () => setSelectedSalon(salon))
 
       markersRef.current.push(marker)
     })
 
-    // ✅ Add user location marker
+    // Add user location marker
     if (userLocation) {
       const blueDot = document.createElement("div")
-      blueDot.style.width = "16px"
-      blueDot.style.height = "16px"
-      blueDot.style.backgroundColor = "#4285F4"
-      blueDot.style.borderRadius = "50%"
-      blueDot.style.border = "2px solid white"
-      blueDot.style.boxShadow = "0 0 6px rgba(0,0,0,0.3)"
+      blueDot.style.cssText =
+        "width:16px;height:16px;background:#4285F4;border-radius:50%;border:2px solid white;box-shadow:0 0 6px rgba(0,0,0,0.3)"
 
       const userMarker = new google.maps.marker.AdvancedMarkerElement({
         position: userLocation,
@@ -81,9 +72,18 @@ export default function MapSection({
         title: "You are here",
         content: blueDot,
       })
+
       markersRef.current.push(userMarker)
     }
   }, [isLoaded, filteredSalons, userLocation])
+
+  // ✅ Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      markersRef.current.forEach((marker) => (marker.map = null))
+      markersRef.current = []
+    }
+  }, [])
 
   if (loadError) return <div>Error loading map</div>
   if (!isLoaded)
@@ -115,9 +115,8 @@ export default function MapSection({
           >
             <div
               className="cursor-pointer max-w-[220px]"
-              onClick={() => onSalonClick(selectedSalon.salon_id)} // 🟢 Navigate when clicking card
+              onClick={() => onSalonClick(selectedSalon.salon_id)}
             >
-              {/* Logo + name */}
               <div className="flex items-center space-x-3 mb-2">
                 <img
                   src={selectedSalon.salon_logo_link || defaultLogo}
@@ -128,13 +127,9 @@ export default function MapSection({
                   {selectedSalon.salon_name}
                 </h3>
               </div>
-
-              {/* Address */}
               <p className="text-xs text-gray-600">
                 {selectedSalon.salon_address}
               </p>
-
-              {/* Rating */}
               <div className="flex items-center text-yellow-500 text-xs mt-1">
                 {selectedSalon.average_rating ? (
                   <>
@@ -147,10 +142,7 @@ export default function MapSection({
                   <span className="text-gray-400">No rating yet</span>
                 )}
               </div>
-
-              <p className="text-xs text-indigo-600 mt-2">
-                Book Now →
-              </p>
+              <p className="text-xs text-indigo-600 mt-2">Book Now →</p>
             </div>
           </InfoWindow>
         )}

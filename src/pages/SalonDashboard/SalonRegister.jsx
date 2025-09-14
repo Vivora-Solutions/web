@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { GoogleMap, useJsApiLoader } from "@react-google-maps/api";
+import { GoogleMap } from "@react-google-maps/api";
 import {
   Mail,
   Lock,
@@ -13,6 +13,7 @@ import {
   Home
 } from "lucide-react";
 import { PublicAPI } from "../../utils/api";
+import { useGoogleMapsLoader } from "../../utils/googleMapsLoader";
 
 // Google Maps container style
 const containerStyle = {
@@ -48,13 +49,8 @@ const RegisterSalon = () => {
   const mapRef = useRef(null);
   const markerRef = useRef(null);
 
-  // Load Google Maps script
-  const { isLoaded, loadError } = useJsApiLoader({
-    id: "google-map-script",
-    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
-    libraries: ["marker"], // ✅ required for AdvancedMarkerElement
-    mapIds: [import.meta.env.VITE_GOOGLE_MAP_ID || ""],
-  });
+  // Use shared Google Maps loader
+  const { isLoaded, loadError } = useGoogleMapsLoader();
 
   // ✅ Auto-detect user location on load
   useEffect(() => {
