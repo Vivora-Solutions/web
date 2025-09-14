@@ -272,15 +272,14 @@ const RegisterSalon = () => {
                 
                 <div className="space-y-2">
                   <label className="flex items-center gap-2 text-gray-600 text-sm font-medium">
-                    <FileText className="h-4 w-4" /> Description
+                    <FileText className="h-4 w-4" /> Description (Optional)
                   </label>
                   <textarea
                     name="salon_description"
                     value={formData.salon_description}
                     onChange={handleChange}
-                    required
                     className="min-h-[100px] w-full rounded-md border px-4 py-3 focus:ring-2 focus:ring-gray-400 resize-none"
-                    placeholder="Describe your salon services, specialties, and unique offerings..."
+                    placeholder="Describe your salon services, specialties, and unique offerings... (Optional)"
                   />
                 </div>
               </div>
