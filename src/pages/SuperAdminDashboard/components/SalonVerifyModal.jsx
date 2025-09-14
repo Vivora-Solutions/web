@@ -1,8 +1,11 @@
 import React from "react";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
-import { parseWKBHexToLatLng } from "../../../utils/wkbToLatLng"; // adjust path
+import { GoogleMap, Marker, InfoWindow } from "@react-google-maps/api";
+import { parseWKBHexToLatLng } from "../../../utils/wkbToLatLng";
+import { useGoogleMapsLoader } from "../../../utils/googleMapsLoader";
 
 const SalonVerifyModal = ({ salon, onClose, onAction }) => {
+  const { isLoaded, loadError } = useGoogleMapsLoader();
+  
   if (!salon) return null;
   //console.log("Salon data in modal:", salon);
 
@@ -15,6 +18,12 @@ const SalonVerifyModal = ({ salon, onClose, onAction }) => {
   } catch (e) {
     console.error("Failed to parse location:", e);
   }
+
+  // Google Maps container style
+  const containerStyle = {
+    width: "100%",
+    height: "100%",
+  };
 
 
   return (
@@ -48,28 +57,54 @@ const SalonVerifyModal = ({ salon, onClose, onAction }) => {
 
           {/* Map or Placeholder */}
           <div className="w-full">
-            {coords ? (
-              <MapContainer
-                center={[coords.lat, coords.lng]}
-                zoom={15}
-                scrollWheelZoom={false}
-                className="w-full h-48 sm:h-64 rounded-lg border z-0"
-              >
-                <TileLayer
-                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                />
-                <Marker position={[coords.lat, coords.lng]}>
-                  <Popup>{salon.salon_name}</Popup>
-                </Marker>
-              </MapContainer>
-            ) : (
+            {loadError && (
+              <div className="w-full h-48 sm:h-64 rounded-lg border bg-red-50 flex items-center justify-center">
+                <p className="text-red-600">Error loading map</p>
+              </div>
+            )}
+            {!isLoaded && !loadError && (
+              <div className="w-full h-48 sm:h-64 rounded-lg border bg-gray-100 flex items-center justify-center">
+                <div className="animate-spin h-8 w-8 border-b-2 border-blue-600 rounded-full"></div>
+              </div>
+            )}
+            {isLoaded && coords ? (
+              <div className="w-full h-48 sm:h-64 rounded-lg border overflow-hidden">
+                <GoogleMap
+                  mapContainerStyle={containerStyle}
+                  center={{ lat: coords.lat, lng: coords.lng }}
+                  zoom={15}
+                  options={{
+                    mapId: import.meta.env.VITE_GOOGLE_MAP_ID || undefined,
+                    streetViewControl: false,
+                    mapTypeControl: false,
+                    fullscreenControl: false,
+                    zoomControl: true,
+                    gestureHandling: "auto",
+                  }}
+                >
+                  <Marker
+                    position={{ lat: coords.lat, lng: coords.lng }}
+                  />
+                  <InfoWindow
+                    position={{ lat: coords.lat, lng: coords.lng }}
+                    options={{
+                      pixelOffset: new window.google.maps.Size(0, -30)
+                    }}
+                  >
+                    <div className="p-2">
+                      <h4 className="font-semibold text-sm">{salon.salon_name}</h4>
+                      <p className="text-xs text-gray-600">{salon.salon_address}</p>
+                    </div>
+                  </InfoWindow>
+                </GoogleMap>
+              </div>
+            ) : isLoaded && !coords ? (
               <img
                 src="https://via.placeholder.com/400x300?text=No+Location"
                 alt="No location available"
                 className="w-full h-48 sm:h-64 object-cover rounded-lg border"
               />
-            )}
+            ) : null}
           </div>
         </div>
 

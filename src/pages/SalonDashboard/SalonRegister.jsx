@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { GoogleMap, useJsApiLoader } from "@react-google-maps/api";
+import { GoogleMap } from "@react-google-maps/api";
 import {
   Mail,
   Lock,
@@ -13,6 +13,7 @@ import {
   Home
 } from "lucide-react";
 import { PublicAPI } from "../../utils/api";
+import { useGoogleMapsLoader } from "../../utils/googleMapsLoader";
 
 // Google Maps container style
 const containerStyle = {
@@ -32,6 +33,7 @@ const RegisterSalon = () => {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
+    confirmPassword: "",
     salon_name: "",
     contact_number: "",
     salon_address: "",
@@ -48,13 +50,8 @@ const RegisterSalon = () => {
   const mapRef = useRef(null);
   const markerRef = useRef(null);
 
-  // Load Google Maps script
-  const { isLoaded, loadError } = useJsApiLoader({
-    id: "google-map-script",
-    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
-    libraries: ["marker"], // ✅ required for AdvancedMarkerElement
-    mapIds: [import.meta.env.VITE_GOOGLE_MAP_ID || ""],
-  });
+  // Use shared Google Maps loader
+  const { isLoaded, loadError } = useGoogleMapsLoader();
 
   // ✅ Auto-detect user location on load
   useEffect(() => {
@@ -87,13 +84,163 @@ const RegisterSalon = () => {
     }));
   };
 
+  // Enhanced error parsing function
+  const parseError = (error) => {
+    const errorMessage = error?.response?.data?.error || error?.message || "Unknown error occurred";
+    
+    // Email validation errors
+    if (errorMessage.includes("invalid") && (errorMessage.includes("Email") || errorMessage.includes("email"))) {
+      return {
+        type: "validation",
+        title: "Invalid Email Address",
+        message: "Please enter a valid email address with correct format (e.g., example@domain.com)",
+        icon: "📧"
+      };
+    }
+    
+    // Password validation errors
+    if (errorMessage.includes("password") && errorMessage.includes("weak")) {
+      return {
+        type: "validation",
+        title: "Weak Password",
+        message: "Password must be at least 8 characters long and contain letters and numbers.",
+        icon: "🔒"
+      };
+    }
+    
+    // Required field errors
+    if (errorMessage.includes("required") || errorMessage.includes("cannot be empty")) {
+      return {
+        type: "validation",
+        title: "Missing Required Information",
+        message: "Please fill in all required fields before submitting.",
+        icon: "📝"
+      };
+    }
+    
+    // Duplicate email errors
+    if (errorMessage.includes("duplicate key") && errorMessage.includes("user_email_key")) {
+      return {
+        type: "conflict",
+        title: "Email Already Registered",
+        message: "This email address is already registered. Please use a different email or try logging in.",
+        icon: "⚠️",
+        action: "Go to Login"
+      };
+    }
+    
+    // Duplicate salon name errors
+    if (errorMessage.includes("duplicate key") && errorMessage.includes("salon_name")) {
+      return {
+        type: "conflict",
+        title: "Salon Name Already Exists",
+        message: "A salon with this name already exists. Please choose a different name.",
+        icon: "🏪"
+      };
+    }
+    
+    // Network/connection errors
+    if (error?.code === "NETWORK_ERROR" || errorMessage.includes("Network")) {
+      return {
+        type: "network",
+        title: "Connection Problem",
+        message: "Unable to connect to the server. Please check your internet connection and try again.",
+        icon: "🌐"
+      };
+    }
+    
+    // Server errors
+    if (error?.response?.status >= 500) {
+      return {
+        type: "server",
+        title: "Server Error",
+        message: "Our servers are experiencing issues. Please try again in a few moments.",
+        icon: "🔧"
+      };
+    }
+    
+    // Default error
+    return {
+      type: "general",
+      title: "Registration Failed",
+      message: "Something went wrong during registration. Please check your information and try again.",
+      icon: "❌"
+    };
+  };
+
+  // Client-side validation
+  const validateForm = () => {
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      return {
+        type: "validation",
+        title: "Invalid Email Format",
+        message: "Please enter a valid email address (e.g., yourname@domain.com)",
+        icon: "📧"
+      };
+    }
+    
+    // Required fields validation
+    const requiredFields = [
+      { field: 'salon_name', label: 'Salon Name' },
+      { field: 'email', label: 'Email' },
+      { field: 'password', label: 'Password' },
+      { field: 'contact_number', label: 'Contact Number' },
+      { field: 'salon_address', label: 'Address' }
+    ];
+    
+    for (const { field, label } of requiredFields) {
+      if (!formData[field] || formData[field].trim() === '') {
+        return {
+          type: "validation",
+          title: "Missing Required Field",
+          message: `Please enter your ${label.toLowerCase()}.`,
+          icon: "📝"
+        };
+      }
+    }
+    
+    // Password strength validation
+    if (formData.password.length < 6) {
+      return {
+        type: "validation",
+        title: "Password Too Short",
+        message: "Password must be at least 6 characters long.",
+        icon: "🔒"
+      };
+    }
+    
+    // Password confirmation validation
+    if (formData.password !== formData.confirmPassword) {
+      return {
+        type: "validation",
+        title: "Passwords Don't Match",
+        message: "Please make sure both password fields are identical.",
+        icon: "🔐"
+      };
+    }
+    
+    return null; // No validation errors
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    
+    // Client-side validation
+    const validationError = validateForm();
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
+    
     setLoading(true);
 
     try {
-      await PublicAPI.post("/auth/register-salon", formData);
+      // Remove confirmPassword from the data sent to server
+      const { confirmPassword, ...registrationData } = formData;
+      await PublicAPI.post("/auth/register-salon", registrationData);
 
       alert("Registration successful! Redirecting to login...");
       navigate("/login", {
@@ -103,10 +250,9 @@ const RegisterSalon = () => {
         },
       });
     } catch (err) {
-      console.error(err);
-      setError(
-        err?.response?.data?.error || "Registration failed. Please try again."
-      );
+      console.error("Registration error:", err);
+      const parsedError = parseError(err);
+      setError(parsedError);
     } finally {
       setLoading(false);
     }
@@ -219,6 +365,42 @@ const RegisterSalon = () => {
                       placeholder="Create a strong password"
                     />
                   </div>
+                  <div className="space-y-2">
+                    <label className="flex items-center gap-2 text-gray-600 text-sm font-medium">
+                      <Lock className="h-4 w-4" /> Confirm Password
+                    </label>
+                    <input
+                      type="password"
+                      name="confirmPassword"
+                      value={formData.confirmPassword}
+                      onChange={handleChange}
+                      required
+                      className={`h-12 w-full rounded-md border px-4 focus:ring-2 focus:ring-gray-400 ${
+                        formData.confirmPassword && formData.password !== formData.confirmPassword
+                          ? 'border-red-300 focus:ring-red-400'
+                          : formData.confirmPassword && formData.password === formData.confirmPassword
+                          ? 'border-green-300 focus:ring-green-400'
+                          : ''
+                      }`}
+                      placeholder="Confirm your password"
+                    />
+                    {/* Password match indicator */}
+                    {formData.confirmPassword && (
+                      <div className="flex items-center gap-1 text-xs">
+                        {formData.password === formData.confirmPassword ? (
+                          <>
+                            <span className="text-green-600">✓</span>
+                            <span className="text-green-600">Passwords match</span>
+                          </>
+                        ) : (
+                          <>
+                            <span className="text-red-600">✗</span>
+                            <span className="text-red-600">Passwords don't match</span>
+                          </>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
 
@@ -276,15 +458,14 @@ const RegisterSalon = () => {
                 
                 <div className="space-y-2">
                   <label className="flex items-center gap-2 text-gray-600 text-sm font-medium">
-                    <FileText className="h-4 w-4" /> Description
+                    <FileText className="h-4 w-4" /> Description (Optional)
                   </label>
                   <textarea
                     name="salon_description"
                     value={formData.salon_description}
                     onChange={handleChange}
-                    required
                     className="min-h-[100px] w-full rounded-md border px-4 py-3 focus:ring-2 focus:ring-gray-400 resize-none"
-                    placeholder="Describe your salon services, specialties, and unique offerings..."
+                    placeholder="Describe your salon services, specialties, and unique offerings... (Optional)"
                   />
                 </div>
               </div>
@@ -334,8 +515,50 @@ const RegisterSalon = () => {
               </div>
 
               {error && (
-                <div className="bg-red-50 border border-red-200 p-3 rounded-lg">
-                  <p className="text-red-600 text-sm">{error}</p>
+                <div className={`border p-4 rounded-xl shadow-sm ${
+                  error.type === 'validation' ? 'bg-orange-50 border-orange-200' :
+                  error.type === 'conflict' ? 'bg-yellow-50 border-yellow-200' :
+                  error.type === 'network' ? 'bg-blue-50 border-blue-200' :
+                  error.type === 'server' ? 'bg-purple-50 border-purple-200' :
+                  'bg-red-50 border-red-200'
+                }`}>
+                  <div className="flex items-start space-x-3">
+                    <div className="text-2xl flex-shrink-0 mt-0.5">
+                      {error.icon}
+                    </div>
+                    <div className="flex-1">
+                      <h4 className={`font-semibold text-sm mb-1 ${
+                        error.type === 'validation' ? 'text-orange-800' :
+                        error.type === 'conflict' ? 'text-yellow-800' :
+                        error.type === 'network' ? 'text-blue-800' :
+                        error.type === 'server' ? 'text-purple-800' :
+                        'text-red-800'
+                      }`}>
+                        {error.title}
+                      </h4>
+                      <p className={`text-sm ${
+                        error.type === 'validation' ? 'text-orange-600' :
+                        error.type === 'conflict' ? 'text-yellow-600' :
+                        error.type === 'network' ? 'text-blue-600' :
+                        error.type === 'server' ? 'text-purple-600' :
+                        'text-red-600'
+                      }`}>
+                        {error.message}
+                      </p>
+                      {error.action && (
+                        <button
+                          onClick={() => navigate('/login')}
+                          className={`mt-2 px-3 py-1 text-xs font-medium rounded-md transition-colors ${
+                            error.type === 'conflict' 
+                              ? 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200'
+                              : 'bg-blue-100 text-blue-800 hover:bg-blue-200'
+                          }`}
+                        >
+                          {error.action} →
+                        </button>
+                      )}
+                    </div>
+                  </div>
                 </div>
               )}
 

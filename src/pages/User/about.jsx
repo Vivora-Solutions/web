@@ -183,7 +183,7 @@ export default function About() {
       </div>
 
       {/* Custom Animations */}
-      <style jsx>{`
+      <style>{`
         @keyframes float-0 { 0%, 100% { transform: translateY(0px); } 50% { transform: translateY(-20px); } }
         @keyframes float-1 { 0%, 100% { transform: translateY(-10px); } 50% { transform: translateY(-30px); } }
         @keyframes float-2 { 0%, 100% { transform: translateY(-5px); } 50% { transform: translateY(-25px); } }

@@ -2,8 +2,9 @@ import { useEffect, useState, useCallback } from "react";
 import EditableField from "./components/EditableField";
 import { ProtectedAPI } from "../../utils/api";
 import supabase from "../../utils/supabaseClient";
-import { GoogleMap, Marker, useJsApiLoader } from "@react-google-maps/api";
+import { GoogleMap, Marker } from "@react-google-maps/api";
 import { parseWKBHexToLatLng } from "../../utils/wkbToLatLng";
+import { useGoogleMapsLoader } from "../../utils/googleMapsLoader";
 
 // Google Maps container style
 const containerStyle = {
@@ -24,12 +25,8 @@ const SalonInfo = () => {
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
 
-  // Load Google Maps script
-  const { isLoaded } = useJsApiLoader({
-    id: "google-map-script",
-    googleMapsApiKey: import.meta.env.VITE_GOOGLE_MAPS_API_KEY,
-    mapIds: [import.meta.env.VITE_GOOGLE_MAP_ID || ""],
-  });
+  // Use shared Google Maps loader
+  const { isLoaded, loadError } = useGoogleMapsLoader();
 
   useEffect(() => {
     const fetchSalon = async () => {
@@ -398,6 +395,11 @@ const SalonInfo = () => {
                   isEditing ? "cursor-crosshair" : "cursor-default"
                 }`}
               >
+                {loadError && (
+                  <div className="h-full flex items-center justify-center bg-red-50">
+                    <p className="text-red-600">Error loading map</p>
+                  </div>
+                )}
                 {isLoaded && formData.location && (
                   <GoogleMap
                     mapContainerStyle={containerStyle}
@@ -423,7 +425,7 @@ const SalonInfo = () => {
                     />
                   </GoogleMap>
                 )}
-                {!isLoaded && (
+                {!isLoaded && !loadError && (
                   <div className="h-full flex items-center justify-center bg-gray-100">
                     <div className="animate-spin h-12 w-12 border-b-2 border-indigo-600 rounded-full"></div>
                   </div>
