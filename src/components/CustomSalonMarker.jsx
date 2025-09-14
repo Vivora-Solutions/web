@@ -2,12 +2,26 @@ import React from 'react';
 
 const CustomSalonMarker = ({ 
   salon, 
+  zoom = 13,
   isHovered, 
   onMouseEnter, 
   onMouseLeave, 
   onClick 
 }) => {
   const rating = salon.average_rating || salon.rating || 4.5;
+  
+  // Calculate scale based on zoom level
+  // At zoom 13+, scale is 1.0
+  // At zoom 10, scale is 0.7
+  // At zoom 5, scale is 0.4
+  const getZoomScale = (zoomLevel) => {
+    if (zoomLevel >= 13) return 1.0;
+    if (zoomLevel >= 10) return 0.7 + (zoomLevel - 10) * 0.1; // 0.7 to 1.0
+    if (zoomLevel >= 7) return 0.5 + (zoomLevel - 7) * 0.067; // 0.5 to 0.7
+    return Math.max(0.3, 0.3 + (zoomLevel - 1) * 0.033); // 0.3 to 0.5
+  };
+  
+  const scale = getZoomScale(zoom);
   
   return (
     <div
@@ -21,7 +35,10 @@ const CustomSalonMarker = ({
     >
       {/* Default State: Small Black Dot */}
       {!isHovered && (
-        <div className="relative animate-marker-appear transition-all duration-300 ease-out transform hover:scale-110">
+        <div 
+          className="relative animate-marker-appear transition-all duration-300 ease-out transform hover:scale-110"
+          style={{ transform: `scale(${scale})` }}
+        >
           <div className="w-4 h-4 bg-black rounded-full border-2 border-white shadow-lg relative overflow-hidden">
             {/* Subtle inner glow */}
             <div className="absolute inset-0 bg-gradient-to-br from-gray-700 to-black rounded-full"></div>
@@ -34,9 +51,9 @@ const CustomSalonMarker = ({
       {/* Hover State: Larger Black Location Bubble */}
       {isHovered && (
         <div className="absolute animate-bubble-bounce-in" style={{
-          bottom: '16px', // Position bubble above the dot
+          bottom: `${16 * scale}px`, // Position bubble above the dot (scaled)
           left: '50%',
-          transform: 'translateX(-50%)', // Center bubble horizontally relative to dot
+          transform: `translateX(-50%) scale(${Math.max(0.8, scale)})`, // Center bubble horizontally and scale (min 0.8 for readability)
         }}>
           {/* Main Bubble */}
           <div className="bg-gradient-to-br from-gray-900 to-black text-white px-4 py-3 rounded-2xl shadow-2xl min-w-[180px] max-w-[200px] relative border border-gray-700">
@@ -96,9 +113,12 @@ const CustomSalonMarker = ({
       )}
 
       {/* Always show the dot - it scales up slightly on hover but stays in place */}
-      <div className={`absolute top-0 left-0 transition-all duration-300 ease-out ${
-        isHovered ? 'scale-125' : 'scale-100'
-      }`}>
+      <div 
+        className={`absolute top-0 left-0 transition-all duration-300 ease-out`}
+        style={{ 
+          transform: `scale(${scale * (isHovered ? 1.25 : 1)})` 
+        }}
+      >
         <div className="w-4 h-4 bg-black rounded-full border-2 border-white shadow-lg relative overflow-hidden">
           {/* Subtle inner glow */}
           <div className="absolute inset-0 bg-gradient-to-br from-gray-700 to-black rounded-full"></div>

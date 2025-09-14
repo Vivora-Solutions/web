@@ -20,6 +20,12 @@ export default function MapSection({
   const { isLoaded, loadError } = useGoogleMapsLoader()
 
   const [hoveredSalon, setHoveredSalon] = useState(null)
+  const [currentZoom, setCurrentZoom] = useState(zoom)
+
+  // Update currentZoom when zoom prop changes
+  useEffect(() => {
+    setCurrentZoom(zoom)
+  }, [zoom])
   const mapRef = useRef(null)
 
   const mapCenter = useMemo(
@@ -67,6 +73,11 @@ export default function MapSection({
           gestureHandling: "auto"
         }}
         onLoad={(map) => (mapRef.current = map)}
+        onZoomChanged={() => {
+          if (mapRef.current) {
+            setCurrentZoom(mapRef.current.getZoom())
+          }
+        }}
       >
         {/* Custom Salon Markers */}
         {filteredSalons.map((salon) => {
@@ -87,6 +98,7 @@ export default function MapSection({
             >
               <CustomSalonMarker
                 salon={salon}
+                zoom={currentZoom}
                 isHovered={hoveredSalon?.salon_id === salon.salon_id}
                 onMouseEnter={() => handleSalonHover(salon)}
                 onMouseLeave={handleSalonLeave}
