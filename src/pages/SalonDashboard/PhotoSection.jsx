@@ -94,7 +94,114 @@ const PhotoSection = () => {
 
   if (isLoading) {
     return (
-      <div className="p-6 bg-white rounded-xl shadow">Loading photos...</div>
+      <div className="p-6 bg-gradient-to-br from-pink-50 via-purple-50 to-indigo-50 rounded-xl shadow-lg border border-gray-200">
+        {/* Loading Header */}
+        <div className="mb-8 text-center">
+          <div className="relative inline-block">
+            {/* Animated Camera Icon */}
+            <div className="w-16 h-16 mx-auto mb-4 relative">
+              <div className="absolute inset-0 bg-gradient-to-r from-pink-400 to-purple-500 rounded-xl animate-pulse"></div>
+              <div className="absolute inset-1 bg-white rounded-xl flex items-center justify-center">
+                <svg className="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+              </div>
+              
+              {/* Rotating border */}
+              <div className="absolute inset-0 border-4 border-transparent border-t-pink-500 rounded-xl animate-spin"></div>
+            </div>
+            
+            {/* Floating photo indicators */}
+            <div className="absolute -top-2 -left-2 w-3 h-3 bg-pink-400 rounded-full animate-bounce" style={{animationDelay: '0s'}}></div>
+            <div className="absolute -top-2 -right-2 w-3 h-3 bg-purple-400 rounded-full animate-bounce" style={{animationDelay: '0.5s'}}></div>
+            <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-3 h-3 bg-indigo-400 rounded-full animate-bounce" style={{animationDelay: '1s'}}></div>
+          </div>
+          
+          <h2 className="text-xl font-semibold text-gray-800 mb-2 animate-fade-in">
+            Loading Your Photos
+          </h2>
+          <p className="text-gray-600 animate-fade-in-delay">
+            Fetching your salon's gallery...
+          </p>
+        </div>
+
+        {/* Upload Section Skeleton */}
+        <div className="mb-6">
+          <div className="flex overflow-x-auto gap-4 pb-4">
+            {/* Upload button skeleton */}
+            <div className="w-28 h-28 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center flex-shrink-0 animate-pulse">
+              <div className="text-center">
+                <div className="w-8 h-8 bg-gray-300 rounded-full mx-auto mb-2"></div>
+                <div className="h-3 bg-gray-300 rounded w-16"></div>
+              </div>
+            </div>
+
+            {/* Photo thumbnail skeletons */}
+            {[...Array(5)].map((_, index) => (
+              <div key={index} className="relative flex-shrink-0 p-1">
+                <div 
+                  className="w-28 h-28 bg-gray-200 rounded-lg animate-pulse" 
+                  style={{animationDelay: `${index * 0.2}s`}}
+                ></div>
+                <div className="absolute top-1 right-1 w-6 h-6 bg-gray-300 rounded-full animate-pulse"></div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Main Preview Skeleton */}
+        <div className="mb-6">
+          <div className="relative flex items-center bg-gray-100 rounded-lg p-4">
+            <div className="w-10 h-10 rounded-full bg-gray-300 animate-pulse"></div>
+            <div className="flex-1 flex justify-center mx-4">
+              <div className="w-full max-w-md h-48 bg-gray-200 rounded-md animate-pulse"></div>
+            </div>
+            <div className="w-10 h-10 rounded-full bg-gray-300 animate-pulse"></div>
+          </div>
+        </div>
+
+        {/* Dots Skeleton */}
+        <div className="flex justify-center gap-2 mb-6">
+          {[...Array(5)].map((_, index) => (
+            <div 
+              key={index} 
+              className="w-3 h-3 bg-gray-300 rounded-full animate-pulse" 
+              style={{animationDelay: `${index * 0.1}s`}}
+            ></div>
+          ))}
+        </div>
+
+        {/* Progress Indicators */}
+        <div className="flex justify-center space-x-2 mt-8">
+          <div className="w-2 h-2 bg-pink-400 rounded-full animate-bounce" style={{animationDelay: '0s'}}></div>
+          <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+          <div className="w-2 h-2 bg-indigo-400 rounded-full animate-bounce" style={{animationDelay: '0.4s'}}></div>
+          <div className="w-2 h-2 bg-pink-400 rounded-full animate-bounce" style={{animationDelay: '0.6s'}}></div>
+        </div>
+
+        {/* Custom animations */}
+        <style jsx>{`
+          @keyframes fade-in {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+          }
+          
+          @keyframes fade-in-delay {
+            0% { opacity: 0; transform: translateY(10px); }
+            50% { opacity: 0; transform: translateY(10px); }
+            100% { opacity: 1; transform: translateY(0); }
+          }
+          
+          .animate-fade-in {
+            animation: fade-in 1s ease-out;
+          }
+          
+          .animate-fade-in-delay {
+            animation: fade-in-delay 2s ease-out;
+          }
+        `}</style>
+      </div>
     );
   }
 
