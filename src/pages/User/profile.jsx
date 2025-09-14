@@ -131,7 +131,103 @@ const UserProfile = () => {
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="relative bg-gradient-to-br from-slate-50 via-purple-50 to-pink-50 min-h-screen">
+        <Header />
+        
+        {/* Beautiful Loading Screen */}
+        <div className="flex items-center justify-center min-h-[80vh] px-4">
+          <div className="text-center">
+            {/* Animated Profile Icon */}
+            <div className="relative mb-8">
+              <div className="w-24 h-24 mx-auto rounded-full bg-gradient-to-r from-purple-400 to-pink-400 p-1 animate-spin-slow">
+                <div className="w-full h-full rounded-full bg-white flex items-center justify-center">
+                  <div className="w-16 h-16 rounded-full bg-gradient-to-r from-gray-100 to-gray-200 flex items-center justify-center animate-pulse">
+                    <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Floating dots */}
+              <div className="absolute -top-2 -right-2 w-4 h-4 bg-purple-400 rounded-full animate-bounce" style={{animationDelay: '0s'}}></div>
+              <div className="absolute -bottom-2 -left-2 w-3 h-3 bg-pink-400 rounded-full animate-bounce" style={{animationDelay: '0.5s'}}></div>
+              <div className="absolute top-1/2 -left-6 w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{animationDelay: '1s'}}></div>
+            </div>
+
+            {/* Loading Text */}
+            <div className="space-y-3">
+              <h2 className="text-2xl font-bold text-gray-800 animate-fade-in">
+                Loading Your Profile
+              </h2>
+              <p className="text-gray-600 animate-fade-in-delay">
+                Fetching your personal information...
+              </p>
+            </div>
+
+            {/* Progress Dots */}
+            <div className="flex justify-center space-x-2 mt-8">
+              <div className="w-3 h-3 bg-purple-400 rounded-full animate-bounce" style={{animationDelay: '0s'}}></div>
+              <div className="w-3 h-3 bg-pink-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+              <div className="w-3 h-3 bg-blue-400 rounded-full animate-bounce" style={{animationDelay: '0.4s'}}></div>
+            </div>
+
+            {/* Skeleton Cards Preview */}
+            <div className="max-w-md mx-auto mt-12 space-y-4">
+              <div className="bg-white rounded-xl p-4 shadow-sm animate-pulse">
+                <div className="flex items-center space-x-3">
+                  <div className="w-10 h-10 bg-gray-200 rounded-full"></div>
+                  <div className="flex-1 space-y-2">
+                    <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                    <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-white rounded-xl p-4 shadow-sm animate-pulse" style={{animationDelay: '0.2s'}}>
+                <div className="space-y-3">
+                  <div className="h-4 bg-gray-200 rounded w-full"></div>
+                  <div className="h-4 bg-gray-200 rounded w-5/6"></div>
+                  <div className="h-4 bg-gray-200 rounded w-4/6"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Custom Styles */}
+        <style jsx>{`
+          @keyframes spin-slow {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+          }
+          
+          @keyframes fade-in {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+          }
+          
+          @keyframes fade-in-delay {
+            0% { opacity: 0; transform: translateY(10px); }
+            50% { opacity: 0; transform: translateY(10px); }
+            100% { opacity: 1; transform: translateY(0); }
+          }
+          
+          .animate-spin-slow {
+            animation: spin-slow 3s linear infinite;
+          }
+          
+          .animate-fade-in {
+            animation: fade-in 1s ease-out;
+          }
+          
+          .animate-fade-in-delay {
+            animation: fade-in-delay 2s ease-out;
+          }
+        `}</style>
+      </div>
+    );
   }
 
   return (

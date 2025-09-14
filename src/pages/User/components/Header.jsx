@@ -233,13 +233,22 @@ const Header = () => {
           )}
           {user?.email && (
             <>
-              <div className="flex items-center gap-3">
+              <div 
+                className="flex items-center gap-3 cursor-pointer hover:bg-white/10 px-4 py-3 rounded-lg transition-all duration-300 group"
+                onClick={() => {
+                  navigate('/profile');
+                  setMenuOpen(false);
+                }}
+              >
                 <img
                   src="https://www.w3schools.com/howto/img_avatar.png"
                   alt="profile"
-                  className="w-9 h-9 rounded-full border-2 border-white"
+                  className="w-9 h-9 rounded-full border-2 border-white group-hover:scale-105 transition-transform duration-300"
                 />
-                <p className="text-gray-300 text-sm">{user.email}</p>
+                <div className="flex flex-col">
+                  <p className="text-white text-sm font-medium group-hover:text-blue-200 transition-colors">👤 My Profile</p>
+                  <p className="text-gray-300 text-xs group-hover:text-gray-200 transition-colors">{user.email}</p>
+                </div>
               </div>
               <button
                 onClick={() => {
