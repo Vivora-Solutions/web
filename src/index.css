@@ -324,3 +324,49 @@ body {
 .gmnoprint {
   display: none !important;
 }
+
+/* ========================================
+   Custom Salon Marker Animations
+   ======================================== */
+
+@keyframes marker-appear {
+  0% {
+    opacity: 0;
+    transform: scale(0.5) translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes bubble-bounce-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.3) translateY(20px);
+  }
+  50% {
+    transform: scale(1.05) translateY(-5px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.animate-marker-appear {
+  animation: marker-appear 0.4s ease-out;
+}
+
+.animate-bubble-bounce-in {
+  animation: bubble-bounce-in 0.3s ease-out;
+}
+
+/* Improved line clamping */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}

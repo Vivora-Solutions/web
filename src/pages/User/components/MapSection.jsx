@@ -1,7 +1,7 @@
-import { GoogleMap, InfoWindow } from "@react-google-maps/api"
+import { GoogleMap, OverlayView } from "@react-google-maps/api"
 import { useState, useMemo, useRef, useEffect } from "react"
-import defaultLogo from "../../../assets/weblogo-white1.png"
 import { useGoogleMapsLoader } from "../../../utils/googleMapsLoader"
+import CustomSalonMarker from "../../../components/CustomSalonMarker"
 
 const containerStyle = {
   width: "100%",
@@ -19,71 +19,27 @@ export default function MapSection({
   // Use shared Google Maps loader
   const { isLoaded, loadError } = useGoogleMapsLoader()
 
-  const [selectedSalon, setSelectedSalon] = useState(null)
+  const [hoveredSalon, setHoveredSalon] = useState(null)
   const mapRef = useRef(null)
-  const markersRef = useRef([])
 
   const mapCenter = useMemo(
     () => ({ lat: center[0], lng: center[1] }),
     [center]
   )
 
-  useEffect(() => {
-    if (!isLoaded || !mapRef.current) return
-
-    // Clear old markers
-    markersRef.current.forEach((marker) => (marker.map = null))
-    markersRef.current = []
-
-    // ✅ Ensure AdvancedMarkerElement exists
-    if (!google.maps.marker?.AdvancedMarkerElement) {
-      console.warn("AdvancedMarkerElement not available. Did you enable the 'marker' library?")
-      return
+  const handleSalonClick = (salon) => {
+    if (onSalonClick) {
+      onSalonClick(salon.salon_id)
     }
+  }
 
-    // Add salon markers
-    filteredSalons.forEach((salon) => {
-      if (!salon.coordinates?.lat || !salon.coordinates?.lng) return
+  const handleSalonHover = (salon) => {
+    setHoveredSalon(salon)
+  }
 
-      const marker = new google.maps.marker.AdvancedMarkerElement({
-        position: {
-          lat: salon.coordinates.lat,
-          lng: salon.coordinates.lng,
-        },
-        map: mapRef.current,
-        title: salon.salon_name,
-      })
-
-      marker.addListener("click", () => setSelectedSalon(salon))
-      marker.addListener("mouseover", () => setSelectedSalon(salon))
-
-      markersRef.current.push(marker)
-    })
-
-    // Add user location marker
-    if (userLocation) {
-      const blueDot = document.createElement("div")
-      blueDot.style.cssText =
-        "width:16px;height:16px;background:#4285F4;border-radius:50%;border:2px solid white;box-shadow:0 0 6px rgba(0,0,0,0.3)"
-
-      const userMarker = new google.maps.marker.AdvancedMarkerElement({
-        position: userLocation,
-        map: mapRef.current,
-        title: "You are here",
-        content: blueDot,
-      })
-
-      markersRef.current.push(userMarker)
-    }
-  }, [isLoaded, filteredSalons, userLocation])
-
-  // ✅ Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      markersRef.current.forEach((marker) => (marker.map = null))
-      markersRef.current = []
-    }
-  }, [])
+  const handleSalonLeave = () => {
+    setHoveredSalon(null)
+  }
 
   if (loadError) return <div>Error loading map</div>
   if (!isLoaded)
@@ -112,47 +68,54 @@ export default function MapSection({
         }}
         onLoad={(map) => (mapRef.current = map)}
       >
-        {selectedSalon && (
-          <InfoWindow
-            position={{
-              lat: selectedSalon.coordinates.lat,
-              lng: selectedSalon.coordinates.lng,
-            }}
-            onCloseClick={() => setSelectedSalon(null)}
+        {/* Custom Salon Markers */}
+        {filteredSalons.map((salon) => {
+          if (!salon.coordinates?.lat || !salon.coordinates?.lng) return null;
+          
+          return (
+            <OverlayView
+              key={salon.salon_id}
+              position={{
+                lat: salon.coordinates.lat,
+                lng: salon.coordinates.lng,
+              }}
+              mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
+              getPixelPositionOffset={() => ({
+                x: -8, // Fixed offset based on dot center (4px radius + 2px border = 8px from left)
+                y: -8, // Fixed offset based on dot center (4px radius + 2px border = 8px from top)
+              })}
+            >
+              <CustomSalonMarker
+                salon={salon}
+                isHovered={hoveredSalon?.salon_id === salon.salon_id}
+                onMouseEnter={() => handleSalonHover(salon)}
+                onMouseLeave={handleSalonLeave}
+                onClick={() => handleSalonClick(salon)}
+              />
+            </OverlayView>
+          );
+        })}
+
+        {/* User Location Marker */}
+        {userLocation && (
+          <OverlayView
+            position={userLocation}
+            mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
+            getPixelPositionOffset={(width, height) => ({
+              x: -(width / 2),
+              y: -(height / 2),
+            })}
           >
             <div
-              className="cursor-pointer max-w-[220px]"
-              onClick={() => onSalonClick(selectedSalon.salon_id)}
+              className="w-4 h-4 bg-blue-500 rounded-full border-2 border-white shadow-lg relative"
+              title="You are here"
             >
-              <div className="flex items-center space-x-3 mb-2">
-                <img
-                  src={selectedSalon.salon_logo_link || defaultLogo}
-                  alt={selectedSalon.salon_name}
-                  className="w-10 h-10 rounded-full object-cover border"
-                />
-                <h3 className="font-semibold text-sm">
-                  {selectedSalon.salon_name}
-                </h3>
-              </div>
-              <p className="text-xs text-gray-600">
-                {selectedSalon.salon_address}
-              </p>
-              <div className="flex items-center text-yellow-500 text-xs mt-1">
-                {selectedSalon.average_rating ? (
-                  <>
-                    {"⭐".repeat(Math.round(selectedSalon.average_rating))}
-                    <span className="ml-1 text-gray-700">
-                      ({selectedSalon.average_rating.toFixed(1)})
-                    </span>
-                  </>
-                ) : (
-                  <span className="text-gray-400">No rating yet</span>
-                )}
-              </div>
-              <p className="text-xs text-indigo-600 mt-2">Book Now →</p>
+              <div className="absolute inset-0 w-4 h-4 bg-blue-500 rounded-full animate-ping opacity-30"></div>
             </div>
-          </InfoWindow>
+          </OverlayView>
         )}
+
+
       </GoogleMap>
     </div>
   )
