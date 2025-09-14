@@ -102,6 +102,13 @@ export default function MapSection({
           streetViewControl: false,
           mapTypeControl: false,
           fullscreenControl: false,
+          zoomControl: true,
+          scaleControl: false,
+          rotateControl: false,
+          keyboardShortcuts: false,
+          disableDefaultUI: false,
+          clickableIcons: false,
+          gestureHandling: "auto"
         }}
         onLoad={(map) => (mapRef.current = map)}
       >

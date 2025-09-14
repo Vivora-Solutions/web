@@ -285,3 +285,42 @@ body {
   touch-action: auto;
   -webkit-overflow-scrolling: touch;
 }
+
+/* ========================================
+   Google Maps Global Styles
+   ======================================== */
+
+/* Hide Google Maps UI elements globally */
+.gm-style-cc,
+.gmnoprint,
+.gm-style-mtc,
+.gm-bundled-control,
+.gm-control-active,
+.gm-svpc,
+.gm-fullscreen-control,
+.gmnoprint[style*="bottom: 0"] {
+  display: none !important;
+}
+
+/* Hide keyboard shortcuts */
+.gm-style .gm-style-iw-c {
+  padding: 12px !important;
+}
+
+/* Hide map data attribution */
+.gm-style-cc {
+  display: none !important;
+}
+
+/* Hide Terms, Report error links */
+.gmnoprint a,
+.gmnoprint span,
+.gm-style-cc a,
+.gm-style-cc span {
+  display: none !important;
+}
+
+/* Hide the entire bottom UI bar */
+.gmnoprint {
+  display: none !important;
+}
