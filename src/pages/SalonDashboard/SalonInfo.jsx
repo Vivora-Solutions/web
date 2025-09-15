@@ -182,12 +182,269 @@ const SalonInfo = () => {
 
   if (loading || !formData) {
     return (
-      <div className="flex items-center justify-center min-h-[400px] bg-slate-100">
-        <div className="text-center">
-          <div className="animate-spin h-12 w-12 border-b-2 border-indigo-600 rounded-full mx-auto mb-4"></div>
-          {/* <p className="text-slate-600 font-medium">
-            Loading salon information...
-          </p> */}
+      <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-teal-50 to-cyan-50 flex items-center justify-center p-4">
+        <div className="w-full max-w-5xl mx-auto bg-white/80 backdrop-blur-lg rounded-2xl shadow-2xl p-8 border border-white/20">
+          
+          {/* Loading Header */}
+          <div className="mb-8 text-center">
+            <div className="relative inline-block">
+              {/* Animated Salon Info Icon */}
+              <div className="w-20 h-20 mx-auto mb-4 relative">
+                <div className="absolute inset-0 bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-500 rounded-full animate-pulse"></div>
+                <div className="absolute inset-1 bg-white rounded-full flex items-center justify-center">
+                  {/* Info/Document Icon */}
+                  <svg className="w-10 h-10 text-teal-600" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z"/>
+                    <polyline points="14,2 14,8 20,8"/>
+                    <line x1="16" y1="13" x2="8" y2="13"/>
+                    <line x1="16" y1="17" x2="8" y2="17"/>
+                    <polyline points="10,9 9,9 8,9"/>
+                  </svg>
+                </div>
+                
+                {/* Rotating border */}
+                <div className="absolute inset-0 border-4 border-transparent border-t-emerald-500 rounded-full animate-spin"></div>
+              </div>
+              
+              {/* Floating salon info icons */}
+              <div className="absolute -top-4 -left-4 w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center animate-bounce" style={{animationDelay: '0s'}}>
+                🏢
+              </div>
+              <div className="absolute -top-4 -right-4 w-8 h-8 bg-teal-100 rounded-full flex items-center justify-center animate-bounce" style={{animationDelay: '0.5s'}}>
+                📍
+              </div>
+              <div className="absolute -bottom-4 -left-4 w-8 h-8 bg-cyan-100 rounded-full flex items-center justify-center animate-bounce" style={{animationDelay: '1s'}}>
+                📞
+              </div>
+              <div className="absolute -bottom-4 -right-4 w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center animate-bounce" style={{animationDelay: '1.5s'}}>
+                🖼️
+              </div>
+            </div>
+            
+            <h2 className="text-2xl font-bold text-gray-800 mb-2 animate-fade-in">
+              Loading Salon Information
+            </h2>
+            <p className="text-gray-600 animate-fade-in-delay">
+              Preparing your salon profile and details...
+            </p>
+            
+            {/* Info categories preview */}
+            <div className="flex justify-center space-x-4 mt-4 animate-fade-in-delay-2">
+              {[
+                { name: 'Basic Info', emoji: 'ℹ️', color: 'bg-emerald-100 text-emerald-600' },
+                { name: 'Location', emoji: '📍', color: 'bg-teal-100 text-teal-600' },
+                { name: 'Contact', emoji: '📞', color: 'bg-cyan-100 text-cyan-600' },
+                { name: 'Gallery', emoji: '🖼️', color: 'bg-blue-100 text-blue-600' }
+              ].map((category, index) => (
+                <div 
+                  key={category.name} 
+                  className={`px-3 py-2 rounded-full text-xs font-medium ${category.color} animate-pulse`}
+                  style={{animationDelay: `${index * 0.2}s`}}
+                >
+                  <span className="mr-1">{category.emoji}</span>
+                  {category.name}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Salon Info Form Preview */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            
+            {/* Left Column - Basic Info */}
+            <div className="space-y-6">
+              <div className="bg-white/95 backdrop-blur rounded-xl p-6 shadow-lg">
+                <div className="flex items-center mb-4">
+                  <div className="w-12 h-12 bg-emerald-200 rounded-full flex items-center justify-center text-2xl animate-bounce mr-4">
+                    🏪
+                  </div>
+                  <div className="flex-1">
+                    <div className="h-6 bg-gray-200 rounded w-32 mb-2 animate-shimmer"></div>
+                    <div className="h-4 bg-gray-200 rounded w-24 animate-shimmer"></div>
+                  </div>
+                </div>
+                
+                {/* Form fields skeleton */}
+                <div className="space-y-4">
+                  {[
+                    { label: 'Salon Name', width: 'w-full' },
+                    { label: 'Phone Number', width: 'w-3/4' },
+                    { label: 'Email Address', width: 'w-4/5' },
+                    { label: 'Website URL', width: 'w-2/3' }
+                  ].map((field, index) => (
+                    <div key={index} className="animate-pulse" style={{animationDelay: `${index * 0.1}s`}}>
+                      <div className="h-4 bg-gray-200 rounded w-20 mb-2"></div>
+                      <div className={`h-10 bg-gray-100 rounded-lg ${field.width} animate-shimmer`}></div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Address Section */}
+              <div className="bg-white/95 backdrop-blur rounded-xl p-6 shadow-lg">
+                <div className="flex items-center mb-4">
+                  <div className="w-12 h-12 bg-teal-200 rounded-full flex items-center justify-center text-2xl animate-bounce mr-4">
+                    📍
+                  </div>
+                  <div className="flex-1">
+                    <div className="h-6 bg-gray-200 rounded w-28 mb-2 animate-shimmer"></div>
+                    <div className="h-4 bg-gray-200 rounded w-32 animate-shimmer"></div>
+                  </div>
+                </div>
+                
+                <div className="space-y-4">
+                  {[
+                    { label: 'Street Address', width: 'w-full' },
+                    { label: 'City', width: 'w-1/2' },
+                    { label: 'State/Province', width: 'w-1/2' },
+                    { label: 'Postal Code', width: 'w-1/3' }
+                  ].map((field, index) => (
+                    <div key={index} className="animate-pulse" style={{animationDelay: `${index * 0.1 + 0.2}s`}}>
+                      <div className="h-4 bg-gray-200 rounded w-24 mb-2"></div>
+                      <div className={`h-10 bg-gray-100 rounded-lg ${field.width} animate-shimmer`}></div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Right Column - Visual Elements */}
+            <div className="space-y-6">
+              
+              {/* Logo Section */}
+              <div className="bg-white/95 backdrop-blur rounded-xl p-6 shadow-lg">
+                <div className="flex items-center mb-4">
+                  <div className="w-12 h-12 bg-cyan-200 rounded-full flex items-center justify-center text-2xl animate-bounce mr-4">
+                    🖼️
+                  </div>
+                  <div className="flex-1">
+                    <div className="h-6 bg-gray-200 rounded w-24 mb-2 animate-shimmer"></div>
+                    <div className="h-4 bg-gray-200 rounded w-32 animate-shimmer"></div>
+                  </div>
+                </div>
+                
+                {/* Logo preview areas */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="aspect-square bg-gradient-to-br from-cyan-100 to-blue-100 rounded-lg flex items-center justify-center animate-pulse">
+                    <div className="text-4xl animate-bounce">🏪</div>
+                  </div>
+                  <div className="aspect-square bg-gradient-to-br from-emerald-100 to-teal-100 rounded-lg flex items-center justify-center animate-pulse" style={{animationDelay: '0.2s'}}>
+                    <div className="text-4xl animate-bounce" style={{animationDelay: '0.4s'}}>📷</div>
+                  </div>
+                </div>
+                
+                <div className="mt-4 space-y-2">
+                  <div className="h-10 bg-gradient-to-r from-cyan-200 to-blue-200 rounded-lg animate-pulse"></div>
+                  <div className="h-8 bg-gray-100 rounded-lg animate-pulse"></div>
+                </div>
+              </div>
+
+              {/* Map Section */}
+              <div className="bg-white/95 backdrop-blur rounded-xl p-6 shadow-lg">
+                <div className="flex items-center mb-4">
+                  <div className="w-12 h-12 bg-blue-200 rounded-full flex items-center justify-center text-2xl animate-bounce mr-4">
+                    🗺️
+                  </div>
+                  <div className="flex-1">
+                    <div className="h-6 bg-gray-200 rounded w-20 mb-2 animate-shimmer"></div>
+                    <div className="h-4 bg-gray-200 rounded w-28 animate-shimmer"></div>
+                  </div>
+                </div>
+                
+                {/* Map preview */}
+                <div className="h-48 bg-gradient-to-br from-blue-100 via-teal-100 to-cyan-100 rounded-lg flex items-center justify-center animate-pulse">
+                  <div className="text-center">
+                    <div className="text-5xl animate-bounce mb-2">🗺️</div>
+                    <div className="h-4 bg-white/70 rounded w-32 mx-auto animate-shimmer"></div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          {/* Description Section */}
+          <div className="bg-white/95 backdrop-blur rounded-xl p-6 shadow-lg mb-8">
+            <div className="flex items-center mb-4">
+              <div className="w-12 h-12 bg-emerald-200 rounded-full flex items-center justify-center text-2xl animate-bounce mr-4">
+                📝
+              </div>
+              <div className="flex-1">
+                <div className="h-6 bg-gray-200 rounded w-28 mb-2 animate-shimmer"></div>
+                <div className="h-4 bg-gray-200 rounded w-36 animate-shimmer"></div>
+              </div>
+            </div>
+            
+            <div className="space-y-3">
+              <div className="h-4 bg-gray-100 rounded w-full animate-shimmer"></div>
+              <div className="h-4 bg-gray-100 rounded w-5/6 animate-shimmer" style={{animationDelay: '0.1s'}}></div>
+              <div className="h-4 bg-gray-100 rounded w-4/5 animate-shimmer" style={{animationDelay: '0.2s'}}></div>
+              <div className="h-4 bg-gray-100 rounded w-3/4 animate-shimmer" style={{animationDelay: '0.3s'}}></div>
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex justify-end space-x-4">
+            <div className="h-12 bg-gray-200 rounded-lg w-24 animate-pulse"></div>
+            <div className="h-12 bg-gradient-to-r from-emerald-300 to-teal-300 rounded-lg w-32 animate-pulse shadow-lg"></div>
+          </div>
+
+          {/* Progress Indicators */}
+          <div className="flex justify-center space-x-2 mt-8">
+            <div className="w-2 h-2 bg-emerald-400 rounded-full animate-bounce" style={{animationDelay: '0s'}}></div>
+            <div className="w-2 h-2 bg-teal-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+            <div className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce" style={{animationDelay: '0.4s'}}></div>
+            <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{animationDelay: '0.6s'}}></div>
+          </div>
+
+          {/* Custom animations */}
+          <style jsx>{`
+            @keyframes fade-in {
+              from { opacity: 0; transform: translateY(10px); }
+              to { opacity: 1; transform: translateY(0); }
+            }
+            
+            @keyframes fade-in-delay {
+              0% { opacity: 0; transform: translateY(10px); }
+              50% { opacity: 0; transform: translateY(10px); }
+              100% { opacity: 1; transform: translateY(0); }
+            }
+            
+            @keyframes fade-in-delay-2 {
+              0% { opacity: 0; transform: translateY(10px); }
+              66% { opacity: 0; transform: translateY(10px); }
+              100% { opacity: 1; transform: translateY(0); }
+            }
+            
+            @keyframes shimmer {
+              0% { 
+                background-position: -200% 0;
+                opacity: 0.7;
+              }
+              100% { 
+                background-position: 200% 0;
+                opacity: 1;
+              }
+            }
+            
+            .animate-fade-in {
+              animation: fade-in 1s ease-out;
+            }
+            
+            .animate-fade-in-delay {
+              animation: fade-in-delay 2s ease-out;
+            }
+            
+            .animate-fade-in-delay-2 {
+              animation: fade-in-delay-2 3s ease-out;
+            }
+            
+            .animate-shimmer {
+              background: linear-gradient(90deg, transparent, rgba(255,255,255,0.9), transparent);
+              background-size: 200% 100%;
+              animation: shimmer 2s ease-in-out infinite;
+            }
+          `}</style>
         </div>
       </div>
     );

@@ -110,8 +110,116 @@ const OpeningHours = () => {
 
   if (isLoading) {
     return (
-      <div className="text-center py-8 text-gray-600 font-semibold">
-        <div className="animate-spin h-12 w-12 border-b-2 border-indigo-600 rounded-full mx-auto mb-4"></div>
+      <div className="mx-auto my-6 p-6 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 rounded-lg shadow-md border border-gray-200">
+        {/* Loading Header */}
+        <div className="mb-8 text-center">
+          <div className="relative inline-block">
+            {/* Animated Clock Icon */}
+            <div className="w-16 h-16 mx-auto mb-4 relative">
+              <div className="absolute inset-0 bg-gradient-to-r from-indigo-400 to-purple-500 rounded-full animate-pulse"></div>
+              <div className="absolute inset-1 bg-white rounded-full flex items-center justify-center">
+                <svg className="w-8 h-8 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <polyline points="12,6 12,12 16,14" className="animate-pulse"></polyline>
+                </svg>
+              </div>
+              
+              {/* Rotating border */}
+              <div className="absolute inset-0 border-4 border-transparent border-t-indigo-500 rounded-full animate-spin"></div>
+            </div>
+            
+            {/* Floating time indicators */}
+            <div className="absolute -top-2 -left-2 w-3 h-3 bg-indigo-400 rounded-full animate-bounce" style={{animationDelay: '0s'}}></div>
+            <div className="absolute -top-2 -right-2 w-3 h-3 bg-purple-400 rounded-full animate-bounce" style={{animationDelay: '0.5s'}}></div>
+            <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-3 h-3 bg-blue-400 rounded-full animate-bounce" style={{animationDelay: '1s'}}></div>
+          </div>
+          
+          <h2 className="text-xl font-semibold text-gray-800 mb-2 animate-fade-in">
+            Loading Opening Hours
+          </h2>
+          <p className="text-gray-600 animate-fade-in-delay">
+            Fetching your salon's schedule...
+          </p>
+        </div>
+
+        {/* Desktop Table Skeleton */}
+        <div className="hidden sm:block overflow-x-auto">
+          <div className="min-w-full border-collapse bg-white rounded-lg shadow-sm">
+            {/* Header skeleton */}
+            <div className="bg-gray-100 border-b border-gray-200 p-4">
+              <div className="grid grid-cols-4 gap-4">
+                <div className="h-4 bg-gray-300 rounded animate-pulse"></div>
+                <div className="h-4 bg-gray-300 rounded animate-pulse"></div>
+                <div className="h-4 bg-gray-300 rounded animate-pulse"></div>
+                <div className="h-4 bg-gray-300 rounded animate-pulse"></div>
+              </div>
+            </div>
+            
+            {/* Row skeletons */}
+            {[...Array(7)].map((_, index) => (
+              <div key={index} className="border-b border-gray-100 p-4 hover:bg-gray-50">
+                <div className="grid grid-cols-4 gap-4 items-center">
+                  <div className="h-4 bg-gray-200 rounded animate-pulse" style={{animationDelay: `${index * 0.1}s`}}></div>
+                  <div className="w-5 h-5 bg-gray-200 rounded animate-pulse" style={{animationDelay: `${index * 0.1 + 0.05}s`}}></div>
+                  <div className="h-4 bg-gray-200 rounded animate-pulse" style={{animationDelay: `${index * 0.1 + 0.1}s`}}></div>
+                  <div className="h-4 bg-gray-200 rounded animate-pulse" style={{animationDelay: `${index * 0.1 + 0.15}s`}}></div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Mobile Cards Skeleton */}
+        <div className="space-y-4 sm:hidden">
+          {[...Array(7)].map((_, index) => (
+            <div key={index} className="border rounded-lg p-4 shadow-sm bg-white animate-pulse" style={{animationDelay: `${index * 0.1}s`}}>
+              <div className="flex justify-between items-center mb-3">
+                <div className="h-5 bg-gray-200 rounded w-20"></div>
+                <div className="w-5 h-5 bg-gray-200 rounded"></div>
+              </div>
+              <div className="space-y-3">
+                <div>
+                  <div className="h-4 bg-gray-200 rounded w-24 mb-2"></div>
+                  <div className="h-8 bg-gray-200 rounded w-full"></div>
+                </div>
+                <div>
+                  <div className="h-4 bg-gray-200 rounded w-24 mb-2"></div>
+                  <div className="h-8 bg-gray-200 rounded w-full"></div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Progress Indicators */}
+        <div className="flex justify-center space-x-2 mt-8">
+          <div className="w-2 h-2 bg-indigo-400 rounded-full animate-bounce" style={{animationDelay: '0s'}}></div>
+          <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+          <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{animationDelay: '0.4s'}}></div>
+          <div className="w-2 h-2 bg-indigo-400 rounded-full animate-bounce" style={{animationDelay: '0.6s'}}></div>
+        </div>
+
+        {/* Custom animations */}
+        <style jsx>{`
+          @keyframes fade-in {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+          }
+          
+          @keyframes fade-in-delay {
+            0% { opacity: 0; transform: translateY(10px); }
+            50% { opacity: 0; transform: translateY(10px); }
+            100% { opacity: 1; transform: translateY(0); }
+          }
+          
+          .animate-fade-in {
+            animation: fade-in 1s ease-out;
+          }
+          
+          .animate-fade-in-delay {
+            animation: fade-in-delay 2s ease-out;
+          }
+        `}</style>
       </div>
     );
   }

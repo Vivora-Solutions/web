@@ -74,10 +74,6 @@ const AddServiceModal = ({
       alert("Service name is required");
       return;
     }
-    if (!formData.service_description.trim()) {
-      alert("Service description is required");
-      return;
-    }
     if (formData.price <= 0) {
       alert("Please enter a valid price");
       return;
@@ -129,15 +125,14 @@ const AddServiceModal = ({
           {/* Service Description */}
           <div>
             <label className="block font-semibold text-gray-700 mb-1 text-sm">
-              Description
+              Description <span className="text-gray-500 font-normal">(Optional)</span>
             </label>
             <textarea
               name="service_description"
-              placeholder="Enter service description"
+              placeholder="Enter service description (optional)"
               value={formData.service_description}
               onChange={handleInputChange}
               rows={3}
-              required
               className="w-full px-3 py-2 border-2 border-gray-200 rounded-lg text-sm focus:border-blue-400 focus:ring-2 focus:ring-blue-100"
             />
           </div>
