@@ -35,6 +35,8 @@ const SchedulingInterface = () => {
   const [selectedTimeSlots, setSelectedTimeSlots] = useState([]);
   const [selectedBreakSlots, setSelectedBreakSlots] = useState([]);
   const [selectedLeaveDays, setSelectedLeaveDays] = useState([]);
+  const [selectedStylistsInSelection, setSelectedStylistsInSelection] =
+    useState([]);
   const [scheduleType, setScheduleType] = useState("available");
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState(null);
@@ -50,6 +52,9 @@ const SchedulingInterface = () => {
   const [touchStartTime, setTouchStartTime] = useState(null);
   const [selectionActive, setSelectionActive] = useState(false);
   const [inHoldPeriod, setInHoldPeriod] = useState(false);
+
+  // Mouse move throttling for better coordinate tracking
+  const [lastProcessedPosition, setLastProcessedPosition] = useState(null);
 
   // Data states - using real API structure
   const [stylists, setStylists] = useState([]);
@@ -89,6 +94,10 @@ const SchedulingInterface = () => {
 
   // Refs and constants
   const gridRef = useRef(null);
+
+  // Debug flag - set to true to enable coordinate calculation logging
+  // This enables detailed logging for the path-based selection system that follows the grid layout
+  const DEBUG_COORDINATES = false;
 
   // Use constants outside of render cycle
   const hours = useMemo(() => Array.from({ length: 24 }, (_, i) => i), []);
@@ -606,7 +615,7 @@ const SchedulingInterface = () => {
     [parseTimeToMinutes, displayHours]
   );
 
-  // Drag and selection functions
+  // Drag and selection functions - ENHANCED DATE-COLUMN WITH CONTINUOUS TRACKING
   const getCellPosition = useCallback(
     (e) => {
       if (!gridRef.current) return null;
@@ -616,35 +625,95 @@ const SchedulingInterface = () => {
       const headerHeight = 100;
       const timeColumnWidth = 80;
 
-      if (y < headerHeight || x < timeColumnWidth) return null;
+      if (DEBUG_COORDINATES) {
+        console.log("=== DATE-COLUMN GRID CALCULATION ===");
+        console.log("Raw coordinates:", { x, y });
+      }
 
-      const availableWidth = rect.width - timeColumnWidth;
-      const cellWidth =
-        availableWidth / (weekDates.length * selectedStylists.length);
-      const cellHeight = 64;
-      const totalCellIndex = Math.floor((x - timeColumnWidth) / cellWidth);
-      const hourIndex = Math.floor((y - headerHeight) / cellHeight);
-      const dateIndex = Math.floor(totalCellIndex / selectedStylists.length);
-      const stylistIndex = totalCellIndex % selectedStylists.length;
-      const minuteInHour = Math.floor(
-        (((y - headerHeight) % cellHeight) / cellHeight) * 60
-      );
-      const minute = Math.floor(minuteInHour / 15) * 15;
-
-      if (
-        dateIndex < 0 ||
-        dateIndex >= weekDates.length ||
-        stylistIndex < 0 ||
-        stylistIndex >= selectedStylists.length ||
-        hourIndex < 0 ||
-        hourIndex >= displayHours.length
-      ) {
+      // Return null if clicking outside the grid area
+      if (y < headerHeight || x < timeColumnWidth) {
+        if (DEBUG_COORDINATES) console.log("Outside grid area");
         return null;
       }
 
+      const availableWidth = rect.width - timeColumnWidth;
+
+      // Calculate the width of each date column
+      const dateColumnWidth = availableWidth / weekDates.length;
+
+      // Calculate which date column we're in
+      const dateRelativeX = x - timeColumnWidth;
+      const dateIndex = Math.min(
+        weekDates.length - 1,
+        Math.max(0, Math.floor(dateRelativeX / dateColumnWidth))
+      );
+
+      if (DEBUG_COORDINATES) {
+        console.log("Date calculation:", {
+          dateRelativeX,
+          dateIndex,
+          dateColumnWidth,
+          totalDates: weekDates.length,
+        });
+      }
+
+      if (dateIndex < 0 || dateIndex >= weekDates.length) {
+        if (DEBUG_COORDINATES) console.log("Invalid date index");
+        return null;
+      }
+
+      // Calculate position within the current date column
+      const positionInDateColumn = dateRelativeX - dateIndex * dateColumnWidth;
+
+      // Calculate the width of each stylist cell within the date column
+      const stylistCellWidth = dateColumnWidth / selectedStylists.length;
+      // Use Math.round instead of Math.floor for better continuous tracking
+      const stylistIndex = Math.min(
+        selectedStylists.length - 1,
+        Math.max(0, Math.round(positionInDateColumn / stylistCellWidth))
+      );
+
+      if (DEBUG_COORDINATES) {
+        console.log("Stylist calculation:", {
+          positionInDateColumn,
+          stylistCellWidth,
+          stylistIndex,
+          totalStylists: selectedStylists.length,
+          calculationMethod: "Math.round for better tracking",
+        });
+      }
+
+      if (stylistIndex < 0 || stylistIndex >= selectedStylists.length) {
+        if (DEBUG_COORDINATES) console.log("Invalid stylist index");
+        return null;
+      }
+
+      // Calculate time slot
+      const cellHeight = 64;
+      const timeSlotY = y - headerHeight;
+      const hourIndex = Math.floor(timeSlotY / cellHeight);
+
+      if (DEBUG_COORDINATES) {
+        console.log("Time calculation:", {
+          timeSlotY,
+          hourIndex,
+          cellHeight,
+        });
+      }
+
+      if (hourIndex < 0 || hourIndex >= displayHours.length) {
+        if (DEBUG_COORDINATES) console.log("Invalid hour index");
+        return null;
+      }
+
+      const minuteInHour = Math.floor(
+        ((timeSlotY % cellHeight) / cellHeight) * 60
+      );
+      const minute = Math.floor(minuteInHour / 15) * 15;
+
       const actualHour = displayHours[hourIndex];
 
-      return {
+      const result = {
         dateIndex,
         stylistIndex,
         hourIndex: actualHour,
@@ -652,8 +721,15 @@ const SchedulingInterface = () => {
         stylistId: selectedStylists[stylistIndex],
         date: weekDates[dateIndex],
       };
+
+      if (DEBUG_COORDINATES) {
+        console.log("Final result:", result);
+        console.log("============================");
+      }
+
+      return result;
     },
-    [displayHours, weekDates, selectedStylists]
+    [displayHours, weekDates, selectedStylists, gridRef, DEBUG_COORDINATES]
   );
 
   const handleMouseDown = useCallback(
@@ -666,6 +742,8 @@ const SchedulingInterface = () => {
       setDragStart(position);
       setDragEnd(position);
       setSelectedTimeSlots([]);
+      setSelectedStylistsInSelection([]);
+      setLastProcessedPosition(position); // Reset throttling state
 
       updateSelection(position, position);
       document.body.classList.add("selection-mode");
@@ -678,17 +756,42 @@ const SchedulingInterface = () => {
   const handleMouseMove = useCallback(
     (e) => {
       if (!isDragging || !dragStart || scheduleType === "leave") return;
+
       const position = getCellPosition(e);
       if (!position) return;
 
+      // Throttle to avoid missing intermediate cells during fast mouse movement
+      if (
+        lastProcessedPosition &&
+        position.dateIndex === lastProcessedPosition.dateIndex &&
+        position.stylistIndex === lastProcessedPosition.stylistIndex &&
+        position.hourIndex === lastProcessedPosition.hourIndex &&
+        position.minute === lastProcessedPosition.minute
+      ) {
+        return; // Skip if same cell to reduce unnecessary processing
+      }
+
+      if (DEBUG_COORDINATES) {
+        console.log("Mouse move - processing new position:", position);
+      }
+
+      setLastProcessedPosition(position);
       setDragEnd(position);
       updateSelection(dragStart, position);
     },
-    [isDragging, dragStart, scheduleType, getCellPosition]
+    [
+      isDragging,
+      dragStart,
+      scheduleType,
+      getCellPosition,
+      lastProcessedPosition,
+      DEBUG_COORDINATES,
+    ]
   );
 
   const handleMouseUp = useCallback(() => {
     setIsDragging(false);
+    setLastProcessedPosition(null); // Reset throttling state
     document.body.classList.remove("selection-mode");
   }, []);
 
@@ -726,6 +829,8 @@ const SchedulingInterface = () => {
         setDragStart(position);
         setDragEnd(position);
         setSelectedTimeSlots([]);
+        setSelectedStylistsInSelection([]);
+        setLastProcessedPosition(position); // Reset throttling state for touch
         setInHoldPeriod(false);
 
         updateSelection(position, position);
@@ -808,6 +913,7 @@ const SchedulingInterface = () => {
       setIsHolding(false);
       setSelectionActive(false);
       setInHoldPeriod(false);
+      setLastProcessedPosition(null); // Reset throttling state
 
       document.body.classList.remove("selection-mode");
 
@@ -821,14 +927,13 @@ const SchedulingInterface = () => {
 
   const updateSelection = useCallback(
     (start, end) => {
+      if (!start || !end) return;
+
       const slots = [];
       const breakSlots = [];
+      const stylistsInSelection = new Set();
 
-      // Calculate selection boundaries
-      const minDateIndex = Math.min(start.dateIndex, end.dateIndex);
-      const maxDateIndex = Math.max(start.dateIndex, end.dateIndex);
-      const minStylistIndex = Math.min(start.stylistIndex, end.stylistIndex);
-      const maxStylistIndex = Math.max(start.stylistIndex, end.stylistIndex);
+      // Calculate time range
       const minTime = Math.min(
         start.hourIndex * 60 + start.minute,
         end.hourIndex * 60 + end.minute
@@ -837,6 +942,22 @@ const SchedulingInterface = () => {
         start.hourIndex * 60 + start.minute,
         end.hourIndex * 60 + end.minute
       );
+
+      if (DEBUG_COORDINATES) {
+        console.log("=== PATH-BASED SELECTION ===");
+        console.log("Start:", `Day${start.dateIndex} St${start.stylistIndex}`);
+        console.log("End:", `Day${end.dateIndex} St${end.stylistIndex}`);
+        console.log(
+          "Time range:",
+          `${Math.floor(minTime / 60)}:${String(minTime % 60).padStart(
+            2,
+            "0"
+          )} to ${Math.floor(maxTime / 60)}:${String(maxTime % 60).padStart(
+            2,
+            "0"
+          )}`
+        );
+      }
 
       // Helper function to format time consistently
       const formatDateTime = (date, totalMinutes) => {
@@ -850,43 +971,83 @@ const SchedulingInterface = () => {
       // Group time slots by stylist and date for break slot creation
       const groupedSlots = new Map();
 
-      // Generate all selected slots
-      for (let dateIdx = minDateIndex; dateIdx <= maxDateIndex; dateIdx++) {
-        for (
-          let stylistIdx = minStylistIndex;
-          stylistIdx <= maxStylistIndex;
-          stylistIdx++
+      // PATH-BASED SELECTION: Create a continuous path from start to end
+      // This follows the actual grid layout: Day1(St1,St2) Day2(St1,St2) Day3(St1,St2)
+
+      // Convert start and end positions to linear grid positions
+      const startGridPos =
+        start.dateIndex * selectedStylists.length + start.stylistIndex;
+      const endGridPos =
+        end.dateIndex * selectedStylists.length + end.stylistIndex;
+
+      const minGridPos = Math.min(startGridPos, endGridPos);
+      const maxGridPos = Math.max(startGridPos, endGridPos);
+
+      if (DEBUG_COORDINATES) {
+        console.log("Linear grid positions:", {
+          startGridPos,
+          endGridPos,
+          minGridPos,
+          maxGridPos,
+          totalPositions: maxGridPos - minGridPos + 1,
+        });
+      }
+
+      // Select all slots in the linear path
+      for (let gridPos = minGridPos; gridPos <= maxGridPos; gridPos++) {
+        const dateIdx = Math.floor(gridPos / selectedStylists.length);
+        const stylistIdx = gridPos % selectedStylists.length;
+
+        // Ensure we don't go out of bounds
+        if (
+          dateIdx >= weekDates.length ||
+          stylistIdx >= selectedStylists.length
         ) {
-          const stylistId = selectedStylists[stylistIdx];
-          const date = formatDateToString(weekDates[dateIdx]);
-          const groupKey = `${stylistId}-${date}`;
-
-          // Initialize group if not exists
-          if (!groupedSlots.has(groupKey)) {
-            groupedSlots.set(groupKey, {
-              stylistId,
-              date,
-              timeSlots: [],
-            });
-          }
-
-          // Add all 15-minute slots in the time range
-          for (
-            let totalMinutes = minTime;
-            totalMinutes <= maxTime;
-            totalMinutes += 15
-          ) {
-            const hour = Math.floor(totalMinutes / 60);
-            const minute = totalMinutes % 60;
-
-            // Create slot ID for individual slot tracking
-            const slotId = `${stylistId}-${date}-${hour}-${minute}`;
-            slots.push(slotId);
-
-            // Add to group for break slot creation
-            groupedSlots.get(groupKey).timeSlots.push(totalMinutes);
-          }
+          continue;
         }
+
+        const stylistId = selectedStylists[stylistIdx];
+        const date = formatDateToString(weekDates[dateIdx]);
+        const groupKey = `${stylistId}-${date}`;
+
+        // Initialize group if not exists
+        if (!groupedSlots.has(groupKey)) {
+          groupedSlots.set(groupKey, {
+            stylistId,
+            date,
+            timeSlots: [],
+          });
+        }
+
+        // Add ALL 15-minute slots in the time range for this date/stylist combination
+        for (
+          let totalMinutes = minTime;
+          totalMinutes <= maxTime;
+          totalMinutes += 15
+        ) {
+          const hour = Math.floor(totalMinutes / 60);
+          const minute = totalMinutes % 60;
+
+          // Create slot ID for individual slot tracking
+          const slotId = `${stylistId}-${date}-${hour}-${minute}`;
+          slots.push(slotId);
+
+          // Add to group for break slot creation
+          groupedSlots.get(groupKey).timeSlots.push(totalMinutes);
+
+          // Track that this stylist has selected slots
+          stylistsInSelection.add(stylistId);
+        }
+      }
+
+      if (DEBUG_COORDINATES) {
+        console.log("Selection results:");
+        console.log("- Total slots:", slots.length);
+        console.log(
+          "- Stylists in selection:",
+          Array.from(stylistsInSelection)
+        );
+        console.log("- Break groups:", groupedSlots.size);
       }
 
       // Create break slots by combining consecutive time periods
@@ -910,6 +1071,7 @@ const SchedulingInterface = () => {
               formatDateTime(group.date, blockStart),
               formatDateTime(group.date, blockEnd),
               group.date,
+              group.stylistId,
             ]);
 
             blockStart = currentTime;
@@ -922,13 +1084,19 @@ const SchedulingInterface = () => {
           formatDateTime(group.date, blockStart),
           formatDateTime(group.date, blockEnd),
           group.date,
+          group.stylistId,
         ]);
       });
 
       setSelectedBreakSlots(breakSlots);
       setSelectedTimeSlots(slots);
+      setSelectedStylistsInSelection(Array.from(stylistsInSelection));
+
+      if (DEBUG_COORDINATES) {
+        console.log("========================");
+      }
     },
-    [selectedStylists, weekDates, formatDateToString]
+    [selectedStylists, weekDates, formatDateToString, DEBUG_COORDINATES]
   );
 
   const isSlotSelected = useCallback(
@@ -1362,6 +1530,7 @@ const SchedulingInterface = () => {
     setSelectedTimeSlots([]);
     setSelectedBreakSlots([]);
     setSelectedLeaveDays([]);
+    setSelectedStylistsInSelection([]);
     setIsDragging(false);
     setSelectionActive(false);
     document.body.classList.remove("selection-mode");
@@ -1369,17 +1538,32 @@ const SchedulingInterface = () => {
 
   // Quick action functions for inline break and leave creation
   const handleQuickAddBreak = useCallback(async () => {
-    if (selectedTimeSlots.length === 0 || selectedStylists.length === 0) {
-      showNotification("Please select time slots and staff members", "error");
+    if (
+      selectedTimeSlots.length === 0 ||
+      selectedStylistsInSelection.length === 0
+    ) {
+      showNotification("Please select time slots", "error");
       return;
     }
 
     try {
       setLoading(true);
 
-      // Create break slots for each selected stylist
-      for (const stylistId of selectedStylists) {
-        for (const breakSlot of selectedBreakSlots) {
+      // Group break slots by stylist
+      const breakSlotsByStylist = {};
+      selectedBreakSlots.forEach((breakSlot) => {
+        const stylistId = breakSlot[3]; // stylistId is now stored at index 3
+        if (!breakSlotsByStylist[stylistId]) {
+          breakSlotsByStylist[stylistId] = [];
+        }
+        breakSlotsByStylist[stylistId].push(breakSlot);
+      });
+
+      // Create break slots for each stylist that has selected slots
+      for (const stylistId of selectedStylistsInSelection) {
+        const stylistBreakSlots = breakSlotsByStylist[stylistId] || [];
+
+        for (const breakSlot of stylistBreakSlots) {
           const data = {
             stylist_id: stylistId,
             date: breakSlot[2],
@@ -1391,13 +1575,14 @@ const SchedulingInterface = () => {
       }
 
       showNotification(
-        `Break added successfully! ${selectedBreakSlots.length} break slot(s) scheduled for ${selectedStylists.length} staff member(s).`,
+        `Break added successfully! ${selectedBreakSlots.length} break slot(s) scheduled for ${selectedStylistsInSelection.length} staff member(s).`,
         "success"
       );
 
       // Clear selections
       setSelectedTimeSlots([]);
       setSelectedBreakSlots([]);
+      setSelectedStylistsInSelection([]);
 
       // Reload data to reflect changes
       await loadData();
@@ -1419,8 +1604,8 @@ const SchedulingInterface = () => {
     }
   }, [
     selectedTimeSlots,
-    selectedStylists,
     selectedBreakSlots,
+    selectedStylistsInSelection,
     showNotification,
     loadData,
   ]);
@@ -1453,6 +1638,7 @@ const SchedulingInterface = () => {
 
       // Clear selections
       setSelectedLeaveDays([]);
+      setSelectedStylistsInSelection([]);
 
       // Reload data to reflect changes
       await loadData();
@@ -1496,31 +1682,46 @@ const SchedulingInterface = () => {
         );
         setSelectedLeaveDays([]);
       } else if (scheduleType === "break") {
-        for (const stylistId of selectedStylists) {
-          for (const dateStr of selectedBreakSlots) {
+        // Group break slots by stylist
+        const breakSlotsByStylist = {};
+        selectedBreakSlots.forEach((breakSlot) => {
+          const stylistId = breakSlot[3]; // stylistId is now stored at index 3
+          if (!breakSlotsByStylist[stylistId]) {
+            breakSlotsByStylist[stylistId] = [];
+          }
+          breakSlotsByStylist[stylistId].push(breakSlot);
+        });
+
+        // Create break slots for each stylist that has selected slots
+        for (const stylistId of selectedStylistsInSelection) {
+          const stylistBreakSlots = breakSlotsByStylist[stylistId] || [];
+
+          for (const breakSlot of stylistBreakSlots) {
             const data = {
               stylist_id: stylistId,
-              date: dateStr[2],
-              leave_start_time: dateStr[0],
-              leave_end_time: dateStr[1],
+              date: breakSlot[2],
+              leave_start_time: breakSlot[0],
+              leave_end_time: breakSlot[1],
             };
             await ApiService.createLeave(data);
           }
         }
         showNotification(
-          `Break saved! ${selectedBreakSlots.length} break(s) scheduled.`
+          `Break saved! ${selectedBreakSlots.length} break(s) scheduled for ${selectedStylistsInSelection.length} staff member(s).`
         );
         setSelectedBreakSlots([]);
+        setSelectedStylistsInSelection([]);
       } else {
         // Save schedule slots
-        await ApiService.updateStylistSchedule(selectedStylists, {
+        await ApiService.updateStylistSchedule(selectedStylistsInSelection, {
           type: scheduleType,
           slots: selectedTimeSlots,
         });
         showNotification(
-          `Schedule saved! ${selectedTimeSlots.length} time slot(s) marked as ${scheduleType}.`
+          `Schedule saved! ${selectedTimeSlots.length} time slot(s) marked as ${scheduleType} for ${selectedStylistsInSelection.length} staff member(s).`
         );
         setSelectedTimeSlots([]);
+        setSelectedStylistsInSelection([]);
       }
 
       // Reload data to reflect changes
@@ -1544,6 +1745,7 @@ const SchedulingInterface = () => {
     scheduleType,
     selectedLeaveDays,
     selectedStylists,
+    selectedStylistsInSelection,
     selectedBreakSlots,
     selectedTimeSlots,
     loadData,
@@ -1711,7 +1913,7 @@ const SchedulingInterface = () => {
       selectedLeaveDays,
       scheduleType,
       COLORS,
-      selectedStylists,
+      selectedStylistsInSelection, // Pass the new state
       stylists,
       onQuickAddBreak: handleQuickAddBreak,
       onQuickAddLeave: handleQuickAddLeave,
@@ -1721,7 +1923,7 @@ const SchedulingInterface = () => {
       selectedTimeSlots,
       selectedLeaveDays,
       scheduleType,
-      selectedStylists,
+      selectedStylistsInSelection, // Include this dependency
       stylists,
       handleQuickAddBreak,
       handleQuickAddLeave,
@@ -1897,7 +2099,7 @@ const SchedulingInterface = () => {
       scheduleType,
       selectedTimeSlots,
       selectedLeaveDays,
-      selectedStylists,
+      selectedStylists: selectedStylistsInSelection, // Use the selection-specific stylists
       onQuickAddBreak: handleQuickAddBreak,
       onQuickAddLeave: handleQuickAddLeave,
       onCancel: handleCancelSelection,
@@ -1908,7 +2110,7 @@ const SchedulingInterface = () => {
       scheduleType,
       selectedTimeSlots,
       selectedLeaveDays,
-      selectedStylists,
+      selectedStylistsInSelection, // Use this instead of selectedStylists
       handleQuickAddBreak,
       handleQuickAddLeave,
       handleCancelSelection,

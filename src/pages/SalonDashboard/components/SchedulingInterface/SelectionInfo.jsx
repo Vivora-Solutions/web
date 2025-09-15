@@ -5,7 +5,7 @@ const SelectionInfo = ({
   selectedLeaveDays,
   scheduleType,
   COLORS,
-  selectedStylists = [],
+  selectedStylistsInSelection = [], // Use the new prop
   stylists = [],
   onQuickAddBreak,
   onQuickAddLeave,
@@ -13,10 +13,10 @@ const SelectionInfo = ({
 }) => {
   if (!selectedTimeSlots.length && !selectedLeaveDays.length) return null;
 
-  // Get selected stylist names
+  // Get selected stylist names from the selection, not initial selection
   const getSelectedStylistNames = () => {
     const selectedStylistsData = stylists.filter((stylist) =>
-      selectedStylists.includes(stylist.id)
+      selectedStylistsInSelection.includes(stylist.id)
     );
 
     if (selectedStylistsData.length === 0) return "No staff selected";
@@ -59,7 +59,7 @@ const SelectionInfo = ({
                   selectedTimeSlots.length !== 1 ? "s" : ""
                 } selected for ${scheduleType}`}
           </div>
-          {selectedStylists.length > 0 && (
+          {selectedStylistsInSelection.length > 0 && (
             <div className="text-[13px] font-medium opacity-80">
               Staff: {getSelectedStylistNames()}
             </div>
