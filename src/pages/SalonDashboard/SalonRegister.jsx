@@ -242,7 +242,7 @@ const RegisterSalon = () => {
       const { confirmPassword, ...registrationData } = formData;
       await PublicAPI.post("/auth/register-salon", registrationData);
 
-      alert("Registration successful! Redirecting to login...");
+     // alert("Registration successful! Redirecting to login...");
       navigate("/login", {
         state: {
           email: formData.email,
