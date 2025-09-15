@@ -2118,6 +2118,53 @@ const SchedulingInterface = () => {
     ]
   );
 
+  // Handle clicks outside the grid to clear selection
+  const handleOutsideClick = useCallback(
+    (e) => {
+      // Check if we have any active selections
+      if (
+        selectedTimeSlots.length === 0 &&
+        selectedLeaveDays.length === 0 &&
+        selectedBreakSlots.length === 0 &&
+        selectedStylistsInSelection.length === 0
+      ) {
+        return; // No selections to clear
+      }
+
+      // Check if click is inside the calendar grid
+      if (gridRef.current && gridRef.current.contains(e.target)) {
+        return; // Click is inside the grid, don't clear
+      }
+
+      // Check if click is on UI controls (buttons, panels, etc.)
+      const clickedElement = e.target.closest(
+        'button, input, select, textarea, [role="button"], .floating-action-button, .selection-info, .filters-row, .modal, .dropdown, .notification'
+      );
+      if (clickedElement) {
+        return; // Click is on a UI control, don't clear
+      }
+
+      // Clear selections if clicking outside the grid and not on UI controls
+      handleCancelSelection();
+    },
+    [
+      selectedTimeSlots.length,
+      selectedLeaveDays.length,
+      selectedBreakSlots.length,
+      selectedStylistsInSelection.length,
+      handleCancelSelection,
+    ]
+  );
+
+  // Set up document-level click listener for better outside click detection
+  useEffect(() => {
+    document.addEventListener("click", handleOutsideClick, true);
+
+    return () => {
+      document.removeEventListener("click", handleOutsideClick, true);
+    };
+  }, [handleOutsideClick]);
+
   return (
     <div className="flex flex-col h-screen font-sans bg-gradient-to-br from-[#f0f4ff] to-[#e2e8ff]">
       {notification && (
@@ -2132,19 +2179,22 @@ const SchedulingInterface = () => {
         <div className="p-4 sm:p-6 md:p-8 bg-white/95 backdrop-blur-lg border-b border-[#e0e0e8] shadow-sm shrink-0 w-full">
           <MemoizedHeader {...headerProps} />
 
-          <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 md:gap-8 mt-6 w-full overflow-x-auto">
+          <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 md:gap-8 mt-6 w-full overflow-x-auto filters-row">
             <MemoizedFiltersRow {...filtersRowProps} />
           </div>
         </div>
 
         <div className="flex-1 flex flex-col bg-[#fcfcff] z-10">
-          <div className="bg-gray-50 border-b border-[#e0e0e8] p-5 md:p-8 shrink-0">
+          <div className="bg-gray-50 border-b border-[#e0e0e8] p-5 md:p-8 shrink-0 selection-info">
             <div className="flex justify-between items-center">
               <MemoizedSelectionInfo {...selectionInfoProps} />
             </div>
           </div>
 
-          <div className="flex-1 overflow-auto">
+          <div
+            className="flex-1 overflow-auto"
+            onClick={(e) => e.stopPropagation()} // Prevent clearing selection when clicking in calendar area
+          >
             {loading ? (
               <LoadingSpinner COLORS={COLORS} />
             ) : scheduleType === "leave" ? (
@@ -2158,7 +2208,9 @@ const SchedulingInterface = () => {
         <MemoizedAppointmentPanel {...appointmentPanelProps} />
         <MemoizedAppointmentDetailsPanel {...appointmentDetailsPanelProps} />
         <MemoizedScheduleManagementPanel {...scheduleManagementPanelProps} />
-        <MemoizedFloatingActionButton {...floatingActionButtonProps} />
+        <div className="floating-action-button">
+          <MemoizedFloatingActionButton {...floatingActionButtonProps} />
+        </div>
       </div>
     </div>
   );
