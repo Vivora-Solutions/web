@@ -1,11 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "../../utils/supabaseClient";
-import { useNavigate } from "react-router-dom";
 import { 
   Mail, 
   AlertCircle, 
-  CheckCircle, 
-  Info, 
+  CheckCircle,  
   Eye, 
   EyeOff, 
   Loader2, 
@@ -13,6 +11,7 @@ import {
   Clock, 
   XCircle 
 } from "lucide-react";
+
 import logo from "../../assets/weblogo-white1.png";
 
 import Header from "../User/components/Header";
@@ -25,8 +24,80 @@ export default function Login() {
   const [error, setError] = useState("");
   const [errorType, setErrorType] = useState("");
   const [resendingEmail, setResendingEmail] = useState(false);
-  const navigate = useNavigate();
+  
+  // Check for stored auth errors and handle Google Auth callback
+  useEffect(() => {
+    const storedError = localStorage.getItem("authError");
+    const storedErrorType = localStorage.getItem("authErrorType");
+    
+    if (storedError) {
+      setError(storedError);
+      setErrorType(storedErrorType || "error");
+      
+      // Clear the stored error after retrieving
+      localStorage.removeItem("authError");
+      localStorage.removeItem("authErrorType");
+    }
+    
+    // Check for URL error parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlError = urlParams.get("error");
+    
+    if (urlError === "oauth_failed" && !storedError) {
+      setError("Failed to sign in with Google. Please try again or use email sign-in.");
+      setErrorType("error");
+    }
 
+    // Handle potential return from Google OAuth
+    const checkSession = async () => {
+      try {
+        const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+        
+        if (sessionError) {
+          console.error("Session error:", sessionError);
+          return;
+        }
+        
+        // If we have a session and user after OAuth flow
+        if (sessionData?.session?.user) {
+          // Set loading state to show user something is happening
+          setLoading(true);
+          
+          try {
+            const role = await getUserRole(sessionData.session.user.id);
+            localStorage.setItem("user_role", role);
+
+            const redirectPath = localStorage.getItem("redirectAfterLogin");
+
+            if (redirectPath) {
+              localStorage.removeItem("redirectAfterLogin");
+              window.location.replace(`/${redirectPath}`);
+            } else if (role === "salon_admin") {
+              window.location.replace("/admin");
+            } else if (role === "super_admin") {
+              window.location.replace("/super-admin");
+            } else if (role === "customer") {
+              window.location.replace("/");
+            } else {
+              setError("Invalid user role. Please contact support.");
+              setErrorType("error");
+              setLoading(false);
+            }
+          } catch (roleError) {
+            console.error("Error getting user role:", roleError);
+            setError("Failed to get user role. Please try again.");
+            setErrorType("error");
+            setLoading(false);
+          }
+        }
+      } catch (error) {
+        console.error("Error checking session:", error);
+      }
+    };
+
+    checkSession();
+  }, []);
+  
   async function getUserRole(userId) {
     const { data, error } = await supabase
       .from("user")
@@ -134,6 +205,35 @@ export default function Login() {
     }
   };
 
+  // Handle Google sign-in
+  const handleGoogleLogin = async () => {
+    setLoading(true);
+    setError("");
+    setErrorType("");
+    
+    try {
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${window.location.origin}/oauth-callback`,
+        },
+      });
+      
+      if (error) {
+        setError(`Google sign-in failed: ${error.message}`);
+        setErrorType("error");
+        setLoading(false);
+      }
+      // Don't need to handle success here as the OAuth process will redirect to the callback URL
+      
+    } catch (error) {
+      console.error("Google sign-in error:", error);
+      setError("Failed to connect with Google. Please try again or use email sign-in.");
+      setErrorType("error");
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-white-50 to-white-100">
       <Header />
@@ -193,6 +293,33 @@ export default function Login() {
             </div>
           </div>
         )}
+
+        <button
+          onClick={handleGoogleLogin}
+          disabled={loading}
+          className="mt-4 mb-6 flex items-center justify-center gap-2 w-full border border-gray-300 rounded-md py-2 px-4 bg-white text-gray-700 hover:bg-gray-50 transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {loading ? (
+            <>
+              <Loader2 className="h-5 w-5 animate-spin" />
+              <span className="font-medium">Connecting to Google...</span>
+            </>
+          ) : (
+            <>
+              <svg width="18" height="18" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+                <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+                <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+                <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+                <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+              </svg>
+              <span className="font-medium">Sign in with Google</span>
+            </>
+          )}
+        </button>
+
+
+        <h1>Or</h1>
+
 
         <form className="space-y-6" onSubmit={handleLogin}>
           <div>
