@@ -54,11 +54,6 @@ const MyBookingsPage = () => {
   }, []);
 
   useEffect(() => {
-    const token = localStorage.getItem("access_token");
-    if (!token) {
-      navigate("/login");
-      return;
-    }
     fetchBookings();
   }, [navigate, fetchBookings]);
 
@@ -231,12 +226,67 @@ const MyBookingsPage = () => {
         </h1>
 
         {loading ? (
-          <div className="flex flex-col items-center justify-center py-16">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mb-4"></div>
-            <span className="text-gray-500">Loading your bookings...</span>
-          </div>
-        ) : (
           <>
+            {/* Modern Skeleton Loading UI */}
+            <div className="space-y-10">
+              {/* Skeleton for Ongoing Bookings */}
+              <section className="mb-6">
+                <div className="flex items-center mb-3">
+                  <div className="w-5 h-5 bg-gray-200 rounded-full animate-pulse mr-2"></div>
+                  <div className="h-7 w-48 bg-gray-200 animate-pulse rounded-md"></div>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {[1, 2].map((i) => (
+                    <div key={i} className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 animate-pulse">
+                      <div className="flex items-center mb-3">
+                        <div className="w-12 h-12 bg-gray-200 rounded-full"></div>
+                        <div className="ml-4 space-y-2 flex-1">
+                          <div className="h-5 bg-gray-200 rounded w-3/4"></div>
+                          <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                        </div>
+                      </div>
+                      <div className="space-y-3 mb-4">
+                        <div className="h-4 bg-gray-200 rounded w-full"></div>
+                        <div className="h-4 bg-gray-200 rounded w-5/6"></div>
+                      </div>
+                      <div className="flex justify-between items-center pt-3 border-t border-gray-100">
+                        <div className="h-8 bg-gray-200 rounded-md w-24"></div>
+                        <div className="h-10 bg-gray-200 rounded-lg w-28"></div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </section>
+              
+              {/* Skeleton for Booking History */}
+              <section>
+                <div className="flex items-center mb-3">
+                  <div className="w-5 h-5 bg-gray-200 rounded-full animate-pulse mr-2"></div>
+                  <div className="h-7 w-48 bg-gray-200 animate-pulse rounded-md"></div>
+                </div>
+                <div className="space-y-4">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 animate-pulse">
+                      <div className="flex flex-wrap justify-between items-center gap-4">
+                        <div className="space-y-2 flex-1">
+                          <div className="h-5 bg-gray-200 rounded w-3/4"></div>
+                          <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                        </div>
+                        <div className="space-y-2">
+                          <div className="h-5 bg-gray-200 rounded w-32"></div>
+                          <div className="flex justify-end">
+                            <div className="h-4 bg-gray-200 rounded w-20"></div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            </div>
+          </>
+        ) : (
+          <div className="animate-fadeIn">
             <section className="mb-10">
               <div className="flex items-center mb-3">
                 <Clock className="w-5 h-5 text-gray-500 mr-2" />
@@ -276,7 +326,7 @@ const MyBookingsPage = () => {
                 <p className="text-gray-500">No booking history available.</p>
               )}
             </section>
-          </>
+          </div>
         )}
       </div>
 
