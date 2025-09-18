@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import EditableField from "./components/EditableField";
-import { ProtectedAPI } from "../../utils/api";
+import { ProtectedAPI, PublicAPI } from "../../utils/api";
 import supabase from "../../utils/supabaseClient";
 import { GoogleMap, Marker } from "@react-google-maps/api";
 import { parseWKBHexToLatLng } from "../../utils/wkbToLatLng";
@@ -114,7 +114,7 @@ const SalonInfo = () => {
       data: { user },
     } = await supabase.auth.getUser();
     
-    console.log("Logged-in user UID (auth.uid()):", user?.id);
+    console.log("Logged-in user UID (auth.uid()):", user);
 
     if (!file.type.startsWith("image/")) {
       alert("Please select an image file");

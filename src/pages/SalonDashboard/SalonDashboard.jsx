@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import { Info, Calendar, Image, Scissors, Users, Monitor, LogIn } from "lucide-react";
-import { ProtectedAPI } from "../../utils/api";
+import { ProtectedAPI, PublicAPI } from "../../utils/api";
 import Header from "./components/Header";
 import Footer from "../User/components/Footer";
 import Sidebar from "../../components/Sidebar";
@@ -33,6 +33,7 @@ const SalonDashboard = () => {
     const checkAuthAndFetchSalon = async () => {
       try {
         const res = await ProtectedAPI.get("/salon-admin/my");
+        console.log(res.data);
         setSalonData(res.data);
         setIsAuthenticated(true);
       } catch (err) {
@@ -226,7 +227,7 @@ const SalonDashboard = () => {
           </div>
 
           {/* Custom animations */}
-          <style jsx>{`
+          <style jsx="true">{`
             @keyframes fade-in {
               from { opacity: 0; transform: translateY(15px); }
               to { opacity: 1; transform: translateY(0); }
@@ -280,7 +281,7 @@ const SalonDashboard = () => {
 
   if (!isAuthenticated) {
     return (
-      <Login />
+      <LogIn />
     );
   }
 

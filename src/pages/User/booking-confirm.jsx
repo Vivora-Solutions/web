@@ -120,11 +120,13 @@ const BookingConfirm = () => {
     try {
       //console.log("Booking payload:", payload)
       const response = await ProtectedAPI.post("/bookings", payload);
-      //console.log("Booking response:", response.data);
+      console.log("Booking response:", response.data);
+      console.log("Redirecting to /my-bookings");
       if (response.data.booking_id) {
         clearBookingDetails();
         setConfirmed(true);
         setTimeout(() => {
+          console.log("Redirecting to /my-bookings");
           navigate("/my-bookings");
         }, 2500);
       } else {

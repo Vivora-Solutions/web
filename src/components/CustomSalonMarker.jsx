@@ -8,7 +8,7 @@ const CustomSalonMarker = ({
   onMouseLeave, 
   onClick 
 }) => {
-  const rating = salon.average_rating || salon.rating || 4.5;
+  const rating = salon.salon_average_rating || 4.5;
   
   // Calculate scale based on zoom level
   // At zoom 13+, scale is 1.0
