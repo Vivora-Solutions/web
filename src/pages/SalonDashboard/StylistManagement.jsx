@@ -20,6 +20,25 @@ const StylistManagement = ({ onOpenSchedule }) => {
     []
   );
   const [loading, setLoading] = useState(false);
+  
+  // Helper function to show professional notifications
+  const showNotification = (message, isSuccess = true) => {
+    const notification = document.createElement("div");
+    notification.className = `fixed top-4 right-4 ${isSuccess ? 'bg-gradient-to-r from-black to-[#8B4513]' : 'bg-red-600'} text-white py-3 px-4 rounded-lg shadow-lg z-50 flex items-center animate-fadeIn`;
+    notification.innerHTML = `
+      <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        ${isSuccess 
+          ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>' 
+          : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>'}
+      </svg>
+      <span>${message}</span>
+    `;
+    document.body.appendChild(notification);
+    setTimeout(() => {
+      notification.classList.add("opacity-0", "transition-opacity", "duration-500");
+      setTimeout(() => document.body.removeChild(notification), 500);
+    }, 3000);
+  };
   const [formData, setFormData] = useState({
     stylist_name: "",
     stylist_contact_number: "",
@@ -39,6 +58,11 @@ const StylistManagement = ({ onOpenSchedule }) => {
 
   const [scheduleStylistData, setScheduleStylistData] = useState(null);
   const [showScheduleModal, setShowScheduleModal] = useState(false);
+  
+  // State for confirmation modals
+  const [showConfirmDisableModal, setShowConfirmDisableModal] = useState(false);
+  const [showConfirmActivateModal, setShowConfirmActivateModal] = useState(false);
+  const [stylistToModify, setStylistToModify] = useState(null);
 
   useEffect(() => {
     const loadData = async () => {
@@ -80,40 +104,74 @@ const StylistManagement = ({ onOpenSchedule }) => {
       setStylists((prev) => [...prev, newStylist]);
       setShowAddForm(false);
       resetForm();
+      // Professional success notification
+      showNotification("Employee added successfully!");
     } catch (error) {
       console.error("Error adding stylist:", error);
+      // Professional error notification
+      showNotification(`Failed to add employee: ${error.response?.data?.error || error.message}`, false);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDisableStylist = async (stylistId) => {
-    if (window.confirm("Disable this stylist?")) {
-      try {
-        await ProtectedAPI.put(`/salon-admin/stylist/disable/${stylistId}`);
-        setStylists((prev) =>
-          prev.map((s) =>
-            s.stylist_id === stylistId ? { ...s, is_active: false } : s
-          )
-        );
-      } catch (error) {
-        console.error("Error disabling stylist:", error);
-      }
+  const handleDisableStylist = (stylistId) => {
+    // Show the confirmation modal instead of immediately disabling
+    setStylistToModify(stylistId);
+    setShowConfirmDisableModal(true);
+  };
+
+  const confirmDisableStylist = async () => {
+    if (!stylistToModify) return;
+    
+    // Close modal first
+    setShowConfirmDisableModal(false);
+    
+    try {
+      await ProtectedAPI.put(`/salon-admin/stylist/disable/${stylistToModify}`);
+      setStylists((prev) =>
+        prev.map((s) =>
+          s.stylist_id === stylistToModify ? { ...s, is_active: false } : s
+        )
+      );
+      // Professional success notification
+      showNotification("Stylist disabled successfully!");
+    } catch (error) {
+      console.error("Error disabling stylist:", error);
+      // Professional error notification
+      showNotification(`Failed to disable stylist: ${error.response?.data?.error || error.message}`, false);
+    } finally {
+      setStylistToModify(null);
     }
   };
 
-  const handleActivateStylist = async (stylistId) => {
-    if (window.confirm("Activate this stylist?")) {
-      try {
-        await ProtectedAPI.put(`/salon-admin/stylist/activate/${stylistId}`);
-        setStylists((prev) =>
-          prev.map((s) =>
-            s.stylist_id === stylistId ? { ...s, is_active: true } : s
-          )
-        );
-      } catch (error) {
-        console.error("Error activating stylist:", error);
-      }
+  const handleActivateStylist = (stylistId) => {
+    // Show the confirmation modal instead of immediately activating
+    setStylistToModify(stylistId);
+    setShowConfirmActivateModal(true);
+  };
+
+  const confirmActivateStylist = async () => {
+    if (!stylistToModify) return;
+    
+    // Close modal first
+    setShowConfirmActivateModal(false);
+    
+    try {
+      await ProtectedAPI.put(`/salon-admin/stylist/activate/${stylistToModify}`);
+      setStylists((prev) =>
+        prev.map((s) =>
+          s.stylist_id === stylistToModify ? { ...s, is_active: true } : s
+        )
+      );
+      // Professional success notification
+      showNotification("Stylist activated successfully!");
+    } catch (error) {
+      console.error("Error activating stylist:", error);
+      // Professional error notification
+      showNotification(`Failed to activate stylist: ${error.response?.data?.error || error.message}`, false);
+    } finally {
+      setStylistToModify(null);
     }
   };
 
@@ -158,11 +216,14 @@ const StylistManagement = ({ onOpenSchedule }) => {
             : s
         )
       );
-      alert("Profile updated successfully!");
+      // Professional success notification
+      showNotification("Profile updated successfully!");
       setShowProfileModal(false);
       setSelectedStylist(null);
     } catch (error) {
       console.error("Error updating stylist:", error);
+      // Professional error notification
+      showNotification(`Failed to update profile: ${error.response?.data?.error || error.message}`, false);
     } finally {
       setLoading(false);
     }
@@ -218,11 +279,14 @@ const StylistManagement = ({ onOpenSchedule }) => {
         );
       }
 
-      alert("Services updated successfully!");
+      // Professional success notification
+      showNotification("Services updated successfully!");
       setShowServicesModal(false);
       setSelectedStylist(null);
     } catch (error) {
       console.error("Error updating services:", error);
+      // Professional error notification
+      showNotification(`Failed to update services: ${error.response?.data?.error || error.message}`, false);
     } finally {
       setLoading(false);
     }
@@ -239,268 +303,106 @@ const StylistManagement = ({ onOpenSchedule }) => {
 
   if (loading && stylists.length === 0) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 flex items-center justify-center p-4">
-        <div className="w-full max-w-6xl mx-auto bg-white/80 backdrop-blur-lg rounded-2xl shadow-2xl p-8 border border-white/20">
+      <div className="p-6 bg-gradient-to-br from-pink-50 via-purple-50 to-indigo-50 rounded-xl shadow-lg border border-gray-200">
+        {/* Loading Header */}
+        <div className="mb-8 text-center">
+          <div className="relative inline-block">
+            {/* Animated Team Icon */}
+            <div className="w-16 h-16 mx-auto mb-4 relative">
+              <div className="absolute inset-0 bg-gradient-to-r from-pink-400 to-purple-500 rounded-xl animate-pulse"></div>
+              <div className="absolute inset-1 bg-white rounded-xl flex items-center justify-center">
+                <svg className="w-8 h-8 text-purple-600" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M16 4c0-1.11.89-2 2-2s2 .89 2 2-.89 2-2 2-2-.89-2-2zm4 18v-6h2.5l-2.54-7.63A1.002 1.002 0 0 0 19 8h-2c-.55 0-1 .45-1 1v1c0 1.1-.9 2-2 2s-2-.9-2-2V9c0-.55-.45-1-1-1H9c-.46 0-.88.31-.98.76L5.48 16H8v6h8zM12.5 11.5c.83 0 1.5-.67 1.5-1.5s-.67-1.5-1.5-1.5S11 9.17 11 10s.67 1.5 1.5 1.5zM5.5 6C6.33 6 7 5.33 7 4.5S6.33 3 5.5 3 4 3.67 4 4.5 4.67 6 5.5 6zm2.5 2c-.83 0-1.5.67-1.5 1.5S7.17 11 8 11s1.5-.67 1.5-1.5S8.83 8 8 8z"/>
+                </svg>
+              </div>
+              
+              {/* Rotating border */}
+              <div className="absolute inset-0 border-4 border-transparent border-t-pink-500 rounded-xl animate-spin"></div>
+            </div>
+            
+            {/* Floating stylist indicators */}
+            <div className="absolute -top-2 -left-2 w-3 h-3 bg-pink-400 rounded-full animate-bounce" style={{animationDelay: '0s'}}></div>
+            <div className="absolute -top-2 -right-2 w-3 h-3 bg-purple-400 rounded-full animate-bounce" style={{animationDelay: '0.5s'}}></div>
+            <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-3 h-3 bg-indigo-400 rounded-full animate-bounce" style={{animationDelay: '1s'}}></div>
+          </div>
           
-          {/* Loading Header */}
-          <div className="mb-8 text-center">
-            <div className="relative inline-block">
-              {/* Animated Stylist Management Icon */}
-              <div className="w-20 h-20 mx-auto mb-4 relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-500 rounded-full animate-pulse"></div>
-                <div className="absolute inset-1 bg-white rounded-full flex items-center justify-center">
-                  {/* Team/People Icon */}
-                  <svg className="w-10 h-10 text-purple-600" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M16 4c0-1.11.89-2 2-2s2 .89 2 2-.89 2-2 2-2-.89-2-2zm4 18v-6h2.5l-2.54-7.63A1.002 1.002 0 0 0 19 8h-2c-.55 0-1 .45-1 1v1c0 1.1-.9 2-2 2s-2-.9-2-2V9c0-.55-.45-1-1-1H9c-.46 0-.88.31-.98.76L5.48 16H8v6h8zM12.5 11.5c.83 0 1.5-.67 1.5-1.5s-.67-1.5-1.5-1.5S11 9.17 11 10s.67 1.5 1.5 1.5zM5.5 6C6.33 6 7 5.33 7 4.5S6.33 3 5.5 3 4 3.67 4 4.5 4.67 6 5.5 6zm2.5 2c-.83 0-1.5.67-1.5 1.5S7.17 11 8 11s1.5-.67 1.5-1.5S8.83 8 8 8z"/>
-                  </svg>
-                </div>
-                
-                {/* Rotating border */}
-                <div className="absolute inset-0 border-4 border-transparent border-t-indigo-500 rounded-full animate-spin"></div>
-              </div>
-              
-              {/* Floating stylist-related icons */}
-              <div className="absolute -top-4 -left-4 w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center animate-bounce" style={{animationDelay: '0s'}}>
-                👨‍💼
-              </div>
-              <div className="absolute -top-4 -right-4 w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center animate-bounce" style={{animationDelay: '0.5s'}}>
-                👩‍💼
-              </div>
-              <div className="absolute -bottom-4 -left-4 w-8 h-8 bg-pink-100 rounded-full flex items-center justify-center animate-bounce" style={{animationDelay: '1s'}}>
-                ✂️
-              </div>
-              <div className="absolute -bottom-4 -right-4 w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center animate-bounce" style={{animationDelay: '1.5s'}}>
-                📅
-              </div>
-            </div>
-            
-            <h2 className="text-2xl font-bold text-gray-800 mb-2 animate-fade-in">
-              Loading Salon Team
-            </h2>
-            <p className="text-gray-600 animate-fade-in-delay">
-              Preparing your stylist management dashboard...
-            </p>
-            
-            {/* Staff roles preview */}
-            <div className="flex justify-center space-x-4 mt-4 animate-fade-in-delay-2">
-              {[
-                { name: 'Hair Stylists', emoji: '💇‍♀️', color: 'bg-indigo-100 text-indigo-600' },
-                { name: 'Specialists', emoji: '✨', color: 'bg-purple-100 text-purple-600' },
-                { name: 'Nail Artists', emoji: '💅', color: 'bg-pink-100 text-pink-600' },
-                { name: 'Therapists', emoji: '💆‍♀️', color: 'bg-cyan-100 text-cyan-600' }
-              ].map((role, index) => (
-                <div 
-                  key={role.name} 
-                  className={`px-3 py-2 rounded-full text-xs font-medium ${role.color} animate-pulse`}
-                  style={{animationDelay: `${index * 0.2}s`}}
-                >
-                  <span className="mr-1">{role.emoji}</span>
-                  {role.name}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Header Skeleton */}
-          <div className="bg-white/95 backdrop-blur rounded-xl p-4 mb-6 shadow-lg">
-            <div className="flex justify-between items-center">
-              <div className="space-y-2">
-                <div className="h-6 bg-gray-200 rounded w-48 animate-pulse"></div>
-                <div className="h-4 bg-gray-200 rounded w-64 animate-pulse"></div>
-              </div>
-              <div className="h-10 bg-gradient-to-r from-indigo-200 to-purple-200 rounded-lg w-32 animate-pulse"></div>
-            </div>
-          </div>
-
-          {/* Stylists Grid Skeleton */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
-            {[...Array(6)].map((_, index) => {
-              const stylistTypes = [
-                { 
-                  icon: '👩‍💼', 
-                  name: 'Senior Stylist', 
-                  specialty: 'Hair Cutting & Styling',
-                  experience: '5+ years',
-                  colors: { bg: 'bg-indigo-100', icon: 'bg-indigo-200', badge: 'bg-indigo-300', status: 'bg-green-200' }
-                },
-                { 
-                  icon: '👨‍💼', 
-                  name: 'Color Specialist', 
-                  specialty: 'Hair Coloring Expert',
-                  experience: '3+ years',
-                  colors: { bg: 'bg-purple-100', icon: 'bg-purple-200', badge: 'bg-purple-300', status: 'bg-green-200' }
-                },
-                { 
-                  icon: '👩‍🔬', 
-                  name: 'Nail Artist', 
-                  specialty: 'Nail Art & Manicure',
-                  experience: '4+ years',
-                  colors: { bg: 'bg-pink-100', icon: 'bg-pink-200', badge: 'bg-pink-300', status: 'bg-green-200' }
-                },
-                { 
-                  icon: '🧑‍💼', 
-                  name: 'Facial Therapist', 
-                  specialty: 'Skincare & Facial Treatments',
-                  experience: '6+ years',
-                  colors: { bg: 'bg-emerald-100', icon: 'bg-emerald-200', badge: 'bg-emerald-300', status: 'bg-green-200' }
-                },
-                { 
-                  icon: '👩‍⚕️', 
-                  name: 'Massage Therapist', 
-                  specialty: 'Relaxation & Therapy',
-                  experience: '4+ years',
-                  colors: { bg: 'bg-cyan-100', icon: 'bg-cyan-200', badge: 'bg-cyan-300', status: 'bg-green-200' }
-                },
-                { 
-                  icon: '👨‍🎨', 
-                  name: 'Makeup Artist', 
-                  specialty: 'Bridal & Event Makeup',
-                  experience: '7+ years',
-                  colors: { bg: 'bg-rose-100', icon: 'bg-rose-200', badge: 'bg-rose-300', status: 'bg-green-200' }
-                }
-              ];
-              
-              const stylist = stylistTypes[index % stylistTypes.length];
-              
-              return (
-                <div 
-                  key={index} 
-                  className={`${stylist.colors.bg} rounded-xl shadow-lg p-6 animate-pulse hover:shadow-xl transition-all duration-300 border border-white/50`}
-                  style={{animationDelay: `${index * 0.15}s`}}
-                >
-                  {/* Profile Picture */}
-                  <div className="flex items-center mb-4">
-                    <div className={`w-16 h-16 ${stylist.colors.icon} rounded-full flex items-center justify-center text-3xl animate-bounce shadow-lg mr-4`} 
-                         style={{animationDelay: `${index * 0.2}s`}}>
-                      {stylist.icon}
-                    </div>
-                    <div className="flex-1">
-                      <div className="h-6 bg-white/70 rounded-lg mb-2 w-3/4 animate-shimmer"></div>
-                      <div className="h-4 bg-white/60 rounded w-2/3 animate-shimmer" style={{animationDelay: '0.1s'}}></div>
-                    </div>
-                  </div>
-                  
-                  {/* Specialty & Experience */}
-                  <div className="space-y-2 mb-4">
-                    <div className="h-4 bg-white/60 rounded w-full animate-shimmer" style={{animationDelay: '0.2s'}}></div>
-                    <div className="h-4 bg-white/60 rounded w-4/5 animate-shimmer" style={{animationDelay: '0.3s'}}></div>
-                  </div>
-                  
-                  {/* Contact Info */}
-                  <div className="flex items-center mb-4">
-                    <div className="w-4 h-4 bg-white/60 rounded mr-2"></div>
-                    <div className="h-4 bg-white/60 rounded w-32 animate-shimmer"></div>
-                  </div>
-                  
-                  {/* Status & Services */}
-                  <div className="flex space-x-2 mb-4">
-                    <div className={`h-6 ${stylist.colors.status} rounded-full w-16 animate-pulse shadow-sm`}></div>
-                    <div className={`h-6 ${stylist.colors.badge} rounded-full w-20 animate-pulse shadow-sm`}></div>
-                  </div>
-                  
-                  {/* Action Buttons */}
-                  <div className="grid grid-cols-2 gap-2">
-                    <div className="h-8 bg-white/60 rounded-lg animate-pulse"></div>
-                    <div className="h-8 bg-gradient-to-r from-purple-300 to-pink-300 rounded-lg animate-pulse shadow-md"></div>
-                  </div>
-                  
-                  {/* Decorative Elements */}
-                  <div className="absolute top-2 right-2 w-2 h-2 bg-white/80 rounded-full animate-ping"></div>
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Empty State Preview */}
-          <div className="text-center py-12 animate-pulse">
-            {/* Team Management Icon Cluster */}
-            <div className="relative w-24 h-24 mx-auto mb-6">
-              <div className="absolute inset-0 bg-gradient-to-br from-indigo-200 to-purple-200 rounded-full animate-pulse"></div>
-              <div className="absolute inset-2 bg-white rounded-full flex items-center justify-center">
-                <div className="text-3xl animate-bounce">👥</div>
-              </div>
-              {/* Surrounding team icons */}
-              <div className="absolute -top-2 -left-2 w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center text-sm animate-bounce" style={{animationDelay: '0.2s'}}>
-                👩‍💼
-              </div>
-              <div className="absolute -top-2 -right-2 w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center text-sm animate-bounce" style={{animationDelay: '0.4s'}}>
-                👨‍💼
-              </div>
-              <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-8 h-8 bg-pink-100 rounded-full flex items-center justify-center text-sm animate-bounce" style={{animationDelay: '0.6s'}}>
-                ✂️
-              </div>
-            </div>
-            
-            <div className="h-7 bg-gradient-to-r from-indigo-200 to-purple-200 rounded-lg w-56 mx-auto mb-3 animate-shimmer"></div>
-            <div className="h-5 bg-gray-200 rounded w-72 mx-auto mb-6 animate-shimmer" style={{animationDelay: '0.1s'}}></div>
-            
-            {/* Preview management options */}
-            <div className="flex justify-center space-x-3 mb-6">
-              <div className="h-8 bg-indigo-200 rounded-full w-28 animate-pulse"></div>
-              <div className="h-8 bg-purple-200 rounded-full w-24 animate-pulse" style={{animationDelay: '0.1s'}}></div>
-              <div className="h-8 bg-pink-200 rounded-full w-26 animate-pulse" style={{animationDelay: '0.2s'}}></div>
-            </div>
-            
-            <div className="h-11 bg-gradient-to-r from-indigo-300 to-purple-300 rounded-lg w-40 mx-auto animate-pulse shadow-lg"></div>
-          </div>
-
-          {/* Progress Indicators */}
-          <div className="flex justify-center space-x-2 mt-8">
-            <div className="w-2 h-2 bg-indigo-400 rounded-full animate-bounce" style={{animationDelay: '0s'}}></div>
-            <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
-            <div className="w-2 h-2 bg-pink-400 rounded-full animate-bounce" style={{animationDelay: '0.4s'}}></div>
-            <div className="w-2 h-2 bg-cyan-400 rounded-full animate-bounce" style={{animationDelay: '0.6s'}}></div>
-          </div>
-
-          {/* Custom animations */}
-          <style jsx>{`
-            @keyframes fade-in {
-              from { opacity: 0; transform: translateY(10px); }
-              to { opacity: 1; transform: translateY(0); }
-            }
-            
-            @keyframes fade-in-delay {
-              0% { opacity: 0; transform: translateY(10px); }
-              50% { opacity: 0; transform: translateY(10px); }
-              100% { opacity: 1; transform: translateY(0); }
-            }
-            
-            @keyframes fade-in-delay-2 {
-              0% { opacity: 0; transform: translateY(10px); }
-              66% { opacity: 0; transform: translateY(10px); }
-              100% { opacity: 1; transform: translateY(0); }
-            }
-            
-            @keyframes shimmer {
-              0% { 
-                background-position: -200% 0;
-                opacity: 0.7;
-              }
-              100% { 
-                background-position: 200% 0;
-                opacity: 1;
-              }
-            }
-            
-            .animate-fade-in {
-              animation: fade-in 1s ease-out;
-            }
-            
-            .animate-fade-in-delay {
-              animation: fade-in-delay 2s ease-out;
-            }
-            
-            .animate-fade-in-delay-2 {
-              animation: fade-in-delay-2 3s ease-out;
-            }
-            
-            .animate-shimmer {
-              background: linear-gradient(90deg, transparent, rgba(255,255,255,0.9), transparent);
-              background-size: 200% 100%;
-              animation: shimmer 2s ease-in-out infinite;
-            }
-          `}</style>
+          <h2 className="text-xl font-semibold text-gray-800 mb-2 animate-fade-in">
+            Loading Your Team
+          </h2>
+          <p className="text-gray-600 animate-fade-in-delay">
+            Fetching your salon's employees...
+          </p>
         </div>
+
+        {/* Stylists Grid Skeleton */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          {[...Array(4)].map((_, index) => (
+            <div 
+              key={index} 
+              className="bg-white/60 rounded-lg p-4 flex items-start gap-4 animate-pulse"
+              style={{animationDelay: `${index * 0.1}s`}}
+            >
+              {/* Avatar skeleton */}
+              <div className="w-16 h-16 bg-gray-200 rounded-full"></div>
+              
+              <div className="flex-1">
+                {/* Name and role */}
+                <div className="h-5 bg-gray-200 rounded w-3/4 mb-2"></div>
+                <div className="h-4 bg-gray-100 rounded w-1/2 mb-3"></div>
+                
+                {/* Contact info */}
+                <div className="h-4 bg-gray-100 rounded w-5/6 mb-3"></div>
+                
+                {/* Badges */}
+                <div className="flex gap-2">
+                  <div className="h-6 w-16 bg-gray-200 rounded-full"></div>
+                  <div className="h-6 w-20 bg-gray-200 rounded-full"></div>
+                </div>
+              </div>
+
+              {/* Action buttons */}
+              <div className="flex flex-col gap-2">
+                <div className="w-8 h-8 bg-gray-200 rounded-full"></div>
+                <div className="w-8 h-8 bg-gray-200 rounded-full"></div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Add button skeleton */}
+        <div className="flex justify-center mt-6">
+          <div className="w-40 h-10 bg-gray-200 rounded-lg animate-pulse"></div>
+        </div>
+
+        {/* Progress Indicators */}
+        <div className="flex justify-center space-x-2 mt-8">
+          <div className="w-2 h-2 bg-pink-400 rounded-full animate-bounce" style={{animationDelay: '0s'}}></div>
+          <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+          <div className="w-2 h-2 bg-indigo-400 rounded-full animate-bounce" style={{animationDelay: '0.4s'}}></div>
+          <div className="w-2 h-2 bg-pink-400 rounded-full animate-bounce" style={{animationDelay: '0.6s'}}></div>
+        </div>
+
+        {/* Custom animations */}
+        <style jsx>{`
+          @keyframes fade-in {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+          }
+          
+          @keyframes fade-in-delay {
+            0% { opacity: 0; transform: translateY(10px); }
+            50% { opacity: 0; transform: translateY(10px); }
+            100% { opacity: 1; transform: translateY(0); }
+          }
+          
+          .animate-fade-in {
+            animation: fade-in 1s ease-out;
+          }
+          
+          .animate-fade-in-delay {
+            animation: fade-in-delay 2s ease-out;
+          }
+        `}</style>
       </div>
     );
   }
@@ -584,6 +486,76 @@ const StylistManagement = ({ onOpenSchedule }) => {
             setScheduleStylistData(null);
           }}
         />
+      )}
+      
+      {/* Disable Stylist Confirmation Modal */}
+      {showConfirmDisableModal && (
+        <>
+          {/* Overlay */}
+          <div className="fixed inset-0 bg-black bg-opacity-50 z-40 animate-fadeIn" onClick={() => setShowConfirmDisableModal(false)}></div>
+          
+          {/* Modal */}
+          <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-black bg-opacity-40 backdrop-blur-md rounded-lg shadow-xl p-6 z-50 w-full max-w-sm animate-fadeIn">
+            <div className="text-center">
+              <div className="w-16 h-16 rounded-full bg-red-100 mx-auto mb-4 flex items-center justify-center">
+                <svg className="h-8 w-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold text-white mb-2">Disable Employee</h3>
+              <p className="text-gray-200 mb-6">Are you sure you want to disable this employee? They won't be able to receive new appointments.</p>
+              <div className="flex justify-center space-x-3">
+                <button 
+                  className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg transition"
+                  onClick={() => setShowConfirmDisableModal(false)}
+                >
+                  Cancel
+                </button>
+                <button 
+                  className="px-4 py-2 bg-gradient-to-r from-black to-[#8B4513] hover:from-[#8B4513] hover:to-black text-white rounded-lg transition"
+                  onClick={confirmDisableStylist}
+                >
+                  Disable
+                </button>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+      
+      {/* Activate Stylist Confirmation Modal */}
+      {showConfirmActivateModal && (
+        <>
+          {/* Overlay */}
+          <div className="fixed inset-0 bg-black bg-opacity-50 z-40 animate-fadeIn" onClick={() => setShowConfirmActivateModal(false)}></div>
+          
+          {/* Modal */}
+          <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-black bg-opacity-40 backdrop-blur-md rounded-lg shadow-xl p-6 z-50 w-full max-w-sm animate-fadeIn">
+            <div className="text-center">
+              <div className="w-16 h-16 rounded-full bg-green-100 mx-auto mb-4 flex items-center justify-center">
+                <svg className="h-8 w-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold text-white mb-2">Activate Employee</h3>
+              <p className="text-gray-200 mb-6">Are you sure you want to activate this employee? They'll be able to receive new appointments.</p>
+              <div className="flex justify-center space-x-3">
+                <button 
+                  className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg transition"
+                  onClick={() => setShowConfirmActivateModal(false)}
+                >
+                  Cancel
+                </button>
+                <button 
+                  className="px-4 py-2 bg-gradient-to-r from-black to-[#8B4513] hover:from-[#8B4513] hover:to-black text-white rounded-lg transition"
+                  onClick={confirmActivateStylist}
+                >
+                  Activate
+                </button>
+              </div>
+            </div>
+          </div>
+        </>
       )}
     </div>
   );

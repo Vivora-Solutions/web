@@ -191,11 +191,11 @@ const Schedule = () => {
         navigate("/booking-confirm");
       } else {
         localStorage.setItem("redirectAfterLogin", "booking-confirm");
-        navigate("/login");
+        navigate("/login-booking");
       }
     } catch (err) {
       localStorage.setItem("redirectAfterLogin", "booking-confirm");
-      navigate("/login");
+      navigate("/login-booking");
     }
   };
 

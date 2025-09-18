@@ -5,6 +5,7 @@ import SalonDashboard from "./pages/SalonDashboard/SalonDashboard";
 import SalonProfile from "./pages/User/home-profile";
 import AppointmentPage from "./pages/User/appointment-page";
 import Login from "./pages/Login/Login";
+import LoginBooking from "./pages/Login/Login";
 import AllSalonsPage from "./pages/SuperAdminDashboard/AllSalonsPage";
 import SalonDetailsPage from "./pages/SuperAdminDashboard/SalonDetailsPage";
 import MyBookingsPage from "./pages/User/bookings";
@@ -38,6 +39,7 @@ function App() {
       <Routes>
         {/* Public Routes */}
         <Route path="/login" element={<Login />} />
+        <Route path="/login-booking" element={<LoginBooking />} />
         <Route path="/signup" element={<RegisterCustomerForm />} />
         <Route path="/salon-register" element={<SalonRegister />} />
         <Route path="/oauth-callback" element={<OAuthHandler />} />

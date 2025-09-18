@@ -13,7 +13,7 @@ import {
 import { ProtectedAPI } from "../../utils/api";
 import LoadingSpinner from "../../components/LoadingSpinner";
 import AddWorkstationModal from "./components/AddWorkstationModal";
-import WorkstationCard from "./components/WorkstationCard";
+
 
 const WorkStationManagement = () => {
   const [workStations, setWorkStations] = useState([]);
@@ -22,6 +22,25 @@ const WorkStationManagement = () => {
   const [editingId, setEditingId] = useState(null);
   const [formData, setFormData] = useState({ workstation_name: "" });
   const [loading, setLoading] = useState(false);
+  
+  // Helper function to show professional notifications
+  const showNotification = (message, isSuccess = true) => {
+    const notification = document.createElement("div");
+    notification.className = `fixed top-4 right-4 ${isSuccess ? 'bg-gradient-to-r from-black to-[#8B4513]' : 'bg-red-600'} text-white py-3 px-4 rounded-lg shadow-lg z-50 flex items-center animate-fadeIn`;
+    notification.innerHTML = `
+      <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        ${isSuccess 
+          ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>' 
+          : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>'}
+      </svg>
+      <span>${message}</span>
+    `;
+    document.body.appendChild(notification);
+    setTimeout(() => {
+      notification.classList.add("opacity-0", "transition-opacity", "duration-500");
+      setTimeout(() => document.body.removeChild(notification), 500);
+    }, 3000);
+  };
 
   // Service selection for new workstation
   const [selectedServices, setSelectedServices] = useState([]);
@@ -117,7 +136,8 @@ const WorkStationManagement = () => {
 
   const handleSubmit = async () => {
     if (!formData.workstation_name.trim()) {
-      alert("Workstation name is required");
+      // Professional error notification instead of alert
+      showNotification("Workstation name is required", false);
       return;
     }
 
@@ -128,6 +148,8 @@ const WorkStationManagement = () => {
           workstation_id: editingId,
           workstation_name: formData.workstation_name.trim(),
         });
+        // Show success notification
+        showNotification("Workstation updated successfully!");
       } else {
         // Create workstation
         const workstationResponse = await ProtectedAPI.post(
@@ -145,12 +167,15 @@ const WorkStationManagement = () => {
             service_ids: selectedServices,
           });
         }
+        // Show success notification
+        showNotification("Workstation added successfully!");
       }
       await fetchWorkStations();
       handleCancel();
     } catch (error) {
       console.error("Error saving workstation:", error);
-      alert("Failed to save workstation");
+      // Professional error notification instead of alert
+      showNotification(`Failed to save workstation: ${error.response?.data?.error || error.message}`, false);
     } finally {
       setLoading(false);
     }
@@ -205,7 +230,8 @@ const WorkStationManagement = () => {
         service_ids: stationServices,
       });
 
-      alert("Services updated successfully!");
+      // Professional success notification
+      showNotification("Services updated successfully!");
       setStationServicesBeforeEdit(stationServices);
 
       // Update the local state to reflect changes immediately
@@ -215,7 +241,8 @@ const WorkStationManagement = () => {
       handleCloseServiceModal();
     } catch (error) {
       console.error("Error updating services:", error);
-      alert("Failed to update services");
+      // Professional error notification
+      showNotification(`Failed to update services: ${error.response?.data?.error || error.message}`, false);
       // Revert changes on error
       setStationServices(stationServicesBeforeEdit);
     } finally {
@@ -232,270 +259,105 @@ const WorkStationManagement = () => {
 
   if (loading && workStations.length === 0) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-blue-50 flex items-center justify-center p-4">
-        <div className="w-full max-w-6xl mx-auto bg-white/80 backdrop-blur-lg rounded-2xl shadow-2xl p-8 border border-white/20">
+      <div className="p-6 bg-gradient-to-br from-pink-50 via-purple-50 to-indigo-50 rounded-xl shadow-lg border border-gray-200">
+        {/* Loading Header */}
+        <div className="mb-8 text-center">
+          <div className="relative inline-block">
+            {/* Animated Workstation Icon */}
+            <div className="w-16 h-16 mx-auto mb-4 relative">
+              <div className="absolute inset-0 bg-gradient-to-r from-pink-400 to-purple-500 rounded-xl animate-pulse"></div>
+              <div className="absolute inset-1 bg-white rounded-xl flex items-center justify-center">
+                <svg className="w-8 h-8 text-purple-600" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M21 2H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h7l-2 3v1h8v-1l-2-3h7c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H3V4h18v12z"/>
+                </svg>
+              </div>
+              
+              {/* Rotating border */}
+              <div className="absolute inset-0 border-4 border-transparent border-t-pink-500 rounded-xl animate-spin"></div>
+            </div>
+            
+            {/* Floating workstation indicators */}
+            <div className="absolute -top-2 -left-2 w-3 h-3 bg-pink-400 rounded-full animate-bounce" style={{animationDelay: '0s'}}></div>
+            <div className="absolute -top-2 -right-2 w-3 h-3 bg-purple-400 rounded-full animate-bounce" style={{animationDelay: '0.5s'}}></div>
+            <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-3 h-3 bg-indigo-400 rounded-full animate-bounce" style={{animationDelay: '1s'}}></div>
+          </div>
           
-          {/* Loading Header */}
-          <div className="mb-8 text-center">
-            <div className="relative inline-block">
-              {/* Animated Workstation Management Icon */}
-              <div className="w-20 h-20 mx-auto mb-4 relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-slate-400 via-gray-400 to-blue-500 rounded-full animate-pulse"></div>
-                <div className="absolute inset-1 bg-white rounded-full flex items-center justify-center">
-                  {/* Workstation/Monitor Icon */}
-                  <svg className="w-10 h-10 text-gray-600" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M21 2H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h7l-2 3v1h8v-1l-2-3h7c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 12H3V4h18v10z"/>
-                  </svg>
-                </div>
-                
-                {/* Rotating border */}
-                <div className="absolute inset-0 border-4 border-transparent border-t-slate-500 rounded-full animate-spin"></div>
-              </div>
-              
-              {/* Floating workstation-related icons */}
-              <div className="absolute -top-4 -left-4 w-8 h-8 bg-slate-100 rounded-full flex items-center justify-center animate-bounce" style={{animationDelay: '0s'}}>
-                🖥️
-              </div>
-              <div className="absolute -top-4 -right-4 w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center animate-bounce" style={{animationDelay: '0.5s'}}>
-                💺
-              </div>
-              <div className="absolute -bottom-4 -left-4 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center animate-bounce" style={{animationDelay: '1s'}}>
-                ⚡
-              </div>
-              <div className="absolute -bottom-4 -right-4 w-8 h-8 bg-slate-100 rounded-full flex items-center justify-center animate-bounce" style={{animationDelay: '1.5s'}}>
-                🔧
-              </div>
-            </div>
-            
-            <h2 className="text-2xl font-bold text-gray-800 mb-2 animate-fade-in">
-              Loading Workstations
-            </h2>
-            <p className="text-gray-600 animate-fade-in-delay">
-              Setting up your salon workstation management...
-            </p>
-            
-            {/* Workstation types preview */}
-            <div className="flex justify-center space-x-4 mt-4 animate-fade-in-delay-2">
-              {[
-                { name: 'Hair Stations', emoji: '💇‍♀️', color: 'bg-slate-100 text-slate-600' },
-                { name: 'Nail Stations', emoji: '💅', color: 'bg-gray-100 text-gray-600' },
-                { name: 'Facial Rooms', emoji: '🧴', color: 'bg-blue-100 text-blue-600' },
-                { name: 'Massage Beds', emoji: '🛏️', color: 'bg-indigo-100 text-indigo-600' }
-              ].map((type, index) => (
-                <div 
-                  key={type.name} 
-                  className={`px-3 py-2 rounded-full text-xs font-medium ${type.color} animate-pulse`}
-                  style={{animationDelay: `${index * 0.2}s`}}
-                >
-                  <span className="mr-1">{type.emoji}</span>
-                  {type.name}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Header Skeleton */}
-          <div className="bg-white/95 backdrop-blur rounded-xl p-4 mb-6 shadow-lg">
-            <div className="flex justify-between items-center">
-              <div className="space-y-2">
-                <div className="h-6 bg-gray-200 rounded w-52 animate-pulse"></div>
-                <div className="h-4 bg-gray-200 rounded w-64 animate-pulse"></div>
-              </div>
-              <div className="h-10 bg-gradient-to-r from-slate-200 to-gray-200 rounded-lg w-36 animate-pulse"></div>
-            </div>
-          </div>
-
-          {/* Workstations Grid Skeleton */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
-            {[...Array(6)].map((_, index) => {
-              const stationTypes = [
-                { 
-                  icon: '🖥️', 
-                  name: 'Station Alpha', 
-                  equipment: 'Hair Cutting Chair, Mirror, Tools',
-                  services: 'Hair Cut, Styling, Wash',
-                  colors: { bg: 'bg-slate-100', icon: 'bg-slate-200', badge: 'bg-slate-300', status: 'bg-green-200' }
-                },
-                { 
-                  icon: '💺', 
-                  name: 'Station Beta', 
-                  equipment: 'Nail Desk, UV Lamp, Tools',
-                  services: 'Manicure, Pedicure, Nail Art',
-                  colors: { bg: 'bg-gray-100', icon: 'bg-gray-200', badge: 'bg-gray-300', status: 'bg-green-200' }
-                },
-                { 
-                  icon: '🛏️', 
-                  name: 'Room Gamma', 
-                  equipment: 'Facial Bed, Steamer, Products',
-                  services: 'Facial, Skincare, Treatments',
-                  colors: { bg: 'bg-blue-100', icon: 'bg-blue-200', badge: 'bg-blue-300', status: 'bg-green-200' }
-                },
-                { 
-                  icon: '🪑', 
-                  name: 'Station Delta', 
-                  equipment: 'Styling Chair, Dryer, Products',
-                  services: 'Hair Styling, Coloring, Treatment',
-                  colors: { bg: 'bg-indigo-100', icon: 'bg-indigo-200', badge: 'bg-indigo-300', status: 'bg-green-200' }
-                },
-                { 
-                  icon: '🔧', 
-                  name: 'Station Epsilon', 
-                  equipment: 'Massage Table, Oils, Towels',
-                  services: 'Massage, Relaxation, Therapy',
-                  colors: { bg: 'bg-purple-100', icon: 'bg-purple-200', badge: 'bg-purple-300', status: 'bg-green-200' }
-                },
-                { 
-                  icon: '💄', 
-                  name: 'Station Zeta', 
-                  equipment: 'Makeup Station, Lights, Products',
-                  services: 'Makeup, Bridal, Events',
-                  colors: { bg: 'bg-pink-100', icon: 'bg-pink-200', badge: 'bg-pink-300', status: 'bg-green-200' }
-                }
-              ];
-              
-              const station = stationTypes[index % stationTypes.length];
-              
-              return (
-                <div 
-                  key={index} 
-                  className={`${station.colors.bg} rounded-xl shadow-lg p-6 animate-pulse hover:shadow-xl transition-all duration-300 border border-white/50`}
-                  style={{animationDelay: `${index * 0.15}s`}}
-                >
-                  {/* Station Header */}
-                  <div className="flex items-center mb-4">
-                    <div className={`w-14 h-14 ${station.colors.icon} rounded-lg flex items-center justify-center text-2xl animate-bounce shadow-lg mr-4`} 
-                         style={{animationDelay: `${index * 0.2}s`}}>
-                      {station.icon}
-                    </div>
-                    <div className="flex-1">
-                      <div className="h-6 bg-white/70 rounded-lg mb-2 w-3/4 animate-shimmer"></div>
-                      <div className="h-4 bg-white/60 rounded w-1/2 animate-shimmer" style={{animationDelay: '0.1s'}}></div>
-                    </div>
-                  </div>
-                  
-                  {/* Equipment & Services */}
-                  <div className="space-y-3 mb-4">
-                    <div>
-                      <div className="h-4 bg-white/60 rounded w-20 mb-1 animate-shimmer"></div>
-                      <div className="h-3 bg-white/50 rounded w-full animate-shimmer" style={{animationDelay: '0.2s'}}></div>
-                      <div className="h-3 bg-white/50 rounded w-4/5 animate-shimmer" style={{animationDelay: '0.3s'}}></div>
-                    </div>
-                    <div>
-                      <div className="h-4 bg-white/60 rounded w-16 mb-1 animate-shimmer"></div>
-                      <div className="h-3 bg-white/50 rounded w-full animate-shimmer" style={{animationDelay: '0.4s'}}></div>
-                    </div>
-                  </div>
-                  
-                  {/* Status & Availability */}
-                  <div className="flex space-x-2 mb-4">
-                    <div className={`h-6 ${station.colors.status} rounded-full w-20 animate-pulse shadow-sm`}></div>
-                    <div className={`h-6 ${station.colors.badge} rounded-full w-24 animate-pulse shadow-sm`}></div>
-                  </div>
-                  
-                  {/* Action Buttons */}
-                  <div className="grid grid-cols-3 gap-2">
-                    <div className="h-8 bg-white/60 rounded-lg animate-pulse"></div>
-                    <div className="h-8 bg-white/60 rounded-lg animate-pulse" style={{animationDelay: '0.1s'}}></div>
-                    <div className="h-8 bg-gradient-to-r from-slate-300 to-gray-300 rounded-lg animate-pulse shadow-md"></div>
-                  </div>
-                  
-                  {/* Decorative Elements */}
-                  <div className="absolute top-2 right-2 w-2 h-2 bg-white/80 rounded-full animate-ping"></div>
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Empty State Preview */}
-          <div className="text-center py-12 animate-pulse">
-            {/* Workstation Management Icon Cluster */}
-            <div className="relative w-24 h-24 mx-auto mb-6">
-              <div className="absolute inset-0 bg-gradient-to-br from-slate-200 to-gray-200 rounded-full animate-pulse"></div>
-              <div className="absolute inset-2 bg-white rounded-full flex items-center justify-center">
-                <div className="text-3xl animate-bounce">🏢</div>
-              </div>
-              {/* Surrounding workstation icons */}
-              <div className="absolute -top-2 -left-2 w-8 h-8 bg-slate-100 rounded-full flex items-center justify-center text-sm animate-bounce" style={{animationDelay: '0.2s'}}>
-                🖥️
-              </div>
-              <div className="absolute -top-2 -right-2 w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-sm animate-bounce" style={{animationDelay: '0.4s'}}>
-                💺
-              </div>
-              <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-sm animate-bounce" style={{animationDelay: '0.6s'}}>
-                🔧
-              </div>
-            </div>
-            
-            <div className="h-7 bg-gradient-to-r from-slate-200 to-gray-200 rounded-lg w-56 mx-auto mb-3 animate-shimmer"></div>
-            <div className="h-5 bg-gray-200 rounded w-72 mx-auto mb-6 animate-shimmer" style={{animationDelay: '0.1s'}}></div>
-            
-            {/* Preview management options */}
-            <div className="flex justify-center space-x-3 mb-6">
-              <div className="h-8 bg-slate-200 rounded-full w-28 animate-pulse"></div>
-              <div className="h-8 bg-gray-200 rounded-full w-24 animate-pulse" style={{animationDelay: '0.1s'}}></div>
-              <div className="h-8 bg-blue-200 rounded-full w-26 animate-pulse" style={{animationDelay: '0.2s'}}></div>
-            </div>
-            
-            <div className="h-11 bg-gradient-to-r from-slate-300 to-gray-300 rounded-lg w-40 mx-auto animate-pulse shadow-lg"></div>
-          </div>
-
-          {/* Progress Indicators */}
-          <div className="flex justify-center space-x-2 mt-8">
-            <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{animationDelay: '0s'}}></div>
-            <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
-            <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce" style={{animationDelay: '0.4s'}}></div>
-            <div className="w-2 h-2 bg-indigo-400 rounded-full animate-bounce" style={{animationDelay: '0.6s'}}></div>
-          </div>
-
-          {/* Custom animations */}
-          <style jsx>{`
-            @keyframes fade-in {
-              from { opacity: 0; transform: translateY(10px); }
-              to { opacity: 1; transform: translateY(0); }
-            }
-            
-            @keyframes fade-in-delay {
-              0% { opacity: 0; transform: translateY(10px); }
-              50% { opacity: 0; transform: translateY(10px); }
-              100% { opacity: 1; transform: translateY(0); }
-            }
-            
-            @keyframes fade-in-delay-2 {
-              0% { opacity: 0; transform: translateY(10px); }
-              66% { opacity: 0; transform: translateY(10px); }
-              100% { opacity: 1; transform: translateY(0); }
-            }
-            
-            @keyframes shimmer {
-              0% { 
-                background-position: -200% 0;
-                opacity: 0.7;
-              }
-              100% { 
-                background-position: 200% 0;
-                opacity: 1;
-              }
-            }
-            
-            .animate-fade-in {
-              animation: fade-in 1s ease-out;
-            }
-            
-            .animate-fade-in-delay {
-              animation: fade-in-delay 2s ease-out;
-            }
-            
-            .animate-fade-in-delay-2 {
-              animation: fade-in-delay-2 3s ease-out;
-            }
-            
-            .animate-shimmer {
-              background: linear-gradient(90deg, transparent, rgba(255,255,255,0.9), transparent);
-              background-size: 200% 100%;
-              animation: shimmer 2s ease-in-out infinite;
-            }
-          `}</style>
+          <h2 className="text-xl font-semibold text-gray-800 mb-2 animate-fade-in">
+            Loading Workstations
+          </h2>
+          <p className="text-gray-600 animate-fade-in-delay">
+            Setting up your salon stations...
+          </p>
         </div>
+
+        {/* Workstation Grid Skeleton */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          {[...Array(4)].map((_, index) => (
+            <div 
+              key={index} 
+              className="bg-white/60 rounded-lg p-4 animate-pulse"
+              style={{animationDelay: `${index * 0.1}s`}}
+            >
+              <div className="flex items-center mb-3">
+                {/* <div className="w-12 h-12 bg-gray-200 rounded-lg mr-3 flex items-center justify-center text-xl">
+                  {['🖥️', '💺', '🛏️', '🪑'][index % 4]}
+                </div> */}
+                <div className="flex-1">
+                  <div className="h-5 bg-gray-200 rounded w-3/4 mb-2"></div>
+                  <div className="h-4 bg-gray-100 rounded w-1/2"></div>
+                </div>
+              </div>
+              
+              <div className="space-y-2 mb-3">
+                <div className="h-3 bg-gray-100 rounded w-full"></div>
+                <div className="h-3 bg-gray-100 rounded w-5/6"></div>
+              </div>
+              
+              <div className="flex justify-between items-center">
+                <div className="flex space-x-2">
+                  <div className="h-6 w-16 bg-gray-200 rounded-full"></div>
+                  <div className="h-6 w-20 bg-gray-200 rounded-full"></div>
+                </div>
+                <div className="h-8 w-8 bg-gray-200 rounded-full"></div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Add button skeleton */}
+        <div className="flex justify-center mt-6">
+          <div className="w-40 h-10 bg-gray-200 rounded-lg animate-pulse"></div>
+        </div>
+
+        {/* Progress Indicators */}
+        <div className="flex justify-center space-x-2 mt-8">
+          <div className="w-2 h-2 bg-pink-400 rounded-full animate-bounce" style={{animationDelay: '0s'}}></div>
+          <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+          <div className="w-2 h-2 bg-indigo-400 rounded-full animate-bounce" style={{animationDelay: '0.4s'}}></div>
+          <div className="w-2 h-2 bg-pink-400 rounded-full animate-bounce" style={{animationDelay: '0.6s'}}></div>
+        </div>
+
+        {/* Custom animations */}
+        <style jsx>{`
+          @keyframes fade-in {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+          }
+          
+          @keyframes fade-in-delay {
+            0% { opacity: 0; transform: translateY(10px); }
+            50% { opacity: 0; transform: translateY(10px); }
+            100% { opacity: 1; transform: translateY(0); }
+          }
+          
+          .animate-fade-in {
+            animation: fade-in 1s ease-out;
+          }
+          
+          .animate-fade-in-delay {
+            animation: fade-in-delay 2s ease-out;
+          }
+        `}</style>
       </div>
     );
   }
