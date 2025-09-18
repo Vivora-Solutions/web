@@ -36,6 +36,15 @@ const MyBookingsPage = () => {
     })}`;
   };
 
+  // Sort bookings by date (most recent first)
+  const sortBookingsByDate = (bookings) => {
+    return [...bookings].sort((a, b) => {
+      const dateA = new Date(a.booking_start_datetime);
+      const dateB = new Date(b.booking_start_datetime);
+      return dateB - dateA; // Sort in descending order (most recent first)
+    });
+  };
+
   // Fetch bookings
   const fetchBookings = useCallback(async () => {
     setLoading(true);
@@ -44,8 +53,13 @@ const MyBookingsPage = () => {
         ProtectedAPI.get("/bookings"),
         ProtectedAPI.get("/bookings/history"),
       ]);
-      setOngoingBookings(ongoingRes.data || []);
-      setBookingHistory(historyRes.data?.data || []);
+      
+      // Sort bookings by date (most recent first)
+      const sortedOngoingBookings = sortBookingsByDate(ongoingRes.data || []);
+      const sortedHistoryBookings = sortBookingsByDate(historyRes.data?.data || []);
+      
+      setOngoingBookings(sortedOngoingBookings);
+      setBookingHistory(sortedHistoryBookings);
     } catch (error) {
       console.error("Error fetching bookings:", error);
     } finally {
