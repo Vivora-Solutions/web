@@ -101,10 +101,38 @@ const OpeningHours = () => {
       };
       await ProtectedAPI.post("/salon-admin/opening-hours", payload);
       setIsEditing(false);
-      alert("Opening hours updated successfully!");
+      
+      // Professional success notification
+      const notification = document.createElement("div");
+      notification.className = "fixed top-4 right-4 bg-gradient-to-r from-black to-[#8B4513] text-white py-3 px-4 rounded-lg shadow-lg z-50 flex items-center";
+      notification.innerHTML = `
+        <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+        </svg>
+        <span>Opening hours updated successfully!</span>
+      `;
+      document.body.appendChild(notification);
+      setTimeout(() => {
+        notification.classList.add("opacity-0", "transition-opacity", "duration-500");
+        setTimeout(() => document.body.removeChild(notification), 500);
+      }, 3000);
     } catch (error) {
       console.error("Error updating opening hours:", error);
-      alert(`Failed to update opening hours: ${error.response?.data?.error || error.message}`);
+      
+      // Professional error notification
+      const errorNotification = document.createElement("div");
+      errorNotification.className = "fixed top-4 right-4 bg-red-600 text-white py-3 px-4 rounded-lg shadow-lg z-50 flex items-center";
+      errorNotification.innerHTML = `
+        <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+        <span>Failed to update opening hours: ${error.response?.data?.error || error.message}</span>
+      `;
+      document.body.appendChild(errorNotification);
+      setTimeout(() => {
+        errorNotification.classList.add("opacity-0", "transition-opacity", "duration-500");
+        setTimeout(() => document.body.removeChild(errorNotification), 500);
+      }, 3000);
     }
   };
 

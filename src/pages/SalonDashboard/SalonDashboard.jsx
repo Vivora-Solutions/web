@@ -33,7 +33,7 @@ const SalonDashboard = () => {
     const checkAuthAndFetchSalon = async () => {
       try {
         const res = await ProtectedAPI.get("/salon-admin/my");
-        console.log(res.data);
+        // console.log(res.data);
         setSalonData(res.data);
         setIsAuthenticated(true);
       } catch (err) {

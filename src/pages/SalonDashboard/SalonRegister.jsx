@@ -12,10 +12,18 @@ import {
   FileText,
   Home,
   Eye,
-  EyeOff
+  EyeOff,
+  AlertCircle,
+  CheckCircle,
+  Clock,
+  XCircle,
+  Loader2
 } from "lucide-react";
 import { PublicAPI } from "../../utils/api";
 import { useGoogleMapsLoader } from "../../utils/googleMapsLoader";
+
+import logo from "../../assets/weblogo-white1.png";
+import Header from "../User/components/Header";
 
 // Google Maps container style
 const containerStyle = {
@@ -49,6 +57,7 @@ const RegisterSalon = () => {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const mapRef = useRef(null);
@@ -231,6 +240,7 @@ const RegisterSalon = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setSuccess("");
     
     // Client-side validation
     const validationError = validateForm();
@@ -246,13 +256,18 @@ const RegisterSalon = () => {
       const { confirmPassword, ...registrationData } = formData;
       await PublicAPI.post("/auth/register-salon", registrationData);
 
-      alert("Registration successful! Redirecting to login...");
-      navigate("/login", {
-        state: {
-          email: formData.email,
-          password: formData.password,
-        },
-      });
+      setSuccess("Salon registration successful! Redirecting to login...");
+      
+      // Redirect after a brief delay to show the success message
+      setTimeout(() => {
+        navigate("/login", {
+          state: {
+            email: formData.email,
+            password: formData.password,
+          },
+        });
+      }, 2000);
+      
     } catch (err) {
       console.error("Registration error:", err);
       const parsedError = parseError(err);
@@ -310,305 +325,354 @@ const RegisterSalon = () => {
     );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 py-8 px-4">
-      {/* Header */}
-      <div className="max-w-4xl mx-auto mb-8 text-center">
-        <div className="flex justify-center items-center gap-3 mb-4">
-          <div className="p-3 bg-gradient-to-r from-gray-800 to-gray-600 rounded-full">
-            <Scissors className="h-8 w-8 text-white" />
+    <div className="min-h-screen bg-gray-50">
+      <Header />
+      <div className="flex items-center justify-center py-8 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-2xl w-full bg-white rounded-lg shadow-md p-6">
+          <div className="text-center mb-5">
+            <img
+              src={logo}
+              alt="Logo"
+              className="mx-auto h-14 w-auto mb-3"
+            />
+            <h2 className="text-2xl font-bold text-gray-900 mb-1">
+              Register Your Salon
+            </h2>
+            <p className="text-gray-600 text-sm">Join our salon network today</p>
           </div>
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-800">
-            Register Your Salon
-          </h1>
-          <div className="p-3 bg-gradient-to-r from-gray-700 to-gray-500 rounded-full">
-            <Sparkles className="h-8 w-8 text-white" />
-          </div>
-        </div>
-      </div>
+          {/* Success Display */}
+          {success && (
+            <div className="p-3 rounded-md border flex items-start space-x-2 mb-4 bg-green-50 border-green-200 text-green-800">
+              <div className="flex-shrink-0">
+                <CheckCircle className="h-5 w-5 text-green-500" />
+              </div>
+              <div className="flex-1">
+                <p className="text-xs font-medium">Salon Registered Successfully!</p>
+                <p className="text-xs">{success}</p>
+              </div>
+            </div>
+          )}
 
-      {/* Form Card */}
-      <div className="max-w-4xl mx-auto">
-        <div className="shadow-lg border bg-white rounded-3xl overflow-hidden">
-          <div className="p-4 md:p-8">
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Account Info */}
-              <div className="space-y-4">
-                <h3 className="text-base md:text-lg font-semibold text-gray-800 flex items-center gap-2 pb-2 border-b border-gray-200">
-                  <div className="w-6 h-6 bg-gray-700 rounded-full flex items-center justify-center">
-                    <span className="text-white text-xs font-bold">1</span>
-                  </div>
-                  Account Information
-                </h3>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <label className="flex items-center gap-2 text-gray-600 text-sm font-medium">
-                      <Mail className="h-4 w-4" /> Email Address
-                    </label>
-                    <input
-                      type="email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleChange}
-                      required
-                      className="h-12 w-full rounded-md border px-4 focus:ring-2 focus:ring-gray-400"
-                      placeholder="your.email@example.com"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="flex items-center gap-2 text-gray-600 text-sm font-medium">
-                      <Lock className="h-4 w-4" /> Password
-                    </label>
-                    <div className="relative">
-                      <input
-                        type={showPassword ? "text" : "password"}
-                        name="password"
-                        value={formData.password}
-                        onChange={handleChange}
-                        required
-                        className="h-12 w-full rounded-md border px-4 pr-12 focus:ring-2 focus:ring-gray-400"
-                        placeholder="Create a strong password"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
-                      >
-                        {showPassword ? (
-                          <EyeOff className="h-5 w-5" />
-                        ) : (
-                          <Eye className="h-5 w-5" />
-                        )}
-                      </button>
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <label className="flex items-center gap-2 text-gray-600 text-sm font-medium">
-                      <Lock className="h-4 w-4" /> Confirm Password
-                    </label>
-                    <div className="relative">
-                      <input
-                        type={showConfirmPassword ? "text" : "password"}
-                        name="confirmPassword"
-                        value={formData.confirmPassword}
-                        onChange={handleChange}
-                        required
-                        className={`h-12 w-full rounded-md border px-4 pr-12 focus:ring-2 focus:ring-gray-400 ${
-                          formData.confirmPassword && formData.password !== formData.confirmPassword
-                            ? 'border-red-300 focus:ring-red-400'
-                            : formData.confirmPassword && formData.password === formData.confirmPassword
-                            ? 'border-green-300 focus:ring-green-400'
-                            : ''
-                        }`}
-                        placeholder="Confirm your password"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                        className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
-                      >
-                        {showConfirmPassword ? (
-                          <EyeOff className="h-5 w-5" />
-                        ) : (
-                          <Eye className="h-5 w-5" />
-                        )}
-                      </button>
-                    </div>
-                    {/* Password match indicator */}
-                    {formData.confirmPassword && (
-                      <div className="flex items-center gap-1 text-xs">
-                        {formData.password === formData.confirmPassword ? (
-                          <>
-                            <span className="text-green-600">✓</span>
-                            <span className="text-green-600">Passwords match</span>
-                          </>
-                        ) : (
-                          <>
-                            <span className="text-red-600">✗</span>
-                            <span className="text-red-600">Passwords don't match</span>
-                          </>
-                        )}
-                      </div>
+          {/* Error Display */}
+          {error && (
+            <div className={`p-3 rounded-md border flex items-start space-x-2 mb-4 ${
+              error.type === 'success' 
+                ? 'bg-green-50 border-green-200 text-green-800' 
+                : error.type === 'validation'
+                ? 'bg-amber-50 border-amber-200 text-amber-800'
+                : error.type === 'conflict'
+                ? 'bg-red-50 border-red-200 text-red-800'
+                : error.type === 'network'
+                ? 'bg-orange-50 border-orange-200 text-orange-800'
+                : 'bg-red-50 border-red-200 text-red-800'
+            }`}>
+              <div className="flex-shrink-0">
+                {error.type === 'success' ? (
+                  <CheckCircle className="h-5 w-5 text-green-500" />
+                ) : error.type === 'validation' ? (
+                  <AlertCircle className="h-5 w-5 text-amber-500" />
+                ) : error.type === 'network' ? (
+                  <Clock className="h-5 w-5 text-orange-500" />
+                ) : (
+                  <XCircle className="h-5 w-5 text-red-500" />
+                )}
+              </div>
+              <div className="flex-1">
+                <p className="text-xs font-medium">{error.title}</p>
+                <p className="text-xs">{error.message}</p>
+                {error.action && (
+                  <button
+                    onClick={() => navigate('/login')}
+                    className="mt-1 text-xs font-medium text-red-700 hover:text-red-900 underline"
+                  >
+                    {error.action} →
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+
+          <form className="space-y-4" onSubmit={handleSubmit}>
+            {/* Account Information Section */}
+            <div className="border-b border-gray-200 pb-4">
+              <h3 className="text-sm font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                <div className="w-5 h-5 bg-gray-700 rounded-full flex items-center justify-center">
+                  <span className="text-white text-xs font-bold">1</span>
+                </div>
+                Account Information
+              </h3>
+              
+              <div>
+                <label
+                  htmlFor="email"
+                  className="block text-xs font-medium text-gray-700 mb-1"
+                >
+                  Email address
+                </label>
+                <input
+                  id="email"
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-500 focus:border-gray-500 transition-colors text-sm"
+                  placeholder="Enter your email"
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="password"
+                  className="block text-xs font-medium text-gray-700 mb-1"
+                >
+                  Password
+                </label>
+                <div className="relative">
+                  <input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    name="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    required
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-500 focus:border-gray-500 transition-colors pr-10 text-sm"
+                    placeholder="Create a password"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
                     )}
-                  </div>
+                  </button>
                 </div>
               </div>
 
-              {/* Salon Info */}
-              <div className="space-y-4">
-                <h3 className="text-base md:text-lg font-semibold text-gray-800 flex items-center gap-2 pb-2 border-b border-gray-200">
-                  <div className="w-6 h-6 bg-gray-700 rounded-full flex items-center justify-center">
-                    <span className="text-white text-xs font-bold">2</span>
-                  </div>
-                  Salon Information
-                </h3>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <label className="flex items-center gap-2 text-gray-600 text-sm font-medium">
-                      <Store className="h-4 w-4" /> Salon Name
-                    </label>
-                    <input
-                      name="salon_name"
-                      value={formData.salon_name}
-                      onChange={handleChange}
-                      required
-                      className="h-12 w-full rounded-md border px-4 focus:ring-2 focus:ring-gray-400"
-                      placeholder="Your Salon Name"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="flex items-center gap-2 text-gray-600 text-sm font-medium">
-                      <Phone className="h-4 w-4" /> Contact Number
-                    </label>
-                    <input
-                      name="contact_number"
-                      value={formData.contact_number}
-                      onChange={handleChange}
-                      required
-                      className="h-12 w-full rounded-md border px-4 focus:ring-2 focus:ring-gray-400"
-                      placeholder="Phone Number"
-                    />
-                  </div>
+              <div>
+                <label
+                  htmlFor="confirmPassword"
+                  className="block text-xs font-medium text-gray-700 mb-1"
+                >
+                  Confirm Password
+                </label>
+                <div className="relative">
+                  <input
+                    id="confirmPassword"
+                    type={showConfirmPassword ? "text" : "password"}
+                    name="confirmPassword"
+                    value={formData.confirmPassword}
+                    onChange={handleChange}
+                    required
+                    className={`w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-500 focus:border-gray-500 transition-colors pr-10 text-sm ${
+                      formData.confirmPassword && formData.password !== formData.confirmPassword
+                        ? 'border-red-300 focus:ring-red-400'
+                        : formData.confirmPassword && formData.password === formData.confirmPassword
+                        ? 'border-green-300 focus:ring-green-400'
+                        : ''
+                    }`}
+                    placeholder="Confirm your password"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
+                  >
+                    {showConfirmPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </button>
                 </div>
-                
-                <div className="space-y-2">
-                  <label className="flex items-center gap-2 text-gray-600 text-sm font-medium">
-                    <Home className="h-4 w-4" /> Address
+                {/* Password match indicator */}
+                {formData.confirmPassword && (
+                  <div className="flex items-center gap-1 text-xs mt-1">
+                    {formData.password === formData.confirmPassword ? (
+                      <>
+                        <span className="text-green-600">✓</span>
+                        <span className="text-green-600">Passwords match</span>
+                      </>
+                    ) : (
+                      <>
+                        <span className="text-red-600">✗</span>
+                        <span className="text-red-600">Passwords don't match</span>
+                      </>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Salon Information Section */}
+            <div className="border-b border-gray-200 pb-4">
+              <h3 className="text-sm font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                <div className="w-5 h-5 bg-gray-700 rounded-full flex items-center justify-center">
+                  <span className="text-white text-xs font-bold">2</span>
+                </div>
+                Salon Information
+              </h3>
+              
+              <div className="space-y-4">
+                <div>
+                  <label
+                    htmlFor="salon_name"
+                    className="block text-xs font-medium text-gray-700 mb-1"
+                  >
+                    Salon Name
                   </label>
                   <input
+                    id="salon_name"
+                    type="text"
+                    name="salon_name"
+                    value={formData.salon_name}
+                    onChange={handleChange}
+                    required
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-500 focus:border-gray-500 transition-colors text-sm"
+                    placeholder="Enter your salon name"
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="contact_number"
+                    className="block text-xs font-medium text-gray-700 mb-1"
+                  >
+                    Contact Number
+                  </label>
+                  <input
+                    id="contact_number"
+                    type="tel"
+                    name="contact_number"
+                    value={formData.contact_number}
+                    onChange={handleChange}
+                    required
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-500 focus:border-gray-500 transition-colors text-sm"
+                    placeholder="Enter your phone number"
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="salon_address"
+                    className="block text-xs font-medium text-gray-700 mb-1"
+                  >
+                    Salon Address
+                  </label>
+                  <input
+                    id="salon_address"
+                    type="text"
                     name="salon_address"
                     value={formData.salon_address}
                     onChange={handleChange}
                     required
-                    className="h-12 w-full rounded-md border px-4 focus:ring-2 focus:ring-gray-400"
-                    placeholder="Full address of your salon"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-500 focus:border-gray-500 transition-colors text-sm"
+                    placeholder="Enter your salon address"
                   />
                 </div>
-                
-                <div className="space-y-2">
-                  <label className="flex items-center gap-2 text-gray-600 text-sm font-medium">
-                    <FileText className="h-4 w-4" /> Description (Optional)
+
+                <div>
+                  <label
+                    htmlFor="salon_description"
+                    className="block text-xs font-medium text-gray-700 mb-1"
+                  >
+                    Description (Optional)
                   </label>
                   <textarea
+                    id="salon_description"
                     name="salon_description"
                     value={formData.salon_description}
                     onChange={handleChange}
-                    className="min-h-[100px] w-full rounded-md border px-4 py-3 focus:ring-2 focus:ring-gray-400 resize-none"
-                    placeholder="Describe your salon services, specialties, and unique offerings... (Optional)"
+                    rows={3}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-gray-500 focus:border-gray-500 transition-colors text-sm resize-none"
+                    placeholder="Describe your salon services and specialties (optional)"
                   />
                 </div>
               </div>
+            </div>
 
-              {/* Location Picker */}
-              <div className="space-y-4">
-                <h3 className="text-base md:text-lg font-semibold text-gray-800 flex items-center gap-2 pb-2 border-b border-gray-200">
-                  <div className="w-6 h-6 bg-gray-700 rounded-full flex items-center justify-center">
-                    <span className="text-white text-xs font-bold">3</span>
-                  </div>
-                  Location
-                </h3>
-
-                <div className="bg-gray-50 p-4 rounded-lg text-sm mb-3">
-                  <p className="text-gray-600 flex items-start">
-                    <MapPin className="h-4 w-4 inline mr-2 mt-0.5 flex-shrink-0" />
-                    <span>Click on the map to set your salon's exact location. This helps customers find you easily.</span>
-                  </p>
+            {/* Location Section */}
+            <div className="pb-4">
+              <h3 className="text-sm font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                <div className="w-5 h-5 bg-gray-700 rounded-full flex items-center justify-center">
+                  <span className="text-white text-xs font-bold">3</span>
                 </div>
+                Location
+              </h3>
 
-                <div className="h-64 sm:h-80 rounded-xl overflow-hidden border-2 border-gray-200 shadow-md">
-                  <GoogleMap
-                    mapContainerStyle={containerStyle}
-                    center={{
-                      lat: formData.location.latitude,
-                      lng: formData.location.longitude,
-                    }}
-                    zoom={14}
-                    onClick={onMapClick}
-                    onLoad={onMapLoad}
-                    options={{
-                      mapId: import.meta.env.VITE_GOOGLE_MAP_ID,
-                      streetViewControl: false,
-                      mapTypeControl: false,
-                      fullscreenControl: false,
-                    }}
-                  />
-                </div>
-
-                <div className="bg-blue-50 p-4 rounded-lg border border-blue-100">
-                  <p className="font-medium text-gray-700 flex items-center">
-                    <MapPin className="h-5 w-5 mr-2 text-blue-500" />
-                    Selected Location: ({formData.location.latitude.toFixed(4)},{" "}
-                    {formData.location.longitude.toFixed(4)})
-                  </p>
-                </div>
+              <div className="bg-gray-50 p-3 rounded-md text-xs mb-3">
+                <p className="text-gray-600 flex items-start">
+                  <MapPin className="h-4 w-4 inline mr-2 mt-0.5 flex-shrink-0" />
+                  <span>Click on the map to set your salon's exact location. This helps customers find you easily.</span>
+                </p>
               </div>
 
-              {error && (
-                <div className={`border p-4 rounded-xl shadow-sm ${
-                  error.type === 'validation' ? 'bg-orange-50 border-orange-200' :
-                  error.type === 'conflict' ? 'bg-yellow-50 border-yellow-200' :
-                  error.type === 'network' ? 'bg-blue-50 border-blue-200' :
-                  error.type === 'server' ? 'bg-purple-50 border-purple-200' :
-                  'bg-red-50 border-red-200'
-                }`}>
-                  <div className="flex items-start space-x-3">
-                    <div className="text-2xl flex-shrink-0 mt-0.5">
-                      {error.icon}
-                    </div>
-                    <div className="flex-1">
-                      <h4 className={`font-semibold text-sm mb-1 ${
-                        error.type === 'validation' ? 'text-orange-800' :
-                        error.type === 'conflict' ? 'text-yellow-800' :
-                        error.type === 'network' ? 'text-blue-800' :
-                        error.type === 'server' ? 'text-purple-800' :
-                        'text-red-800'
-                      }`}>
-                        {error.title}
-                      </h4>
-                      <p className={`text-sm ${
-                        error.type === 'validation' ? 'text-orange-600' :
-                        error.type === 'conflict' ? 'text-yellow-600' :
-                        error.type === 'network' ? 'text-blue-600' :
-                        error.type === 'server' ? 'text-purple-600' :
-                        'text-red-600'
-                      }`}>
-                        {error.message}
-                      </p>
-                      {error.action && (
-                        <button
-                          onClick={() => navigate('/login')}
-                          className={`mt-2 px-3 py-1 text-xs font-medium rounded-md transition-colors ${
-                            error.type === 'conflict' 
-                              ? 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200'
-                              : 'bg-blue-100 text-blue-800 hover:bg-blue-200'
-                          }`}
-                        >
-                          {error.action} →
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                </div>
+              <div className="h-48 rounded-md overflow-hidden border border-gray-300 shadow-sm mb-3">
+                <GoogleMap
+                  mapContainerStyle={containerStyle}
+                  center={{
+                    lat: formData.location.latitude,
+                    lng: formData.location.longitude,
+                  }}
+                  zoom={14}
+                  onClick={onMapClick}
+                  onLoad={onMapLoad}
+                  options={{
+                    mapId: import.meta.env.VITE_GOOGLE_MAP_ID,
+                    streetViewControl: false,
+                    mapTypeControl: false,
+                    fullscreenControl: false,
+                  }}
+                />
+              </div>
+
+              <div className="bg-blue-50 p-3 rounded-md border border-blue-100">
+                <p className="text-xs text-gray-700 flex items-center">
+                  <MapPin className="h-4 w-4 mr-2 text-blue-500" />
+                  Selected Location: ({formData.location.latitude.toFixed(4)},{" "}
+                  {formData.location.longitude.toFixed(4)})
+                </p>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-gray-900 text-white py-2 px-4 rounded-md 
+               hover:bg-gray-800 
+               focus:ring-2 focus:ring-gray-800 focus:ring-offset-1
+               transition-all duration-200 font-medium text-sm
+               disabled:opacity-50 disabled:cursor-not-allowed 
+               flex items-center justify-center space-x-2 mt-2"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <span>Creating Salon Account...</span>
+                </>
+              ) : (
+                <span>Register My Salon</span>
               )}
+            </button>
+          </form>
 
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full h-12 bg-gradient-to-r from-gray-700 to-gray-600 text-white font-medium rounded-md flex justify-center items-center hover:from-gray-800 hover:to-gray-700 transition-all"
-              >
-                {loading ? (
-                  <>
-                    <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full mr-2"></div>
-                    Registering...
-                  </>
-                ) : (
-                  <>
-                    <Store className="mr-2 h-5 w-5" /> Register My Salon
-                  </>
-                )}
-              </button>
-            </form>
+          <div className="mt-5">
+            <p className="text-center text-xs text-gray-600">
+              Already have an account?{" "}
+              <a href="/login" className="font-medium text-gray-900 hover:underline">
+                Sign in now
+              </a>
+            </p>
+
+            <div className="mt-2 flex items-center justify-center">
+              <a href="/signup" className="text-xs font-medium text-gray-900 hover:underline flex items-center">
+                <span>Register as customer instead</span>
+              </a>
+            </div>
           </div>
         </div>
       </div>
