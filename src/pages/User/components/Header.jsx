@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
-import { ProtectedAPI } from '../../../utils/api';
+import { supabase } from '../../../utils/supabaseClient';
 
 const Header = () => {
   const [user, setUser] = useState(null);
+  const [userRole, setUserRole] = useState(null);
   const [loading, setLoading] = useState(true);
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
@@ -19,31 +20,80 @@ const Header = () => {
   };
 
   useEffect(() => {
-    const fetchUser = async () => {
+    const getUser = async () => {
       try {
-        const res = await ProtectedAPI.get('/auth/me');
-        setUser(res.data);
-      } catch (err) {
-        setUser(false);
-        console.error('Failed to fetch user', err);
+        // Get current session from Supabase
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error('Error getting session:', error);
+          setUser(null);
+          setUserRole(null);
+        } else if (session?.user) {
+          setUser(session.user);
+          
+          // Get user role from localStorage or user metadata
+          const role = session.user.user_metadata?.role || 
+                      session.user.app_metadata?.role || 
+                      localStorage.getItem('user_role') || 
+                      'customer';
+          setUserRole(role);
+        } else {
+          setUser(null);
+          setUserRole(null);
+        }
+      } catch (error) {
+        console.error('Error in getUser:', error);
+        setUser(null);
+        setUserRole(null);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
 
-    const token = localStorage.getItem('access_token');
-    if (token) {
-      fetchUser();
-    } else {
-      setUser(false);
+    getUser();
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_OUT' || !session) {
+        setUser(null);
+        setUserRole(null);
+        localStorage.removeItem('user_role');
+      } else if (session?.user) {
+        setUser(session.user);
+        const role = session.user.user_metadata?.role || 
+                    session.user.app_metadata?.role || 
+                    localStorage.getItem('user_role') || 
+                    'customer';
+        setUserRole(role);
+      }
       setLoading(false);
-    }
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
-  const handleLogout = () => {
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('user_role');
-    setUser(false);
-    navigate('/');
+  const handleLogout = async () => {
+    try {
+      // Sign out from Supabase
+      const { error } = await supabase.auth.signOut();
+      
+      if (error) {
+        console.error('Error signing out:', error);
+      }
+      
+      // Clear localStorage
+      localStorage.removeItem('user_role');
+      
+      // Reset user state
+      setUser(null);
+      setUserRole(null);
+      
+      // Navigate to home
+      navigate('/');
+    } catch (error) {
+      console.error('Error in handleLogout:', error);
+    }
   };
 
   return (
@@ -73,7 +123,7 @@ const Header = () => {
             <span className="relative z-10">Home</span>
             <div className="absolute inset-0 bg-gradient-to-r from-blue-400/20 to-purple-400/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           </Link>
-          {user?.role === 'customer' && (
+          {userRole === 'customer' && (
             <Link 
               to="/my-bookings" 
               className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 relative overflow-hidden group ${
@@ -108,7 +158,12 @@ const Header = () => {
             <span className="relative z-10">Register as a Salon</span>
             <div className="absolute inset-0 bg-gradient-to-r from-pink-400/20 to-purple-400/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           </Link>
-          {!loading && user === false && (
+          {loading ? (
+            <div className="flex items-center space-x-2">
+              <div className="animate-spin h-4 w-4 border-b-2 border-white rounded-full"></div>
+              <span className="text-gray-300 text-xs">Loading...</span>
+            </div>
+          ) : !user ? (
             <>
               <Link
                 to="/login"
@@ -123,15 +178,14 @@ const Header = () => {
                 Sign Up
               </Link>
             </>
-          )}
-          {user?.email && (
+          ) : (
             <div className="flex items-center space-x-4 text-sm">
               <div
                 className="flex flex-col items-center cursor-pointer group"
                 onClick={() => navigate('/profile')}
               >
                 <img
-                  src="https://www.w3schools.com/howto/img_avatar.png"
+                  src={user.user_metadata?.avatar_url || "https://www.w3schools.com/howto/img_avatar.png"}
                   alt="profile"
                   className="w-9 h-9 rounded-full border-2 border-white group-hover:scale-105 transition"
                 />
@@ -139,7 +193,8 @@ const Header = () => {
               </div>
               <button
                 onClick={handleLogout}
-                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all duration-300 transform hover:scale-105 hover:shadow-lg"
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all duration-300 transform hover:scale-105 hover:shadow-lg disabled:opacity-50"
+                disabled={loading}
               >
                 Logout
               </button>
@@ -186,7 +241,7 @@ const Header = () => {
             <span className="relative z-10">Home</span>
             <div className="absolute inset-0 bg-gradient-to-r from-blue-400/20 to-purple-400/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           </Link>
-          {user?.role === 'customer' && (
+          {userRole === 'customer' && (
             <Link 
               to="/my-bookings" 
               className={`block px-4 py-3 rounded-lg font-medium transition-all duration-300 relative overflow-hidden group ${
@@ -213,7 +268,12 @@ const Header = () => {
             <div className="absolute inset-0 bg-gradient-to-r from-purple-400/20 to-pink-400/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           </Link>
           
-          {!loading && user === false && (
+          {loading ? (
+            <div className="flex items-center justify-center gap-2 px-4 py-3">
+              <div className="animate-spin h-4 w-4 border-b-2 border-white rounded-full"></div>
+              <span className="text-gray-300 text-sm">Loading...</span>
+            </div>
+          ) : !user ? (
             <>
               <Link
                 to="/login"
@@ -230,8 +290,7 @@ const Header = () => {
                 Sign Up
               </Link>
             </>
-          )}
-          {user?.email && (
+          ) : (
             <>
               <div 
                 className="flex items-center gap-3 cursor-pointer hover:bg-white/10 px-4 py-3 rounded-lg transition-all duration-300 group"
@@ -241,7 +300,7 @@ const Header = () => {
                 }}
               >
                 <img
-                  src="https://www.w3schools.com/howto/img_avatar.png"
+                  src={user.user_metadata?.avatar_url || "https://www.w3schools.com/howto/img_avatar.png"}
                   alt="profile"
                   className="w-9 h-9 rounded-full border-2 border-white group-hover:scale-105 transition-transform duration-300"
                 />
@@ -255,7 +314,8 @@ const Header = () => {
                   handleLogout();
                   setMenuOpen(false);
                 }}
-                className="block w-full px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all duration-300 transform hover:scale-105 hover:shadow-lg text-center"
+                className="block w-full px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all duration-300 transform hover:scale-105 hover:shadow-lg text-center disabled:opacity-50"
+                disabled={loading}
               >
                 Logout
               </button>

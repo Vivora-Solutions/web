@@ -10,7 +10,9 @@ import {
   Sparkles,
   Phone,
   FileText,
-  Home
+  Home,
+  Eye,
+  EyeOff
 } from "lucide-react";
 import { PublicAPI } from "../../utils/api";
 import { useGoogleMapsLoader } from "../../utils/googleMapsLoader";
@@ -47,6 +49,8 @@ const RegisterSalon = () => {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const mapRef = useRef(null);
   const markerRef = useRef(null);
 
@@ -355,35 +359,61 @@ const RegisterSalon = () => {
                     <label className="flex items-center gap-2 text-gray-600 text-sm font-medium">
                       <Lock className="h-4 w-4" /> Password
                     </label>
-                    <input
-                      type="password"
-                      name="password"
-                      value={formData.password}
-                      onChange={handleChange}
-                      required
-                      className="h-12 w-full rounded-md border px-4 focus:ring-2 focus:ring-gray-400"
-                      placeholder="Create a strong password"
-                    />
+                    <div className="relative">
+                      <input
+                        type={showPassword ? "text" : "password"}
+                        name="password"
+                        value={formData.password}
+                        onChange={handleChange}
+                        required
+                        className="h-12 w-full rounded-md border px-4 pr-12 focus:ring-2 focus:ring-gray-400"
+                        placeholder="Create a strong password"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
+                      >
+                        {showPassword ? (
+                          <EyeOff className="h-5 w-5" />
+                        ) : (
+                          <Eye className="h-5 w-5" />
+                        )}
+                      </button>
+                    </div>
                   </div>
                   <div className="space-y-2">
                     <label className="flex items-center gap-2 text-gray-600 text-sm font-medium">
                       <Lock className="h-4 w-4" /> Confirm Password
                     </label>
-                    <input
-                      type="password"
-                      name="confirmPassword"
-                      value={formData.confirmPassword}
-                      onChange={handleChange}
-                      required
-                      className={`h-12 w-full rounded-md border px-4 focus:ring-2 focus:ring-gray-400 ${
-                        formData.confirmPassword && formData.password !== formData.confirmPassword
-                          ? 'border-red-300 focus:ring-red-400'
-                          : formData.confirmPassword && formData.password === formData.confirmPassword
-                          ? 'border-green-300 focus:ring-green-400'
-                          : ''
-                      }`}
-                      placeholder="Confirm your password"
-                    />
+                    <div className="relative">
+                      <input
+                        type={showConfirmPassword ? "text" : "password"}
+                        name="confirmPassword"
+                        value={formData.confirmPassword}
+                        onChange={handleChange}
+                        required
+                        className={`h-12 w-full rounded-md border px-4 pr-12 focus:ring-2 focus:ring-gray-400 ${
+                          formData.confirmPassword && formData.password !== formData.confirmPassword
+                            ? 'border-red-300 focus:ring-red-400'
+                            : formData.confirmPassword && formData.password === formData.confirmPassword
+                            ? 'border-green-300 focus:ring-green-400'
+                            : ''
+                        }`}
+                        placeholder="Confirm your password"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                        className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
+                      >
+                        {showConfirmPassword ? (
+                          <EyeOff className="h-5 w-5" />
+                        ) : (
+                          <Eye className="h-5 w-5" />
+                        )}
+                      </button>
+                    </div>
                     {/* Password match indicator */}
                     {formData.confirmPassword && (
                       <div className="flex items-center gap-1 text-xs">

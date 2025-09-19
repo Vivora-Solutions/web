@@ -2,40 +2,88 @@
 
 // src/components/ProtectedRoute.jsx
 import { Navigate, Outlet } from 'react-router-dom';
-import { jwtDecode } from 'jwt-decode';
+import { useState, useEffect } from 'react';
+import { supabase } from '../utils/supabaseClient';
 
 const ProtectedRoute = ({ allowedRoles }) => {
-  const token = localStorage.getItem('access_token');
-  const role = localStorage.getItem('user_role');
+  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(null);
+  const [userRole, setUserRole] = useState(null);
 
-  // No token → redirect to login
-  if (!token) {
-    return <Navigate to="/login" replace />;
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        // Get current session from Supabase
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error('Error getting session:', error);
+          setLoading(false);
+          return;
+        }
+
+        if (session?.user) {
+          setUser(session.user);
+          
+          const storedRole = localStorage.getItem('user_role');
+          console.log('Stored role from localStorage:', storedRole);
+          
+          setUserRole( storedRole );
+        }
+      } catch (error) {
+        console.error('Error in auth check:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkAuth();
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_OUT' || !session) {
+        setUser(null);
+        setUserRole(null);
+        localStorage.removeItem('user_role');
+      } else if (session?.user) {
+        setUser(session.user);
+        // const role = session.user.user_metadata?.role || 
+        //             session.user.app_metadata?.role || 
+        //             localStorage.getItem('user_role') || 
+        //             'customer';
+        const role = localStorage.getItem('user_role')
+        setUserRole(role);
+        console.log('Auth state changed - User role:', role);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  // Show loading while checking authentication
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="animate-spin h-12 w-12 border-b-2 border-indigo-600 rounded-full"></div>
+      </div>
+    );
   }
 
-  // Decode token and check expiry
-  try {
-    const decoded = jwtDecode(token);
-    //console.log('Decoded token:', decoded);
-    if (decoded.exp * 1000 < Date.now()) {
-      localStorage.removeItem('access_token');
-      localStorage.removeItem('user_role');
-      return <Navigate to="/login" replace />;
-    }
-  } catch (err) {
-    // Invalid token
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('user_role');
+  // No user → redirect to login
+  if (!user) {
     return <Navigate to="/login" replace />;
   }
 
   // Role not allowed → redirect accordingly
-  if (!allowedRoles.includes(role)) {
-    if (role === 'salon_admin') return <Navigate to="/admin" replace />;
-    if (role === 'super_admin') return <Navigate to="/super-admin" replace />;
-    if (role === 'customer') return <Navigate to="/" replace />;
+  if (allowedRoles && !allowedRoles.includes(userRole)) {
+    //console.log('Role not allowed. User role:', userRole, 'Allowed roles:', allowedRoles);
+    if (userRole === 'salon_admin') return <Navigate to="/admin/salon-info" replace />;
+    if (userRole === 'super_admin') return <Navigate to="/super-admin" replace />;
+    if (userRole === 'customer') return <Navigate to="/" replace />;
     return <Navigate to="/login" replace />;
   }
+  
+  //console.log('Access granted. User role:', userRole, 'Allowed roles:', allowedRoles);
 
   // Pass through
   return <Outlet />;

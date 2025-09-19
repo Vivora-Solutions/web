@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ProtectedAPI } from '../../../utils/api';
+import { supabase } from '../../../utils/supabaseClient';
 
 const Header = () => {
   const [user, setUser] = useState(null);
@@ -9,31 +9,63 @@ const Header = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchUser = async () => {
+    const getUser = async () => {
       try {
-        const res = await ProtectedAPI.get('/auth/me');
-        setUser(res.data);
-      } catch (err) {
-        setUser(false);
-        console.error('Failed to fetch user', err);
+        // Get current session from Supabase
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error('Error getting session:', error);
+          setUser(null);
+        } else if (session?.user) {
+          setUser(session.user);
+        } else {
+          setUser(null);
+        }
+      } catch (error) {
+        console.error('Error in getUser:', error);
+        setUser(null);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
 
-    const token = localStorage.getItem('access_token');
-    if (token) {
-      fetchUser();
-    } else {
-      setUser(false);
+    getUser();
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_OUT' || !session) {
+        setUser(null);
+        localStorage.removeItem('user_role');
+      } else if (session?.user) {
+        setUser(session.user);
+      }
       setLoading(false);
-    }
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
-  const handleLogout = () => {
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('user_role');
-    setUser(false);
-    navigate('/');
+  const handleLogout = async () => {
+    try {
+      // Sign out from Supabase
+      const { error } = await supabase.auth.signOut();
+      
+      if (error) {
+        console.error('Error signing out:', error);
+      }
+      
+      // Clear localStorage
+      localStorage.removeItem('user_role');
+      
+      // Reset user state
+      setUser(null);
+      
+      // Navigate to home
+      navigate('/');
+    } catch (error) {
+      console.error('Error in handleLogout:', error);
+    }
   };
 
   return (
@@ -55,11 +87,16 @@ const Header = () => {
 
       {/* Desktop Navigation */}
       <nav className="hidden md:flex gap-6 items-center text-sm sm:text-base">
-        {user?.email && (
+        {loading ? (
+          <div className="flex items-center space-x-2">
+            <div className="animate-spin h-4 w-4 border-b-2 border-white rounded-full"></div>
+            <span className="text-gray-300 text-xs">Loading...</span>
+          </div>
+        ) : user ? (
           <div className="flex items-center space-x-4 text-sm">
             <div className="flex flex-col items-center cursor-pointer group">
               <img
-                src="https://www.w3schools.com/howto/img_avatar.png"
+                src={user.user_metadata?.avatar_url || "https://www.w3schools.com/howto/img_avatar.png"}
                 alt="profile"
                 className="w-9 h-9 rounded-full border-2 border-white group-hover:scale-105 transition"
               />
@@ -69,22 +106,34 @@ const Header = () => {
             </div>
             <button
               onClick={handleLogout}
-              className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 transition"
+              className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 transition disabled:opacity-50"
+              disabled={loading}
             >
               Logout
             </button>
+          </div>
+        ) : (
+          <div className="flex items-center space-x-2">
+            <Link
+              to="/login"
+              className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+            >
+              Login
+            </Link>
           </div>
         )}
       </nav>
 
       {/* Mobile Navigation */}
       <nav className="flex md:hidden items-center gap-3">
-        {user?.email && (
+        {loading ? (
+          <div className="animate-spin h-4 w-4 border-b-2 border-white rounded-full"></div>
+        ) : user ? (
           <div className="flex items-center space-x-3">
             {/* Profile + email */}
             <div className="flex flex-col items-center cursor-pointer">
               <img
-                src="https://www.w3schools.com/howto/img_avatar.png"
+                src={user.user_metadata?.avatar_url || "https://www.w3schools.com/howto/img_avatar.png"}
                 alt="profile"
                 className="w-8 h-8 rounded-full border border-white"
               />
@@ -93,11 +142,19 @@ const Header = () => {
             {/* Logout button */}
             <button
               onClick={handleLogout}
-              className="px-2 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700"
+              className="px-2 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700 disabled:opacity-50"
+              disabled={loading}
             >
               Logout
             </button>
           </div>
+        ) : (
+          <Link
+            to="/login"
+            className="px-2 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700"
+          >
+            Login
+          </Link>
         )}
       </nav>
     </div>
