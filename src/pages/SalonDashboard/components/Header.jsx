@@ -94,6 +94,7 @@ const Header = () => {
           </div>
         ) : user ? (
           <div className="flex items-center space-x-4 text-sm">
+            <a href='/admin'>
             <div className="flex flex-col items-center cursor-pointer group">
               <img
                 src={user.user_metadata?.avatar_url || "https://www.w3schools.com/howto/img_avatar.png"}
@@ -104,6 +105,7 @@ const Header = () => {
                 {user.email}
               </p>
             </div>
+          </a>
             <button
               onClick={handleLogout}
               className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 transition disabled:opacity-50"
