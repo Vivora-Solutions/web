@@ -1,117 +1,164 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ProtectedAPI } from '../../../utils/api';
+import { supabase } from '../../../utils/supabaseClient';
 
 const Header = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchUser = async () => {
+    const getUser = async () => {
       try {
-        const res = await ProtectedAPI.get('/auth/me');
-        setUser(res.data);
-      } catch (err) {
-        setUser(false);
-        console.error('Failed to fetch user', err);
+        // Get current session from Supabase
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error('Error getting session:', error);
+          setUser(null);
+        } else if (session?.user) {
+          setUser(session.user);
+        } else {
+          setUser(null);
+        }
+      } catch (error) {
+        console.error('Error in getUser:', error);
+        setUser(null);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
 
-    const token = localStorage.getItem('access_token');
-    if (token) {
-      fetchUser();
-    } else {
-      setUser(false);
+    getUser();
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_OUT' || !session) {
+        setUser(null);
+        localStorage.removeItem('user_role');
+      } else if (session?.user) {
+        setUser(session.user);
+      }
       setLoading(false);
-    }
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
-  const handleLogout = () => {
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('user_role'); 
-    setUser(false);
-    navigate('/login');
+  const handleLogout = async () => {
+    try {
+      // Sign out from Supabase
+      const { error } = await supabase.auth.signOut();
+      
+      if (error) {
+        console.error('Error signing out:', error);
+      }
+      
+      // Clear localStorage
+      localStorage.removeItem('user_role');
+      
+      // Reset user state
+      setUser(null);
+      
+      // Navigate to home
+      navigate('/');
+    } catch (error) {
+      console.error('Error in handleLogout:', error);
+    }
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-white shadow-md px-6 py-4 flex justify-between items-center w-full">
+   <header className="fixed top-0 left-0 bg-gradient-to-r from-gray-800 via-gray-700 to-gray-600 shadow-md w-full z-50 animate-slide-down">
+    <div className="px-4 sm:px-6 py-2 flex justify-between items-center">
       {/* Logo */}
-      <Link to="/" className="flex items-center">
-        {/* <h1
-          className="font-bold text-[2.5rem] leading-none select-none"
-          style={{
-            fontFamily: '"Italiana", sans-serif',
-            background: 'linear-gradient(to right, #0e12e2, #19cef7, #487bff, #654dad, #08c37e)',
-            backgroundSize: '200%',
-            backgroundClip: 'text',
-            WebkitBackgroundClip: 'text',
-            color: 'transparent',
-            WebkitTextFillColor: 'transparent',
-            animation: 'animate-gradient 2.5s linear infinite'
-          }}
-        >
-          VIVORA
-        </h1> */}
-        <img 
-          src="logo.png"
-          alt="Logo"
-          className="w-12 h-12 rounded-full"
+      <Link
+        to="/"
+        className="flex items-center ml-12 md:ml-0" // 👈 pushes logo right in mobile, resets in desktop
+      >
+        <img
+          src="/weblogo-white.png"
+          alt="Vivora Logo"
+          className="h-12 w-auto sm:h-16 object-contain"
+          style={{ maxWidth: "200px" }}
         />
       </Link>
 
-      {/* Navigation */}
-      <nav className="flex-1 flex justify-end items-center">
-        
 
-        {/* Right section: Auth and Profile */}
-        <div className="flex items-center space-x-4 ml-6">
-          {loading ? (
-            <div className="w-6 h-6 bg-gray-200 rounded-full animate-pulse"></div>
-          ) : user === false ? (
-            <div className="flex items-center space-x-2">
-              <Link to="/login" className="px-4 py-2 text-blue-600 hover:text-blue-800 font-medium">Login</Link>
-              <Link to="/salon-register" className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition font-medium">Sign Up</Link>
+      {/* Desktop Navigation */}
+      <nav className="hidden md:flex gap-6 items-center text-sm sm:text-base">
+        {loading ? (
+          <div className="flex items-center space-x-2">
+            <div className="animate-spin h-4 w-4 border-b-2 border-white rounded-full"></div>
+            <span className="text-gray-300 text-xs">Loading...</span>
+          </div>
+        ) : user ? (
+          <div className="flex items-center space-x-4 text-sm">
+            <div className="flex flex-col items-center cursor-pointer group">
+              <img
+                src={user.user_metadata?.avatar_url || "https://www.w3schools.com/howto/img_avatar.png"}
+                alt="profile"
+                className="w-9 h-9 rounded-full border-2 border-white group-hover:scale-105 transition"
+              />
+              <p className="text-gray-300 text-xs mt-1 group-hover:underline">
+                {user.email}
+              </p>
             </div>
-          ) : user && user.email ? (
-            <div className="text-sm text-right flex items-center space-x-4">
-              {/* Profile Section */}
-              <div className="flex flex-col items-center cursor-pointer group" onClick={() => navigate('/profile')}>
-                <img
-                  src="https://www.w3schools.com/howto/img_avatar.png"
-                  alt="profile"
-                  className="w-10 h-10 rounded-full border-2 border-blue-500 group-hover:scale-105 transition"
-                />
-                <p className="text-gray-600 text-xs mt-1 group-hover:underline">{user.email}</p>
-              </div>
-
-              {/* Logout */}
-              <button
-                onClick={handleLogout}
-                className="text-sm text-red-500 hover:text-red-700"
-              >
-                Logout
-              </button>
-            </div>
-          ) : (
-            <div className="w-6 h-6 bg-gray-200 rounded-full animate-pulse"></div>
-          )}
-        </div>
+            <button
+              onClick={handleLogout}
+              className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 transition disabled:opacity-50"
+              disabled={loading}
+            >
+              Logout
+            </button>
+          </div>
+        ) : (
+          <div className="flex items-center space-x-2">
+            <Link
+              to="/login"
+              className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+            >
+              Login
+            </Link>
+          </div>
+        )}
       </nav>
 
-      {/* Styles */}
-      <style>
-        {`
-          @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Italiana&family=Outfit:wght@100..900&display=swap');
-          @keyframes animate-gradient {
-            to {
-              background-position: 200%;
-            }
-          }
-        `}
-      </style>
-    </header>
+      {/* Mobile Navigation */}
+      <nav className="flex md:hidden items-center gap-3">
+        {loading ? (
+          <div className="animate-spin h-4 w-4 border-b-2 border-white rounded-full"></div>
+        ) : user ? (
+          <div className="flex items-center space-x-3">
+            {/* Profile + email */}
+            <div className="flex flex-col items-center cursor-pointer">
+              <img
+                src={user.user_metadata?.avatar_url || "https://www.w3schools.com/howto/img_avatar.png"}
+                alt="profile"
+                className="w-8 h-8 rounded-full border border-white"
+              />
+              <p className="text-gray-300 text-[10px] mt-1">{user.email}</p>
+            </div>
+            {/* Logout button */}
+            <button
+              onClick={handleLogout}
+              className="px-2 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700 disabled:opacity-50"
+              disabled={loading}
+            >
+              Logout
+            </button>
+          </div>
+        ) : (
+          <Link
+            to="/login"
+            className="px-2 py-1 bg-blue-600 text-white text-xs rounded hover:bg-blue-700"
+          >
+            Login
+          </Link>
+        )}
+      </nav>
+    </div>
+  </header>
   );
 };
 
