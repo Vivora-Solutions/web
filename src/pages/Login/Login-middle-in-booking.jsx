@@ -79,7 +79,7 @@ export default function Login() {
             } else if (role === "customer") {
               window.location.replace("/");
             } else {
-              setError("Invalid user role. Please contact support.");
+              setError("Invalid user role. Please contact support.hjgsahgj");
               setErrorType("error");
               setLoading(false);
             }
@@ -165,7 +165,7 @@ export default function Login() {
       } else if (role === "customer") {
         window.location.replace("/");
       } else {
-        setError("Invalid user role. Please contact support.");
+        setError("Invalid user role. Please contact support.kkkkkk");
         setErrorType("error");
       }
     } catch (error) {
