@@ -3,10 +3,12 @@ import { supabase } from "../utils/supabaseClient";
 
 const OAuthCallback = () => {
   const hasRedirected = useRef(false);
+  const isProcessing = useRef(false);
 
   useEffect(() => {
     const handleOAuthCallback = async () => {
-      if (hasRedirected.current) return;
+      if (hasRedirected.current || isProcessing.current) return;
+      isProcessing.current = true;
 
       try {
         // Get the current session
@@ -89,9 +91,34 @@ const OAuthCallback = () => {
 
               if (!response.ok) {
                 console.error("Registration failed:", registrationResult);
-                throw new Error(
-                  registrationResult.message || "Auto-registration failed"
-                );
+
+                // Check if it's a duplicate key error or user already exists
+                if (
+                  registrationResult.error &&
+                  (registrationResult.error.includes("duplicate key") ||
+                    registrationResult.error.includes("already registered"))
+                ) {
+                  // User already exists, treat as successful registration
+                  console.log("User already exists, proceeding with login...");
+                  const userRole = "customer";
+                  localStorage.setItem("user_role", userRole);
+
+                  // Redirect based on role
+                  const redirectPath =
+                    localStorage.getItem("redirectAfterLogin");
+
+                  if (redirectPath) {
+                    localStorage.removeItem("redirectAfterLogin");
+                    redirectUser(`/${redirectPath}`);
+                  } else {
+                    redirectUser("/");
+                  }
+                  return;
+                } else {
+                  throw new Error(
+                    registrationResult.message || "Auto-registration failed"
+                  );
+                }
               }
 
               console.log("Auto-registration successful:", registrationResult);
@@ -149,6 +176,8 @@ const OAuthCallback = () => {
       } catch (error) {
         console.error("OAuth callback error:", error);
         redirectToLogin("An error occurred during sign in. Please try again.");
+      } finally {
+        isProcessing.current = false;
       }
     };
 
@@ -158,6 +187,7 @@ const OAuthCallback = () => {
   const redirectToLogin = (errorMessage) => {
     if (hasRedirected.current) return;
     hasRedirected.current = true;
+    isProcessing.current = false;
 
     localStorage.setItem("authError", errorMessage);
     localStorage.setItem("authErrorType", "error");
@@ -167,6 +197,7 @@ const OAuthCallback = () => {
   const redirectUser = (path) => {
     if (hasRedirected.current) return;
     hasRedirected.current = true;
+    isProcessing.current = false;
     window.location.replace(path);
   };
 
